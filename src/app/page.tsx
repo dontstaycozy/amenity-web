@@ -1,103 +1,185 @@
+import type { NextPage } from 'next';
 import Image from "next/image";
+import styles from './index.module.css';
+import { useCallback } from 'react';
+import PageWrapper from './components/PageWrapper';
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+const LoginPage1:NextPage = () => {
+    return (
+        <PageWrapper>
+            <div className={styles.loginPage1}>
+                <div className={styles.loginPage1Child} />
+                <Image className={styles.maskGroupIcon} width={596} height={483} sizes="100vw" alt="" src="/images/login-page-1.png" />
+            </div>
+        </PageWrapper>
+        );
+    };
+
+const LoginPage2:NextPage = () => {
+    return (
+        <div className={styles.loginPage2}>
+            <div className={styles.loginPage2Child} />
+            <Image className={styles.maskGroupIcon} width={1187} height={799} sizes="100vw" alt="" src="/images/login-page-2.png" />
+        </div>);
+    };
+
+const LoginPage3:NextPage = () => {
+    return (
+        <div className={styles.loginPage3}>
+            <div className={styles.loginPage3Child} />
+            <Image className={styles.maskGroupIcon} width={1187} height={970} sizes="100vw" alt="" src="/images/login-page-3.png" />
+        <b className={styles.amenity}>Amenity</b>
+    </div>);
+};
+
+const LoginPage13:NextPage = () => {
+    
+    const onLoginButtonClick = useCallback(() => {
+    // Add your code here
+    }, []);
+    
+    return (
+        <div className={styles.loginPage13}>
+            <div className={styles.loginPage13Child} />
+            <Image className={styles.maskGroupIcon} width={1187} height={970} sizes="100vw" alt="" src="/images/login-page-13.png" />
+            <div className={styles.wrapperLoginButton}>
+                <Image className={styles.loginButtonIcon} width={64} height={55} sizes="100vw" alt="" src="login button.svg" onClick={onLoginButtonClick} />
+            </div>
+            <b className={styles.amenity}>Amenity</b>
+        </div>);
+};
+
+const LoginPage4:NextPage = () => {
+    return (
+        <div className={styles.loginPage4}>
+        <div className={styles.loginPage4Child} />
+        <Image className={styles.maskGroupIcon} width={1921} height={1001} sizes="100vw" alt="" src="/images/login-page-4.png" />
+        <div className={styles.loginPage4Inner}>
+            <div className={styles.usernameParent}>
+                <div className={styles.username}>
+                    <Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                    <div className={styles.emailAdress}>Username</div>
+                </div>
+                <div className={styles.createAcc}>
+                    <Image className={styles.createAccChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                    <div className={styles.createAcccount}>Create Acccount</div>
+                </div>
+                <div className={styles.logIn}>
+                    <Image className={styles.createAccChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                    <div className={styles.logIn1}>Log In</div>
+                </div>
+                <div className={styles.emailAddress}>
+                    <Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                    <div className={styles.emailAdress}>Email Adress</div>
+                </div>
+                <div className={styles.password}>
+                    <Image className={styles.passwordChild} width={320} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                    <div className={styles.emailAdress}>Password</div>
+                </div>
+                <div className={styles.confirmPassword}>
+                    <Image className={styles.passwordChild} width={320} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                    <div className={styles.confirmPassword1}>Confirm Password</div>
+                </div>
+                <div className={styles.or}>
+                    <div className={styles.orChild} />
+                    <div className={styles.orItem} />
+                    <div className={styles.or1}>Or</div>
+                </div>
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
-}
+    </div>);
+};
+const LoginPage5:NextPage = () => {
+  	return (
+    <div className={styles.loginPage5}>
+        <div className={styles.loginPage5Child} />
+        <Image className={styles.maskGroupIcon} width={1921} height={1001} sizes="100vw" alt="" src="/images/login-page-5.png" />
+        <div className={styles.groupParent}>
+                <div className={styles.lineParent}>
+                    <Image className={styles.groupChild} width={668} height={0.6} sizes="100vw" alt="" src="Line 5.svg" />
+                    <div className={styles.alreadyHaveAn}>{`Already have an account? `}</div>
+                </div>
+                <div className={styles.usernameParent}>
+                    <div className={styles.username}>
+                            <Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                            <div className={styles.username1}>Username</div>
+                    </div>
+                    <div className={styles.emailAddress}>
+                            <Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                            <div className={styles.emailAddress1}>Email Address</div>
+                    </div>
+                    <div className={styles.password}>
+                            <Image className={styles.passwordChild} width={320} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                            <div className={styles.username1}>Password</div>
+                    </div>
+                    <div className={styles.confirmPassword}>
+                            <Image className={styles.confirmPasswordChild} width={329} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                            <div className={styles.confirmPassword1}>Confirm Password</div>
+                    </div>
+                </div>
+                <div className={styles.signUp}>Sign Up</div>
+                <div className={styles.loginButton}>
+                    <div className={styles.login}>Login</div>
+                </div>
+        </div>
+        <div className={styles.signUp1}>
+                <div className={styles.signUp2}>
+                    <Image className={styles.signUpChild} width={189} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+                    <div className={styles.signUp3}>Sign Up</div>
+                </div>
+        </div>
+    </div>);
+};
+const LoginPage14:NextPage = () => {
+  	return (
+    		<div className={styles.loginPage14}>
+      			<div className={styles.loginPage14Child} />
+      			<Image className={styles.maskGroupIcon} width={1921} height={1001} sizes="100vw" alt="" src="/images/login-page-14.png" />
+      			<div className={styles.username}>
+        				<div className={styles.emailAddress}>
+          					<Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+          					<div className={styles.username2}>Username</div>
+        				</div>
+        				<Image className={styles.user3FillIcon} width={33} height={34} sizes="100vw" alt="" src="user-3-fill.svg" />
+      			</div>
+      			<div className={styles.rememberMe}>
+        				<div className={styles.rememberMe1}>Remember me</div>
+        				<Image className={styles.vectorIcon} width={22} height={22.8} sizes="100vw" alt="" src="Vector.svg" />
+        				<div className={styles.checkboxBlankLine} />
+      			</div>
+      			<div className={styles.password}>
+        				<div className={styles.emailAddress}>
+          					<Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+          					<div className={styles.password1}>Password</div>
+        				</div>
+        				<Image className={styles.lock2LineIcon} width={36} height={35} sizes="100vw" alt="" src="lock-2-line.svg" />
+        				<Image className={styles.eyeOffFillIcon} width={31} height={28} sizes="100vw" alt="" src="eye-off-fill.svg" />
+      			</div>
+      			<div className={styles.logIn}>Log In</div>
+      			<div className={styles.forgotPassword}>
+        				<div className={styles.forgotPassword1}>Forgot Password?</div>
+          					</div>
+          					<div className={styles.logIn1}>
+            						<div className={styles.logIn2}>
+              							<Image className={styles.logInChild} width={189} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
+              							<div className={styles.logIn3}>Log In</div>
+            						</div>
+          					</div>
+          					<div className={styles.loginButton}>
+            						<div className={styles.signUp}>Sign Up</div>
+          					</div>
+          					<div className={styles.lineParent}>
+            						<Image className={styles.groupChild} width={668} height={0.6} sizes="100vw" alt="" src="Line 5.svg" />
+            						<div className={styles.dontHaveAn}>Don’t have an account?</div>
+              							</div>
+              							</div>);
+            						};
+            						
+export default LoginPage1;
+export { LoginPage2 };
+export { LoginPage3 };
+export { LoginPage13 };
+export { LoginPage4 };
+export { LoginPage5 };
+export { LoginPage14 };
