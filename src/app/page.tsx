@@ -65,7 +65,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
             />
             Remember me
           </label>
-          <span style={{ color: '#fff', fontSize: 15, cursor: 'pointer', textDecoration: 'underline' }}>Forgot Password?</span>
+          <span className={styles.forgotPassword}>Forgot Password?</span>
         </div>
         <div className={styles.divider} />
         <div className={styles.footer}>

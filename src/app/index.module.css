@@ -145,22 +145,6 @@
   	width: 417px;
   	height: 64px;
 }
-.forgotPassword1 {
-  	position: absolute;
-  	top: 0px;
-  	left: 0px;
-  	display: inline-block;
-  	width: 232.6px;
-  	height: 24.8px;
-}
-.forgotPassword {
-  	position: absolute;
-  	top: 579px;
-  	left: 1424px;
-  	width: 232.6px;
-  	height: 24.8px;
-  	font-size: 25px;
-}
 .logInChild {
   	position: absolute;
   	height: 100%;
@@ -293,7 +277,7 @@
   width: 100vw;
   min-height: 100vh;
   background-image: url('/images/login-page-4.png');
-  background-size: cover;
+  background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
   display: flex;
@@ -345,6 +329,7 @@
   margin-bottom: 32px;
   align-self: center;
   text-align: center;
+  font-family: 'Segoe UI Emoji';
 }
 
 .signupForm input {
@@ -359,12 +344,14 @@
   background: #3c507d;
   color: #fff;
   outline: none;
+  font-family: 'Segoe UI Emoji';
 }
 
 .signupForm label {
   color: #fff;
   font-weight: 700;
   font-size: 1.1rem;
+  font-family: 'Segoe UI Emoji';
 }
 
 .signupForm .row {
@@ -395,6 +382,7 @@
 .signupForm .footer span {
   color: #e0c58f;
   font-size: 13px;
+  font-family: 'Segoe UI Emoji';
 }
 
 .signupForm button {
@@ -415,6 +403,14 @@
 .signupForm button:hover {
   background: #e0c58f;
   color: #2c3655;
+}
+
+.signupForm .forgotPassword {
+  font-size: 15px;
+  font-family: 'Segoe UI Emoji';
+  color: #fff;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 @media (max-width: 900px) {
