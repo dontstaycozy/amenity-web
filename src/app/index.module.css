@@ -1,433 +1,463 @@
 .loginPage5 {
-  	width: 100vw;
-  	min-height: 100vh;
-  	position: relative;
-  	overflow: hidden;
-  	background-image: url('/public/images/login-page-5.png');
-  	background-size: cover;
-  	background-repeat: no-repeat;
-  	background-position: center;
-  	text-align: center;
-  	font-size: 20px;
-  	color: #e0c58f;
-  	font-family: 'Segoe UI Historic';
-  	display: flex;
-  	align-items: center;
-  	justify-content: flex-end;
+	width: 90vw;
+	min-height: 100vh;
+	position: relative;
+	overflow: hidden;
+	background-image: url('/public/images/login-page-5.png');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+	text-align: center;
+	font-size: 20px;
+	color: #e0c58f;
+	font-family: 'Segoe UI Historic';
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
 }
+
 .loginPage14Child {
-  	position: absolute;
-  	top: 497px;
-  	left: 0px;
-  	filter: blur(500px);
-  	background: linear-gradient(180deg, #082d48, #071e2d 15.91%, #0a1c2d 32.21%, #0a1b2e 49.52%, #02091d 75.23%, #030c28 76.57%, #000 88.65%);
-  	width: 1921px;
-  	height: 575px;
-  	overflow: hidden;
-  	opacity: 0.97;
+	position: absolute;
+	top: 497px;
+	left: 0px;
+	filter: blur(500px);
+	background: linear-gradient(180deg, #082d48, #071e2d 15.91%, #0a1c2d 32.21%, #0a1b2e 49.52%, #02091d 75.23%, #030c28 76.57%, #000 88.65%);
+	width: 1921px;
+	height: 575px;
+	overflow: hidden;
+	opacity: 0.97;
 }
+
 .maskGroupIcon {
-  	position: absolute;
-  	top: 71px;
-  	left: 0px;
-  	width: 1921px;
-  	height: 1001px;
-  	object-fit: cover;
+	position: absolute;
+	top: 71px;
+	left: 0px;
+	width: 1921px;
+	height: 1001px;
+	object-fit: cover;
 }
+
 .usernameChild {
-  	position: absolute;
-  	top: 0px;
-  	left: 0px;
-  	border-radius: 50px;
-  	width: 668px;
-  	height: 75px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	border-radius: 50px;
+	width: 668px;
+	height: 75px;
 }
+
 .username2 {
-  	position: absolute;
-  	top: 21px;
-  	left: 87px;
+	position: absolute;
+	top: 21px;
+	left: 87px;
 }
+
 .user3FillIcon {
-  	position: absolute;
-  	top: 21px;
-  	left: 24px;
-  	width: 33px;
-  	height: 34px;
-  	overflow: hidden;
+	position: absolute;
+	top: 21px;
+	left: 24px;
+	width: 33px;
+	height: 34px;
+	overflow: hidden;
 }
+
 .username {
-  	position: absolute;
-  	top: 368px;
-  	left: 980px;
-  	width: 668px;
-  	height: 75px;
-  	color: #f5f0e9;
+	position: absolute;
+	top: 368px;
+	left: 980px;
+	width: 668px;
+	height: 75px;
+	color: #f5f0e9;
 }
+
 .rememberMe1 {
-  	position: absolute;
-  	top: 4.92px;
-  	left: 0px;
-  	display: inline-block;
-  	width: 232.6px;
-  	height: 24.8px;
+	position: absolute;
+	top: 4.92px;
+	left: 0px;
+	display: inline-block;
+	width: 232.6px;
+	height: 24.8px;
 }
+
 .vectorIcon {
-  	position: absolute;
-  	height: 73.55%;
-  	width: 9.46%;
-  	top: 13.27%;
-  	right: 88.55%;
-  	bottom: 13.18%;
-  	left: 2%;
-  	max-width: 100%;
-  	overflow: hidden;
-  	max-height: 100%;
+	position: absolute;
+	height: 73.55%;
+	width: 9.46%;
+	top: 13.27%;
+	right: 88.55%;
+	bottom: 13.18%;
+	left: 2%;
+	max-width: 100%;
+	overflow: hidden;
+	max-height: 100%;
 }
+
 .checkboxBlankLine {
-  	position: absolute;
-  	top: 0px;
-  	left: 0.59px;
-  	width: 30px;
-  	height: 31px;
-  	overflow: hidden;
+	position: absolute;
+	top: 0px;
+	left: 0.59px;
+	width: 30px;
+	height: 31px;
+	overflow: hidden;
 }
+
 .rememberMe {
-  	position: absolute;
-  	top: 579px;
-  	left: 1004px;
-  	width: 232.6px;
-  	height: 31px;
-  	font-size: 25px;
+	position: absolute;
+	top: 579px;
+	left: 1004px;
+	width: 232.6px;
+	height: 31px;
+	font-size: 25px;
 }
+
 .password1 {
-  	position: absolute;
-  	top: 21px;
-  	left: 113px;
+	position: absolute;
+	top: 21px;
+	left: 113px;
 }
+
 .emailAddress {
-  	position: absolute;
-  	top: 0px;
-  	left: 0px;
-  	width: 668px;
-  	height: 75px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 668px;
+	height: 75px;
 }
+
 .lock2LineIcon {
-  	position: absolute;
-  	top: 20px;
-  	left: 25px;
-  	width: 36px;
-  	height: 35px;
-  	overflow: hidden;
+	position: absolute;
+	top: 20px;
+	left: 25px;
+	width: 36px;
+	height: 35px;
+	overflow: hidden;
 }
+
 .eyeOffFillIcon {
-  	position: absolute;
-  	top: 24px;
-  	left: 596px;
-  	width: 31px;
-  	height: 28px;
-  	overflow: hidden;
+	position: absolute;
+	top: 24px;
+	left: 596px;
+	width: 31px;
+	height: 28px;
+	overflow: hidden;
 }
+
 .password {
-  	position: absolute;
-  	top: 476px;
-  	left: 980px;
-  	width: 668px;
-  	height: 75px;
-  	color: #f5f0e9;
+	position: absolute;
+	top: 476px;
+	left: 980px;
+	width: 668px;
+	height: 75px;
+	color: #f5f0e9;
 }
+
 .logIn {
-  	position: absolute;
-  	top: 171px;
-  	left: 1114px;
-  	font-size: 80px;
-  	font-family: 'Segoe UI Variable';
-  	display: inline-block;
-  	width: 417px;
-  	height: 64px;
+	position: absolute;
+	top: 171px;
+	left: 1114px;
+	font-size: 80px;
+	font-family: 'Segoe UI Variable';
+	display: inline-block;
+	width: 417px;
+	height: 64px;
 }
+
 .logInChild {
-  	position: absolute;
-  	height: 100%;
-  	width: 100%;
-  	top: 0%;
-  	right: 0%;
-  	bottom: 0%;
-  	left: 0%;
-  	border-radius: 50px;
-  	max-width: 100%;
-  	overflow: hidden;
-  	max-height: 100%;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0%;
+	right: 0%;
+	bottom: 0%;
+	left: 0%;
+	border-radius: 50px;
+	max-width: 100%;
+	overflow: hidden;
+	max-height: 100%;
 }
+
 .logIn3 {
-  	position: absolute;
-  	top: 12%;
-  	left: 22.11%;
+	position: absolute;
+	top: 12%;
+	left: 22.11%;
 }
+
 .logIn2 {
-  	position: absolute;
-  	height: 100%;
-  	width: 100%;
-  	top: 0%;
-  	right: 0%;
-  	bottom: 0%;
-  	left: 0%;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0%;
+	right: 0%;
+	bottom: 0%;
+	left: 0%;
 }
+
 .logIn1 {
-  	position: absolute;
-  	height: 7%;
-  	width: 9.84%;
-  	top: 66.23%;
-  	right: 12.96%;
-  	bottom: 26.77%;
-  	left: 77.2%;
-  	font-size: 36px;
-  	color: #3c507d;
-  	font-family: 'Segoe UI Variable';
+	position: absolute;
+	height: 7%;
+	width: 9.84%;
+	top: 66.23%;
+	right: 12.96%;
+	bottom: 26.77%;
+	left: 77.2%;
+	font-size: 36px;
+	color: #3c507d;
+	font-family: 'Segoe UI Variable';
 }
+
 .signUp {
-  	position: absolute;
-  	top: 0px;
-  	left: -10px;
-  	text-decoration: underline;
+	position: absolute;
+	top: 0px;
+	left: -10px;
+	text-decoration: underline;
 }
+
 .loginButton {
-  	position: absolute;
-  	top: 640px;
-  	left: 1426px;
-  	width: 50px;
-  	height: 27px;
-  	font-size: 20px;
-  	font-family: 'Segoe UI Historic';
+	position: absolute;
+	top: 640px;
+	left: 1426px;
+	width: 50px;
+	height: 27px;
+	font-size: 20px;
+	font-family: 'Segoe UI Historic';
 }
+
 .groupChild {
-  	position: absolute;
-  	top: 0px;
-  	left: 0px;
-  	width: 668px;
-  	height: 0.6px;
-  	object-fit: contain;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 668px;
+	height: 0.6px;
+	object-fit: contain;
 }
+
 .dontHaveAn {
-  	position: absolute;
-  	top: 0.32px;
-  	left: 25px;
-  	display: inline-block;
-  	width: 591px;
-  	height: 31.7px;
+	position: absolute;
+	top: 0.32px;
+	left: 25px;
+	display: inline-block;
+	width: 591px;
+	height: 31.7px;
 }
+
 .lineParent {
-  	position: absolute;
-  	top: 640px;
-  	left: 980px;
-  	width: 668px;
-  	height: 32px;
-  	font-size: 20px;
-  	font-family: 'Segoe UI Historic';
+	position: absolute;
+	top: 640px;
+	left: 980px;
+	width: 668px;
+	height: 32px;
+	font-size: 20px;
+	font-family: 'Segoe UI Historic';
 }
+
 .loginPage14 {
-  	width: 100%;
-  	position: relative;
-  	height: 1072px;
-  	overflow: hidden;
-  	background-image: url('/public/images/login-page-14.png');
-  	background-size: cover;
-  	background-repeat: no-repeat;
-  	background-position: top;
-  	text-align: center;
-  	font-size: 32px;
-  	color: #e0c58f;
-  	font-family: 'Segoe UI Emoji';
+	width: 100%;
+	position: relative;
+	height: 1072px;
+	overflow: hidden;
+	background-image: url('/public/images/login-page-14.png');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: top;
+	text-align: center;
+	font-size: 32px;
+	color: #e0c58f;
+	font-family: 'Segoe UI Emoji';
 }
+
 .groupParent {
-  	max-width: 40vw;
-  	min-width: 350px;
-  	width: 40vw;
-  	margin-right: 5vw;
-  	background: rgba(0,0,0,0.0);
-  	display: flex;
-  	flex-direction: column;
-  	align-items: flex-end;
-  	justify-content: center;
+	max-width: 40vw;
+	min-width: 350px;
+	width: 40vw;
+	margin-right: 5vw;
+	background: rgba(0, 0, 0, 0.0);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	justify-content: center;
 }
 
 @media (max-width: 1200px) {
-  	.groupParent {
-    	max-width: 60vw;
-    	width: 60vw;
-    	margin-right: 2vw;
-  	}
-  	.loginPage5 {
-    	font-size: 1.5vw;
-  	}
+	.groupParent {
+		max-width: 60vw;
+		width: 60vw;
+		margin-right: 2vw;
+	}
+
+	.loginPage5 {
+		font-size: 1.5vw;
+	}
 }
 
 @media (max-width: 900px) {
-  	.groupParent {
-    	max-width: 90vw;
-    	width: 90vw;
-    	margin-right: 0;
-  	}
-  	.loginPage5 {
-    	justify-content: center;
-    	font-size: 2vw;
-  	}
+	.groupParent {
+		max-width: 90vw;
+		width: 90vw;
+		margin-right: 0;
+	}
+
+	.loginPage5 {
+		justify-content: center;
+		font-size: 2vw;
+	}
 }
 
 .background {
-  width: 100vw;
-  min-height: 100vh;
-  background-image: url('/images/login-page-4.png');
-  background-size: 100% 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	width: 100vw;
+	min-height: 100vh;
+	background-image: url('/images/login-page-4.png');
+	background-size: 100% 100%;
+	background-position: center;
+	background-repeat: no-repeat;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .signupContainer {
-  display: flex;
-  width: 90vw;
-  max-width: 1300px;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 80vh;
+	display: flex;
+	width: 90vw;
+	max-width: 1300px;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 80vh;
 }
 
 .treeLogo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+	height: 100%;
 }
 
 .treeLogo img {
-  max-width: 350px;
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(0 0 80px #e0c58f88) drop-shadow(0 0 40px #e0c58f44);
+	max-width: 350px;
+	width: 100%;
+	height: auto;
+	filter: drop-shadow(0 0 80px #e0c58f88) drop-shadow(0 0 40px #e0c58f44);
 }
 
 .signupForm {
-  flex: 1.2;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  background: rgba(0,0,0,0.0);
-  padding: 2vw 0 2vw 0;
-  border-radius: 24px;
-  min-width: 420px;
-  max-width: 500px;
+	flex: 1.2;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.0);
+	padding: 2vw 0 2vw 0;
+	border-radius: 24px;
+	min-width: 420px;
+	max-width: 500px;
 }
 
 .signupForm h1 {
-  color: #e0c58f;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 32px;
-  align-self: center;
-  text-align: center;
-  font-family: 'Segoe UI Emoji';
+	color: #e0c58f;
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-bottom: 32px;
+	align-self: center;
+	text-align: center;
+	font-family: 'Segoe UI Emoji';
 }
 
 .signupForm input {
-  width: 100%;
-  height: 40px;
-  border-radius: 24px;
-  border: none;
-  margin-top: 6px;
-  margin-bottom: 16px;
-  padding-left: 24px;
-  font-size: 1.1rem;
-  background: #3c507d;
-  color: #fff;
-  outline: none;
-  font-family: 'Segoe UI Emoji';
+	width: 100%;
+	height: 40px;
+	border-radius: 24px;
+	border: none;
+	margin-top: 6px;
+	margin-bottom: 16px;
+	padding-left: 24px;
+	font-size: 1.1rem;
+	background: #3c507d;
+	color: #fff;
+	outline: none;
+	font-family: 'Segoe UI Emoji';
 }
 
 .signupForm label {
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.1rem;
-  font-family: 'Segoe UI Emoji';
+	color: #fff;
+	font-weight: 700;
+	font-size: 1.1rem;
+	font-family: 'Segoe UI Emoji';
 }
 
 .signupForm .row {
-  display: flex;
-  gap: 32px;
-  width: 100%;
+	display: flex;
+	gap: 32px;
+	width: 100%;
 }
 
-.signupForm .row > div {
-  flex: 1;
+.signupForm .row>div {
+	flex: 1;
 }
 
 .signupForm .divider {
-  width: 100%;
-  border-bottom: 1px solid #e0c58f;
-  margin-bottom: 8px;
+	width: 100%;
+	border-bottom: 1px solid #e0c58f;
+	margin-bottom: 8px;
 }
 
 .signupForm .footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 8px;
-  text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	margin-bottom: 8px;
+	text-align: center;
 }
 
 .signupForm .footer span {
-  color: #e0c58f;
-  font-size: 13px;
-  font-family: 'Segoe UI Emoji';
+	color: #e0c58f;
+	font-size: 13px;
+	font-family: 'Segoe UI Emoji';
 }
 
 .signupForm button {
-  margin-top: 18px;
-  width: 140px;
-  height: 48px;
-  border-radius: 24px;
-  background: #f5f0e9;
-  color: #3c507d;
-  font-weight: 700;
-  font-size: 1.3rem;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 2px 16px 0 #0002;
-  align-self: flex-end;
-  transition: background 0.2s;
+	margin-top: 18px;
+	width: 140px;
+	height: 48px;
+	border-radius: 24px;
+	background: #f5f0e9;
+	color: #3c507d;
+	font-weight: 700;
+	font-size: 1.3rem;
+	border: none;
+	cursor: pointer;
+	box-shadow: 0 2px 16px 0 #0002;
+	align-self: flex-end;
+	transition: background 0.2s;
 }
+
 .signupForm button:hover {
-  background: #e0c58f;
-  color: #2c3655;
+	background: #e0c58f;
+	color: #2c3655;
 }
 
 .signupForm .forgotPassword {
-  font-size: 15px;
-  font-family: 'Segoe UI Emoji';
-  color: #fff;
-  cursor: pointer;
-  text-decoration: underline;
+	font-size: 15px;
+	font-family: 'Segoe UI Emoji';
+	color: #fff;
+	cursor: pointer;
+	text-decoration: underline;
 }
 
 @media (max-width: 900px) {
-  .signupContainer {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: unset;
-  }
-  .treeLogo {
-    margin-bottom: 32px;
-  }
-  .signupForm {
-    min-width: 0;
-    width: 90vw;
-    max-width: 98vw;
-  }
+	.signupContainer {
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		min-height: unset;
+	}
+
+	.treeLogo {
+		margin-bottom: 32px;
+	}
+
+	.signupForm {
+		min-width: 0;
+		width: 90vw;
+		max-width: 98vw;
+	}
 }
-
-
