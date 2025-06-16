@@ -1,185 +1,179 @@
-import type { NextPage } from 'next';
-import Image from "next/image";
+'use client';
+import { useState } from 'react';
 import styles from './index.module.css';
-import { useCallback } from 'react';
-import PageWrapper from './components/PageWrapper';
 
-
-const LoginPage1:NextPage = () => {
-    return (
-        <PageWrapper>
-            <div className={styles.loginPage1}>
-                <div className={styles.loginPage1Child} />
-                <Image className={styles.maskGroupIcon} width={596} height={483} sizes="100vw" alt="" src="/images/login-page-1.png" />
-            </div>
-        </PageWrapper>
-        );
-    };
-
-const LoginPage2:NextPage = () => {
-    return (
-        <div className={styles.loginPage2}>
-            <div className={styles.loginPage2Child} />
-            <Image className={styles.maskGroupIcon} width={1187} height={799} sizes="100vw" alt="" src="/images/login-page-2.png" />
-        </div>);
-    };
-
-const LoginPage3:NextPage = () => {
-    return (
-        <div className={styles.loginPage3}>
-            <div className={styles.loginPage3Child} />
-            <Image className={styles.maskGroupIcon} width={1187} height={970} sizes="100vw" alt="" src="/images/login-page-3.png" />
-        <b className={styles.amenity}>Amenity</b>
-    </div>);
-};
-
-const LoginPage13:NextPage = () => {
-    
-    const onLoginButtonClick = useCallback(() => {
-    // Add your code here
-    }, []);
-    
-    return (
-        <div className={styles.loginPage13}>
-            <div className={styles.loginPage13Child} />
-            <Image className={styles.maskGroupIcon} width={1187} height={970} sizes="100vw" alt="" src="/images/login-page-13.png" />
-            <div className={styles.wrapperLoginButton}>
-                <Image className={styles.loginButtonIcon} width={64} height={55} sizes="100vw" alt="" src="login button.svg" onClick={onLoginButtonClick} />
-            </div>
-            <b className={styles.amenity}>Amenity</b>
-        </div>);
-};
-
-const LoginPage4:NextPage = () => {
-    return (
-        <div className={styles.loginPage4}>
-        <div className={styles.loginPage4Child} />
-        <Image className={styles.maskGroupIcon} width={1921} height={1001} sizes="100vw" alt="" src="/images/login-page-4.png" />
-        <div className={styles.loginPage4Inner}>
-            <div className={styles.usernameParent}>
-                <div className={styles.username}>
-                    <Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                    <div className={styles.emailAdress}>Username</div>
-                </div>
-                <div className={styles.createAcc}>
-                    <Image className={styles.createAccChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                    <div className={styles.createAcccount}>Create Acccount</div>
-                </div>
-                <div className={styles.logIn}>
-                    <Image className={styles.createAccChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                    <div className={styles.logIn1}>Log In</div>
-                </div>
-                <div className={styles.emailAddress}>
-                    <Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                    <div className={styles.emailAdress}>Email Adress</div>
-                </div>
-                <div className={styles.password}>
-                    <Image className={styles.passwordChild} width={320} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                    <div className={styles.emailAdress}>Password</div>
-                </div>
-                <div className={styles.confirmPassword}>
-                    <Image className={styles.passwordChild} width={320} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                    <div className={styles.confirmPassword1}>Confirm Password</div>
-                </div>
-                <div className={styles.or}>
-                    <div className={styles.orChild} />
-                    <div className={styles.orItem} />
-                    <div className={styles.or1}>Or</div>
-                </div>
-            </div>
+const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
+  const [form, setForm] = useState({ username: '', password: '', remember: false });
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.username || !form.password) {
+      setError('Username and password are required.');
+      return;
+    }
+    setError('');
+    alert('Log in successful!');
+  };
+  return (
+    <div className={styles.signupForm}>
+      <h1>Log In</h1>
+      <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+        <div style={{ marginBottom: 18, position: 'relative', maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
+          <label style={{ display: 'none' }}>Username</label>
+          <span style={{ position: 'absolute', left: 16, top: 10, fontSize: 22, color: '#222' }}>👤</span>
+          <input
+            type="text"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            placeholder="Username"
+            style={{ paddingLeft: 48, width: '100%' }}
+          />
         </div>
-    </div>);
-};
-const LoginPage5:NextPage = () => {
-  	return (
-    <div className={styles.loginPage5}>
-        <div className={styles.loginPage5Child} />
-        <Image className={styles.maskGroupIcon} width={1921} height={1001} sizes="100vw" alt="" src="/images/login-page-5.png" />
-        <div className={styles.groupParent}>
-                <div className={styles.lineParent}>
-                    <Image className={styles.groupChild} width={668} height={0.6} sizes="100vw" alt="" src="Line 5.svg" />
-                    <div className={styles.alreadyHaveAn}>{`Already have an account? `}</div>
-                </div>
-                <div className={styles.usernameParent}>
-                    <div className={styles.username}>
-                            <Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                            <div className={styles.username1}>Username</div>
-                    </div>
-                    <div className={styles.emailAddress}>
-                            <Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                            <div className={styles.emailAddress1}>Email Address</div>
-                    </div>
-                    <div className={styles.password}>
-                            <Image className={styles.passwordChild} width={320} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                            <div className={styles.username1}>Password</div>
-                    </div>
-                    <div className={styles.confirmPassword}>
-                            <Image className={styles.confirmPasswordChild} width={329} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                            <div className={styles.confirmPassword1}>Confirm Password</div>
-                    </div>
-                </div>
-                <div className={styles.signUp}>Sign Up</div>
-                <div className={styles.loginButton}>
-                    <div className={styles.login}>Login</div>
-                </div>
+        <div style={{ marginBottom: 18, position: 'relative', maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
+          <label style={{ display: 'none' }}>Password</label>
+          <span style={{ position: 'absolute', left: 16, top: 10, fontSize: 22, color: '#222' }}>🔒</span>
+          <input
+            type={showPassword ? 'text' : 'password'}
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            placeholder="Password"
+            style={{ paddingLeft: 48, width: '100%' }}
+          />
+          <span
+            onClick={() => setShowPassword((v) => !v)}
+            style={{ position: 'absolute', right: 16, top: 10, fontSize: 22, color: '#222', cursor: 'pointer', userSelect: 'none' }}
+            title={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? '🙈' : '👁️'}
+          </span>
         </div>
-        <div className={styles.signUp1}>
-                <div className={styles.signUp2}>
-                    <Image className={styles.signUpChild} width={189} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-                    <div className={styles.signUp3}>Sign Up</div>
-                </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <label style={{ display: 'flex', alignItems: 'center', fontSize: 15, color: '#fff' }}>
+            <input
+              type="checkbox"
+              name="remember"
+              checked={form.remember}
+              onChange={handleChange}
+              style={{ marginRight: 8 }}
+            />
+            Remember me
+          </label>
+          <span style={{ color: '#fff', fontSize: 15, cursor: 'pointer', textDecoration: 'underline' }}>Forgot Password?</span>
         </div>
-    </div>);
+        <div className={styles.divider} />
+        <div className={styles.footer}>
+          <span>Don't have an account? <a href="#" style={{ color: '#e0c58f', textDecoration: 'underline' }} onClick={onSwitch}>Sign Up</a></span>
+        </div>
+        {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
+        <button type="submit">Log In</button>
+      </form>
+    </div>
+  );
 };
-const LoginPage14:NextPage = () => {
-  	return (
-    		<div className={styles.loginPage14}>
-      			<div className={styles.loginPage14Child} />
-      			<Image className={styles.maskGroupIcon} width={1921} height={1001} sizes="100vw" alt="" src="/images/login-page-14.png" />
-      			<div className={styles.username}>
-        				<div className={styles.emailAddress}>
-          					<Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-          					<div className={styles.username2}>Username</div>
-        				</div>
-        				<Image className={styles.user3FillIcon} width={33} height={34} sizes="100vw" alt="" src="user-3-fill.svg" />
-      			</div>
-      			<div className={styles.rememberMe}>
-        				<div className={styles.rememberMe1}>Remember me</div>
-        				<Image className={styles.vectorIcon} width={22} height={22.8} sizes="100vw" alt="" src="Vector.svg" />
-        				<div className={styles.checkboxBlankLine} />
-      			</div>
-      			<div className={styles.password}>
-        				<div className={styles.emailAddress}>
-          					<Image className={styles.usernameChild} width={668} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-          					<div className={styles.password1}>Password</div>
-        				</div>
-        				<Image className={styles.lock2LineIcon} width={36} height={35} sizes="100vw" alt="" src="lock-2-line.svg" />
-        				<Image className={styles.eyeOffFillIcon} width={31} height={28} sizes="100vw" alt="" src="eye-off-fill.svg" />
-      			</div>
-      			<div className={styles.logIn}>Log In</div>
-      			<div className={styles.forgotPassword}>
-        				<div className={styles.forgotPassword1}>Forgot Password?</div>
-          					</div>
-          					<div className={styles.logIn1}>
-            						<div className={styles.logIn2}>
-              							<Image className={styles.logInChild} width={189} height={75} sizes="100vw" alt="" src="Rectangle 1.svg" />
-              							<div className={styles.logIn3}>Log In</div>
-            						</div>
-          					</div>
-          					<div className={styles.loginButton}>
-            						<div className={styles.signUp}>Sign Up</div>
-          					</div>
-          					<div className={styles.lineParent}>
-            						<Image className={styles.groupChild} width={668} height={0.6} sizes="100vw" alt="" src="Line 5.svg" />
-            						<div className={styles.dontHaveAn}>Don’t have an account?</div>
-              							</div>
-              							</div>);
-            						};
-            						
-export default LoginPage1;
-export { LoginPage2 };
-export { LoginPage3 };
-export { LoginPage13 };
-export { LoginPage4 };
-export { LoginPage5 };
-export { LoginPage14 };
+
+const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [error, setError] = useState('');
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.username || !form.email || !form.password || !form.confirmPassword) {
+      setError('All fields are required.');
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+    setError('');
+    alert('Sign up successful!');
+  };
+  return (
+    <div className={styles.signupForm}>
+      <h1>Sign Up</h1>
+      <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+        <div style={{ marginBottom: 18 }}>
+          <label>Username</label>
+          <input
+            type="text"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            placeholder="Enter your username"
+          />
+        </div>
+        <div style={{ marginBottom: 18 }}>
+          <label>Email Address</label>
+          <input
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+          />
+        </div>
+        <div className={styles.row} style={{ marginBottom: 18 }}>
+          <div>
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Password"
+            />
+          </div>
+          <div>
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm Password"
+            />
+          </div>
+        </div>
+        <div className={styles.divider} />
+        <div className={styles.footer}>
+          <span>Already have an account? <a href="#" style={{ color: '#e0c58f', textDecoration: 'underline' }} onClick={onSwitch}>Login</a></span>
+        </div>
+        {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+  );
+};
+
+const AuthPage = () => {
+  const [showLogin, setShowLogin] = useState(false);
+  return (
+    <div className={styles.background}>
+      <div className={styles.signupContainer}>
+        <div className={styles.treeLogo}>
+        </div>
+        {showLogin ? (
+          <LogInForm onSwitch={() => setShowLogin(false)} />
+        ) : (
+          <SignUpForm onSwitch={() => setShowLogin(true)} />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AuthPage;
