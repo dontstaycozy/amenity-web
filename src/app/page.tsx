@@ -2,14 +2,32 @@
 import { useState } from "react";
 import styles from "./index.module.css";
 
+// Types
+interface FormState {
+  username: string;
+  password: string;
+  remember: boolean;
+}
+
+interface SignUpFormState {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+// Login form component with form state management and validation
 const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
-  const [form, setForm] = useState({
+  // Form state management
+  const [form, setForm] = useState<FormState>({
     username: "",
     password: "",
     remember: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+
+  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -17,6 +35,8 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.username || !form.password) {
@@ -26,6 +46,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
     setError("");
     alert("Log in successful!");
   };
+
   return (
     <div className={styles.signupForm}>
       <h1>Log In</h1>
@@ -118,12 +139,13 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
               display: "flex",
               alignItems: "center",
               fontSize: 15,
-              color: "#fff",
             }}
+            htmlFor="remember"
           >
             <input
               type="checkbox"
               name="remember"
+              id="remember"
               checked={form.remember}
               onChange={handleChange}
               style={{ marginRight: 8 }}
@@ -152,25 +174,26 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
   );
 };
 
+// Sign up form component with form state management and validation
 const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
-  const [form, setForm] = useState({
+  // Form state management
+  const [form, setForm] = useState<SignUpFormState>({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+
+  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      !form.username ||
-      !form.email ||
-      !form.password ||
-      !form.confirmPassword
-    ) {
+    if (!form.username || !form.email || !form.password || !form.confirmPassword) {
       setError("All fields are required.");
       return;
     }
@@ -181,6 +204,7 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
     setError("");
     alert("Sign up successful!");
   };
+
   return (
     <div className={styles.signupForm}>
       <h1>Sign Up</h1>
@@ -247,6 +271,7 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
   );
 };
 
+// Main authentication page component that handles switching between login and signup forms
 const AuthPage = () => {
   const [showLogin, setShowLogin] = useState(false);
   return (

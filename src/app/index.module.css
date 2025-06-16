@@ -1,3 +1,4 @@
+/* Full-screen background with login page image */
 .background {
 	width: 100vw;
 	min-height: 100vh;
@@ -10,6 +11,7 @@
 	justify-content: center;
 }
 
+/* Container for the signup/login form and logo */
 .signupContainer {
 	display: flex;
 	width: 90vw;
@@ -19,6 +21,7 @@
 	min-height: 80vh;
 }
 
+/* Logo container with tree image */
 .treeLogo {
 	display: flex;
 	align-items: center;
@@ -34,6 +37,7 @@
 	filter: drop-shadow(0 0 80px #e0c58f88) drop-shadow(0 0 40px #e0c58f44);
 }
 
+/* Form container styling */
 .signupForm {
 	flex: 1.2;
 	display: flex;
@@ -47,6 +51,7 @@
 	max-width: 500px;
 }
 
+/* Form heading styling */
 .signupForm h1 {
 	color: #e0c58f;
 	font-size: 2.5rem;
@@ -57,6 +62,7 @@
 	font-family: 'Segoe UI Emoji';
 }
 
+/* Input field styling */
 .signupForm input {
 	width: 100%;
 	height: 40px;
@@ -72,6 +78,7 @@
 	font-family: 'Segoe UI Emoji';
 }
 
+/* Label styling */
 .signupForm label {
 	color: #fff;
 	font-weight: 700;
@@ -79,6 +86,7 @@
 	font-family: 'Segoe UI Emoji';
 }
 
+/* Row layout for form fields */
 .signupForm .row {
 	display: flex;
 	gap: 32px;
@@ -89,12 +97,14 @@
 	flex: 1;
 }
 
+/* Divider line styling */
 .signupForm .divider {
 	width: 100%;
 	border-bottom: 1px solid #e0c58f;
 	margin-bottom: 8px;
 }
 
+/* Footer section styling */
 .signupForm .footer {
 	display: flex;
 	justify-content: center;
@@ -110,6 +120,7 @@
 	font-family: 'Segoe UI Emoji';
 }
 
+/* Submit button styling */
 .signupForm button {
 	margin-top: 18px;
 	width: 140px;
@@ -126,19 +137,27 @@
 	transition: background 0.2s;
 }
 
+/* Button hover effect */
 .signupForm button:hover {
 	background: #e0c58f;
 	color: #2c3655;
 }
 
+/* Forgot password link styling */
 .signupForm .forgotPassword {
 	font-size: 15px;
 	font-family: 'Segoe UI Emoji';
-	color: #fff;
+	color: #e0c58f;
 	cursor: pointer;
 	text-decoration: underline;
 }
 
+/* Remember me label styling */
+.signupForm label[for="remember"] {
+	color: #e0c58f;
+}
+
+/* Responsive design for mobile devices */
 @media (max-width: 900px) {
 	.signupContainer {
 		flex-direction: column;
