@@ -193,7 +193,12 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.username || !form.email || !form.password || !form.confirmPassword) {
+    if (
+      !form.username ||
+      !form.email ||
+      !form.password ||
+      !form.confirmPassword
+    ) {
       setError("All fields are required.");
       return;
     }
