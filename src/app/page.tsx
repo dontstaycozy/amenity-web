@@ -1,6 +1,26 @@
 "use client";
-import { useState } from "react";
+  import React, { useState } from 'react';
 import styles from "./index.module.css";
+import { collection, addDoc } from "firebase/firestore";
+import { useRouter} from "next/navigation";
+import { db } from "./Firebaseconfig";
+import { signIn } from "next-auth/react";
+
+//async function for adding data to firebase
+ async function addData(username: string, password: string, email:string): Promise<boolean> {
+  try {
+    const docRef = await addDoc(collection(db, "Users"), {
+      username,
+      password,
+      email,
+    });
+    console.log("Successfull!! Document written with ID:", docRef.id);
+    return true;
+  } catch (error) {
+    console.error("Error adding data", error);
+    return false;
+  }
+}
 
 // Types
 interface FormState {
@@ -19,6 +39,7 @@ interface SignUpFormState {
 // Login form component with form state management and validation
 const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
   // Form state management
+  const router = useRouter();
   const [form, setForm] = useState<FormState>({
     username: "",
     password: "",
@@ -37,15 +58,41 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
   };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!form.username || !form.password) {
       setError("Username and password are required.");
       return;
     }
+    const res = await signIn('credentials', {
+      redirect: false,
+
+      username: form.username,
+      password: form.password,
+
+      
+    });
+    
+  if(res?.ok){
+    setForm({
+      username: '',
+      password: '',
+      remember: false,
+    });
     setError("");
-    alert("Log in successful!");
+    router.push('/Homepage')
+  }else{
+ setForm({
+      username: '',
+      password: '',
+      remember: false,
+    });
+    setError("invalid credentials");
+  }
+  
   };
+  
 
   return (
     <div className={styles.signupForm}>
@@ -190,8 +237,10 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+ 
+
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       !form.username ||
@@ -206,9 +255,31 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
       setError("Passwords do not match.");
       return;
     }
-    setError("");
-    alert("Sign up successful!");
+    //calling addData function to store user newly created accounts
+    const success = await addData(form.username, form.password,form.email);
+
+    if(success){
+      setForm({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+
+   
+    setError("Sign up successful!");
+    
+    }else{
+      setForm({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+      setError("failed to sign up");
+    }
   };
+ 
 
   return (
     <div className={styles.signupForm}>
