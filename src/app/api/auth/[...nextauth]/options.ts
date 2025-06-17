@@ -1,7 +1,7 @@
 // src/lib/options.ts
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
-import { adminDb } from "@/app/lib/firebaseadmin"; // ✅ import your Firestore instance
+import { adminDb } from "@/app/lib/firebaseadmin"; 
 
 export const options: NextAuthOptions = {
   providers: [
@@ -18,7 +18,7 @@ export const options: NextAuthOptions = {
         }
 
         try {
-          // ✅ Query Firestore for a user with matching username
+          // Query Firestore for a user with matching username
           const snapshot = await adminDb
             .collection("Users")
             .where("username", "==", credentials.username)
@@ -30,7 +30,7 @@ export const options: NextAuthOptions = {
           const userDoc = snapshot.docs[0];
           const user = userDoc.data();
 
-          // ⚠️ WARNING: This assumes passwords are stored in plain text — avoid this in production.
+         
           if (user.password === credentials.password) {
             return {
               id: userDoc.id,
