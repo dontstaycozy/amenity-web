@@ -26,6 +26,12 @@
   }
 }
 
+html,
+body {
+  padding: 0;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0; line-height: normal;
   font-family: 'Segoe UI Emoji';
