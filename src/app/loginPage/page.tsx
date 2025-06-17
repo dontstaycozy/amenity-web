@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./index.module.css";
 
 // Types
@@ -18,6 +19,7 @@ interface SignUpFormState {
 
 // Login form component with form state management and validation
 const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
+  const router = useRouter();
   // Form state management
   const [form, setForm] = useState<FormState>({
     username: "",
@@ -44,7 +46,8 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
       return;
     }
     setError("");
-    alert("Log in successful!");
+    // Redirect to homepage after successful login
+    router.push("/homePage");
   };
 
   return (
@@ -176,6 +179,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
 
 // Sign up form component with form state management and validation
 const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
+  const router = useRouter();
   // Form state management
   const [form, setForm] = useState<SignUpFormState>({
     username: "",
@@ -207,7 +211,8 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
       return;
     }
     setError("");
-    alert("Sign up successful!");
+    // Redirect to homepage after successful signup
+    router.push("/homePage");
   };
 
   return (

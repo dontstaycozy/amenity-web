@@ -1,7 +1,6 @@
 .screen {
   display: grid;
   grid-template-columns: 356px 1fr 420px;
-  /* sidebar | main | streak */
   grid-template-rows: 101px 1fr;
   min-height: 100vh;
   background: #0B1532;

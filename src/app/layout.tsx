@@ -1,4 +1,4 @@
-import './index.module.css'; // optional global CSS
+import './globals.css'; // global CSS
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
