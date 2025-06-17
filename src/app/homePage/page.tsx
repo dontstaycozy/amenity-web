@@ -18,7 +18,7 @@ export default function HomePage() {
       {/* ---------- Side Navigation ---------- */}
       <aside className={styles.sidebar}>
         <nav>
-          <a className={`${styles.sideLink} ${styles.active}`} href="#">
+          <a className={styles.sideLink} href="#">
             <span>InsertHomeButton</span>Home
           </a>
           <a className={styles.sideLink} href="#">
