@@ -67,7 +67,11 @@ export default function HomePage() {
       {/* ---------- Streak Panel ---------- */}
       <aside className={styles.streakPanel}>
         <h3>Holy Sprout!</h3>
-        <div className={styles.glassBell} />
+        <div className={styles.glassBellContainer}>
+          <div className={styles.glassBell}></div>
+          <div className={styles.bellShadow}></div>
+          <div className={styles.bellBase}></div>
+        </div>
       </aside>
     </div>
   );
