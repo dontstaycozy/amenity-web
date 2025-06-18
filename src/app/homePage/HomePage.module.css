@@ -3,6 +3,7 @@
   grid-template-columns: 356px 1fr 420px;
   grid-template-rows: 101px 1fr;
   min-height: 100vh;
+  overflow: hidden;
   background: #0B1532;
   color: #f5f0e9;
   font-family: 'Segoe UI Emoji';
@@ -51,8 +52,29 @@
 }
 
 .sidebar {
+  display: flex;
+  /flex-direction: column;
+  height: 100vh;
   border-right: 1px solid #000;
   padding-top: 40px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.navTop {
+  display: flex;
+  flex-direction: column;
+}
+
+.navBottom {
+  display: flex;
+  flex-direction: column;
+  margin-top: 210px;
+  padding-bottom: 24px;
 }
 
 .sideLink {

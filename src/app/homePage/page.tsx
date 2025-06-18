@@ -18,25 +18,30 @@ export default function HomePage() {
       {/* ---------- Side Navigation ---------- */}
       <aside className={styles.sidebar}>
         <nav>
-          <a className={styles.sideLink} href="#">
-            <span>InsertHomeButton</span>Home
-          </a>
-          <a className={styles.sideLink} href="#">
-            <span>InsertFireButton</span>Popular
-          </a>
-          <a className={styles.sideLink} href="#">
-            <span>InsertbibleButton</span>Bible
-          </a>
-          <hr />
-          <a className={styles.sideLink} href="#">
-            <span>InsertLogo</span>About
-          </a>
-          <a className={styles.sideLink} href="#">
-            <span>?</span>Help
-          </a>
-          <a className={styles.sideLink} href="#">
-            <span>InsertLogOutButton</span>Log Out
-          </a>
+          <div className={styles.navTop}>
+            <a className={styles.sideLink} href="#">
+              <span>InsertHomeButton</span> Home
+            </a>
+            <a className={styles.sideLink} href="#">
+              <span>InsertFireButton</span> Popular
+            </a>
+            <a className={styles.sideLink} href="#">
+              <span>InsertbibleButton</span> Bible
+            </a>
+            <hr />
+          </div>
+
+          <div className={styles.navBottom}>
+            <a className={styles.sideLink} href="#">
+              <span>InsertLogo</span> About
+            </a>
+            <a className={styles.sideLink} href="#">
+              <span>?</span> Help
+            </a>
+            <a className={styles.sideLink} href="#">
+              <span>InsertLogOutButton</span> Log Out
+            </a>
+          </div>
         </nav>
       </aside>
 
@@ -56,7 +61,6 @@ export default function HomePage() {
           <div className={styles.card}>Archives</div>
           <div className={styles.card}>Saved Chapters</div>
           <div className={styles.card}>Cunsay ibutang diri????</div>
-          {/*note: ang ikatulo kay slightly bigger but gitapol ko ug adjust ug indiv na*/}
         </section>
       </main>
 
