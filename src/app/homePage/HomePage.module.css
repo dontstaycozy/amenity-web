@@ -24,6 +24,7 @@
   flex-wrap: wrap;
   gap: 16px;
   height: 101px;
+  justify-content: space-between;
 }
 
 .brand {
@@ -40,15 +41,23 @@
 }
 
 .search {
-  flex: 1;
-  margin: 0 clamp(20px, 4vw, 60px);
+  margin-left: -380px;
   height: clamp(36px, 4vw, 40px);
   border-radius: 50px;
   border: none;
   padding: 0 20px;
   background: #1E2B48;
   color: #fff;
-  min-width: 200px;
+  min-width: 600px;
+  max-width: 1000px;
+  position: relative;
+}
+
+.searchWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .darkModeBtn {
@@ -59,13 +68,18 @@
   height: clamp(36px, 4vw, 48px);
   border-radius: 50%;
   cursor: pointer;
+  margin-left: auto;
+}
+
+.darkModeBtn:hover {
+  background: #14213c;
 }
 
 .sidebar {
   position: fixed;
   left: 0;
   top: 101px;
-  width: 356px;
+  width: 290px;
   height: calc(100vh - 101px);
   border-right: 1px solid #000;
   padding-top: clamp(20px, 3vw, 40px);
@@ -116,14 +130,15 @@
 }
 
 .content {
-  padding: clamp(16px, 2vw, 32px);
+  width: 100%;
+  max-width: 1000px;
+  /* Set a nice max width */
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 2vw, 32px);
-  overflow-y: auto;
-  margin-left: 356px;
-  margin-right: 420px;
   margin-top: 101px;
+  padding: 0 24px;
 }
 
 .card {
@@ -141,7 +156,27 @@
   background: #1b2845;
 }
 
+.MenuCard {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+  position: relative;
+  width: 100%;
+  transform: scale(0.91);
+  transform-origin: center center;
+}
+
+.verseOfTheDay {
+  width: 100%;
+}
+
+.miniCardsContainer {
+  width: 100%;
+}
+
+
 .verseCard {
+  width: 100%;
   height: clamp(240px, 30vw, 320px);
   font-size: clamp(32px, 4vw, 64px);
   font-weight: 700;
@@ -150,7 +185,7 @@
 
 .miniCards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: clamp(16px, 2vw, 24px);
 }
 
@@ -163,7 +198,7 @@
   position: fixed;
   right: 0;
   top: 101px;
-  width: 420px;
+  width: 290px;
   height: calc(100vh - 101px);
   padding: clamp(16px, 2vw, 24px);
   display: flex;
@@ -197,6 +232,7 @@
   z-index: 2;
 }
 
+
 .bellShadow {
   position: absolute;
   bottom: 0;
@@ -224,13 +260,19 @@
   .sidebar {
     width: 320px;
   }
+
   .streakPanel {
     width: 360px;
   }
+
   .content {
-    margin-left: 320px;
-    margin-right: 360px;
-    margin-top: 101px;
+    max-width: 900px;
+    /* Limit how wide it can go */
+    width: 100%;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
   }
 }
 
@@ -238,9 +280,11 @@
   .sidebar {
     width: 280px;
   }
+
   .streakPanel {
     display: none;
   }
+
   .content {
     margin-left: 280px;
     margin-right: 0;
@@ -252,6 +296,7 @@
   .sidebar {
     display: none;
   }
+
   .content {
     margin-left: 0;
     margin-right: 0;

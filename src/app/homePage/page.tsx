@@ -10,8 +10,13 @@ export default function HomePage() {
           <img src="public/images/tree.png" alt="Amenity logo" />
           <span>Amenity</span>
         </div>
-
-        <input type="search" className={styles.search} placeholder="Search…" />
+        <div className={styles.searchWrapper}>
+          <input
+            type="search"
+            className={styles.search}
+            placeholder="Search…"
+          />
+        </div>
         <button className={styles.darkModeBtn}>insertMoon</button>
       </header>
 
@@ -46,23 +51,29 @@ export default function HomePage() {
       </aside>
 
       {/* ---------- Main Content ---------- */}
-      <main className={styles.content}>
-        {/* Verse of the Day card */}
-        <section className={`${styles.card} ${styles.verseCard}`}>
-          <h2>
-            VERSE OF
-            <br />
-            THE DAY
-          </h2>
-        </section>
+      <aside className={styles.MenuCard}>
+        <main className={styles.content}>
+          {/* Verse of the Day card */}
+          <div className={styles.verseOfTheDay}>
+            <section className={`${styles.card} ${styles.verseCard}`}>
+              <h2>
+                VERSE OF
+                <br />
+                THE DAY
+              </h2>
+            </section>
+          </div>
 
-        {/* Mini cards */}
-        <section className={styles.miniCards}>
-          <div className={styles.card}>Archives</div>
-          <div className={styles.card}>Saved Chapters</div>
-          <div className={styles.card}>Cunsay ibutang diri????</div>
-        </section>
-      </main>
+          {/* Mini cards */}
+          <div className={styles.miniCardsContainer}>
+            <section className={styles.miniCards}>
+              <div className={styles.card}>Archives</div>
+              <div className={styles.card}>Saved Chapters</div>
+              <div className={styles.card}>unsay ibutang diri????</div>
+            </section>
+          </div>
+        </main>
+      </aside>
 
       {/* ---------- Streak Panel ---------- */}
       <aside className={styles.streakPanel}>
