@@ -297,15 +297,15 @@
 }
 
 .MenuCard {
+  max-width: 900px;         /* or your preferred width */
+  width: 100%;
+  margin-left: 245px; 
+  margin-top: 20px;
+  padding: 0 32px;
   display: flex;
   justify-content: center;
-  padding: 32px 0;
   position: relative;
-  width: 100%;
-  transform: scale(0.85);
-  transform-origin: center center;
 }
-
 .dark .MenuCard {
   background: #0B1532;
 }
@@ -323,9 +323,9 @@
 }
 
 .verseCard {
-  width: 950px;
-  height: clamp(240px, 30vw, 320px);
-  font-size: clamp(32px, 4vw, 64px);
+  width: 810px;          /* was 950px */
+  height: clamp(200px, 25vw, 280px); /* slightly smaller */
+  font-size: clamp(28px, 3vw, 48px); /* slightly smaller font */
   font-weight: 700;
   text-align: center;
 }
@@ -519,5 +519,11 @@
 @media screen and (min-resolution: 1.25dppx) {
   .screen {
     font-size: 0.75rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .MenuCard {
+    margin-right: 340px;    /* This pushes it left, leaving space for the streak panel */
   }
 }
