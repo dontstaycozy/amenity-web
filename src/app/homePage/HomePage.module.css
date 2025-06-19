@@ -321,13 +321,16 @@
 }
 
 .miniCardsContainer {
-  width: 950px;
+  width: 100%;
 }
 
 .verseCard {
   width: 810px;
+  /* was 950px */
   height: clamp(200px, 25vw, 280px);
+  /* slightly smaller */
   font-size: clamp(28px, 3vw, 48px);
+  /* slightly smaller font */
   font-weight: 700;
   text-align: center;
 }
