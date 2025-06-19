@@ -1,0 +1,260 @@
+.screen {
+    display: block;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: #0B1532;
+    color: #f5f0e9;
+    font-family: 'Segoe UI Emoji';
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    padding: 0 clamp(20px, 3vw, 40px);
+    background: #0B1532;
+    border-bottom: 1px solid #000;
+    flex-wrap: wrap;
+    gap: 16px;
+    height: 101px;
+    justify-content: space-between;
+}
+
+.brand {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: clamp(20px, 2vw, 28px);
+    font-weight: 700;
+}
+
+.brand img {
+    width: clamp(32px, 4vw, 48px);
+    height: auto;
+}
+
+.search {
+    margin-left: -380px;
+    height: clamp(36px, 4vw, 40px);
+    border-radius: 50px;
+    border: none;
+    padding: 0 20px;
+    background: #1E2B48;
+    color: #fff;
+    min-width: 600px;
+    max-width: 1000px;
+    position: relative;
+}
+
+.searchWrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.darkModeBtn {
+    background: #1E2B48;
+    border: none;
+    color: #e0c58f;
+    width: clamp(36px, 4vw, 48px);
+    height: clamp(36px, 4vw, 48px);
+    border-radius: 50%;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.darkModeBtn:hover {
+    background: #14213c;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 101px;
+    width: 290px;
+    height: calc(100vh - 101px);
+    border-right: 1px solid #000;
+    padding-top: clamp(20px, 3vw, 40px);
+    background: #0B1532;
+    z-index: 10;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.navTop {
+    display: flex;
+    flex-direction: column;
+}
+
+.navBottom {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    padding-bottom: 24px;
+}
+
+.sideLink {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2vw, 32px);
+    border-radius: 20px;
+    font-size: clamp(16px, 1.5vw, 20px);
+    margin: 6px clamp(12px, 2vw, 24px);
+    color: #f5f0e9;
+    text-decoration: none;
+    background: transparent;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.sideLink:hover {
+    background: #1E2B48;
+}
+
+.active {
+    background: #1E2B48;
+}
+
+.streakPanel {
+    position: fixed;
+    right: 0;
+    top: 101px;
+    width: 290px;
+    height: calc(100vh - 101px);
+    padding: clamp(16px, 2vw, 24px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #0B1532;
+    border-left: 1px solid #000;
+    z-index: 10;
+}
+
+.streakPanel h3 {
+    margin-bottom: 16px;
+    font-size: clamp(18px, 1.5vw, 24px);
+}
+
+.glassBellContainer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 100%;
+    width: 100%;
+}
+
+.glassBell {
+    width: 200px;
+    height: 400px;
+    background: rgba(200, 215, 225, 0.45);
+    border-radius: 100px 100px 20px 20px;
+    position: relative;
+    z-index: 2;
+}
+
+
+.bellShadow {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.bellBase {
+    position: absolute;
+    bottom: -7.5px;
+    width: 195px;
+    height: 35px;
+    background-color: #ccc;
+    border-radius: 50%;
+    z-index: 0;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1400px) {
+    .sidebar {
+        width: 320px;
+    }
+
+    .streakPanel {
+        width: 360px;
+    }
+
+    .content {
+        max-width: 900px;
+        /* Limit how wide it can go */
+        width: 100%;
+        padding: 0 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .sidebar {
+        width: 280px;
+    }
+
+    .streakPanel {
+        display: none;
+    }
+
+    .content {
+        margin-left: 280px;
+        margin-right: 0;
+        margin-top: 101px;
+    }
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        display: none;
+    }
+
+    .content {
+        margin-left: 0;
+        margin-right: 0;
+        padding: 16px;
+        margin-top: 101px;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        justify-content: space-between;
+    }
+
+    .search {
+        order: 3;
+        width: 100%;
+        margin: 12px 0 0 0;
+    }
+}
+
+/* For 75% zoom compatibility */
+@media screen and (min-resolution: 1.25dppx) {
+    .screen {
+        font-size: 0.75rem;
+    }
+}

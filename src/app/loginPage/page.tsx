@@ -1,13 +1,17 @@
 "use client";
-  import React, { useState } from 'react';
+import React, { useState } from "react";
 import styles from "./index.module.css";
 import { collection, addDoc } from "firebase/firestore";
-import { useRouter} from "next/navigation";
-import { db } from '../Firebaseconfig';
+import { useRouter } from "next/navigation";
+import { db } from "../Firebaseconfig";
 import { signIn } from "next-auth/react";
 
 //async function for adding data to firebase
- async function addData(username: string, password: string, email:string): Promise<boolean> {
+async function addData(
+  username: string,
+  password: string,
+  email: string
+): Promise<boolean> {
   try {
     const docRef = await addDoc(collection(db, "Users"), {
       username,
@@ -65,34 +69,30 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
       setError("Username and password are required.");
       return;
     }
-    const res = await signIn('credentials', {
+    const res = await signIn("credentials", {
       redirect: false,
 
       username: form.username,
       password: form.password,
+    });
 
-      
-    });
-    
-  if(res?.ok){
-    setForm({
-      username: '',
-      password: '',
-      remember: false,
-    });
-    setError("");
-    router.push('/Homepage')
-  }else{
- setForm({
-      username: '',
-      password: '',
-      remember: false,
-    });
-    setError("invalid credentials");
-  }
-  
+    if (res?.ok) {
+      setForm({
+        username: "",
+        password: "",
+        remember: false,
+      });
+      setError("");
+      router.push("/homePage");
+    } else {
+      setForm({
+        username: "",
+        password: "",
+        remember: false,
+      });
+      setError("invalid credentials");
+    }
   };
-  
 
   return (
     <div className={styles.signupForm}>
@@ -237,8 +237,6 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
- 
-
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -256,30 +254,27 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
       return;
     }
     //calling addData function to store user newly created accounts
-    const success = await addData(form.username, form.password,form.email);
+    const success = await addData(form.username, form.password, form.email);
 
-    if(success){
+    if (success) {
       setForm({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
 
-   
-    setError("Sign up successful!");
-    
-    }else{
+      setError("Sign up successful!");
+    } else {
       setForm({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
       setError("failed to sign up");
     }
   };
- 
 
   return (
     <div className={styles.signupForm}>
