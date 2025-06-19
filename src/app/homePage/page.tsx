@@ -1,7 +1,30 @@
 "use client";
 import styles from "./HomePage.module.css";
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { signOut } from "next-auth/react";
 
 export default function HomePage() {
+const { data: session, status } = useSession();
+
+const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/loginPage");
+    }
+  }, [status, router]);
+
+
+  if (status === "loading") {
+    return null; 
+  }
+
+  if (!session) {
+    return <p>Access denied</p>;
+  }
+
   return (
     <div className={styles.screen}>
       {/* ---------- Top Navbar ---------- */}
@@ -9,6 +32,7 @@ export default function HomePage() {
         <div className={styles.brand}>
           <img src="public/images/tree.png" alt="Amenity logo" />
           <span>Amenity</span>
+          <button onClick={() => signOut()}>Sign Out</button>
         </div>
         <div className={styles.searchWrapper}>
           <input
