@@ -45,6 +45,7 @@
   background: #0B1532;
   border-bottom-color: #1e293b;
 }
+
 .light .navbar {
   background: #ffffff;
   border-bottom-color: #e2e8f0;
@@ -199,12 +200,13 @@
 .navTop {
   display: flex;
   flex-direction: column;
+  margin-top: -25px;
 }
 
 .navBottom {
   display: flex;
   flex-direction: column;
-  margin-top: auto;
+  margin-top: 155px;
   padding-bottom: 24px;
 }
 
@@ -300,7 +302,7 @@
   padding: 32px 0;
   position: relative;
   width: 100%;
-  transform: scale(0.91);
+  transform: scale(0.85);
   transform-origin: center center;
 }
 
@@ -321,7 +323,7 @@
 }
 
 .verseCard {
-  width: 100%;
+  width: 950px;
   height: clamp(240px, 30vw, 320px);
   font-size: clamp(32px, 4vw, 64px);
   font-weight: 700;
@@ -339,16 +341,16 @@
   gap: clamp(16px, 2vw, 24px);
 }
 
-
 .miniCards .card {
   height: clamp(150px, 20vw, 200px);
   font-size: clamp(20px, 2vw, 28px);
 }
 
-.cardIcon{
+.cardIcon {
   width: 20px;
   height: 20px;
-  color: #e0c58f; /* Golden color for all icons */
+  color: #e0c58f;
+  /* Golden color for all icons */
   flex-shrink: 0;
 }
 
@@ -403,9 +405,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Changed from flex-end to center */
-  height: 450px; /* Increased from 400px to give more space */
-  margin-top: 20px; /* Add some top margin */
+  justify-content: center;
+  /* Changed from flex-end to center */
+  height: 450px;
+  /* Increased from 400px to give more space */
+  margin-top: 20px;
+  /* Add some top margin */
 }
 
 .glassBell {
