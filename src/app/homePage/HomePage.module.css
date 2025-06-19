@@ -319,11 +319,11 @@
 }
 
 .miniCardsContainer {
-  width: 100%;
+  width: 950px;
 }
 
 .verseCard {
-  width: 950px;
+  width: 900px;
   height: clamp(240px, 30vw, 320px);
   font-size: clamp(32px, 4vw, 64px);
   font-weight: 700;
