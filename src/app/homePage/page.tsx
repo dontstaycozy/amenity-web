@@ -4,9 +4,49 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { signOut } from "next-auth/react";
+import { useState } from 'react';
+import {
+  Search,
+  Moon,
+  Sun,
+  Home,
+  Flame,
+  Book,
+  Mountain,
+  HelpCircle,
+  LogOut,
+  Archive,
+  Bookmark,
+  Calendar,
+} from "lucide-react";
 
 export default function HomePage() {
 const { data: session, status } = useSession();
+const [isDarkMode, setIsDarkMode] = useState(true)
+const [searchQuery, setSearchQuery] = useState("")
+
+const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log(`Searching for: ${searchQuery}`)
+  }
+
+  const handleNavClick = (section: string) => {
+    console.log(`Navigating to: ${section}`)
+    if (section === "logout") {
+    console.log("Logging out...");
+    signOut({ callbackUrl: '/loginPage' }); // Redirects to /login after sign out
+  }
+  }
+
+  const handleCardClick = (card: string) => {
+    console.log(`${card} clicked`)
+    // cards to click
+  }
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode)
+    console.log(`Dark mode: ${!isDarkMode}`)
+  }
 
 const router = useRouter();
 
@@ -26,50 +66,64 @@ const router = useRouter();
   }
 
   return (
-    <div className={styles.screen}>
+    <div className={`${styles.screen} ${isDarkMode ? styles.dark : styles.light}`}>
       {/* ---------- Top Navbar ---------- */}
       <header className={styles.navbar}>
         <div className={styles.brand}>
-          <img src="public/images/tree.png" alt="Amenity logo" />
+          <img src="/images/tree.png" alt="Amenity logo" />
           <span>Amenity</span>
-          <button onClick={() => signOut()}>Sign Out</button>
         </div>
         <div className={styles.searchWrapper}>
-          <input
-            type="search"
-            className={styles.search}
-            placeholder="Search…"
-          />
+          <form onSubmit={handleSearch}>
+            <div className={styles.searchContainer}>
+              <Search className={styles.searchIcon} />
+              <input
+                type="search"
+                className={styles.search}
+                placeholder="Search…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </form>
         </div>
-        <button className={styles.darkModeBtn}>insertMoon</button>
+        <button className={styles.darkModeBtn} onClick={toggleDarkMode}>
+          {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+        </button>
       </header>
 
       {/* ---------- Side Navigation ---------- */}
       <aside className={styles.sidebar}>
         <nav>
           <div className={styles.navTop}>
-            <a className={styles.sideLink} href="#">
-              <span>InsertHomeButton</span> Home
-            </a>
-            <a className={styles.sideLink} href="#">
-              <span>InsertFireButton</span> Popular
-            </a>
-            <a className={styles.sideLink} href="#">
-              <span>InsertbibleButton</span> Bible
-            </a>
-            <hr />
+            <button className={styles.sideLink} onClick={() => handleNavClick("home")}>
+              <Home className="w-5 h-5" />
+              <span>Home</span>
+            </button>
+            <button className={styles.sideLink} onClick={() => handleNavClick("popular")}>
+              <Flame className="w-5 h-5" />
+              <span>Popular</span>
+            </button>
+            <button className={styles.sideLink} onClick={() => handleNavClick("bible")}>
+              <Book className="w-5 h-5" />
+              <span>Bible</span>
+            </button>
+            <hr className={styles.divider} />
           </div>
 
           <div className={styles.navBottom}>
-            <a className={styles.sideLink} href="#">
-              <span>InsertLogo</span> About
-            </a>
-            <a className={styles.sideLink} href="#">
-              <span>?</span> Help
-            </a>
-            <a className={styles.sideLink} href="#">
-              <span>InsertLogOutButton</span> Log Out
-            </a>
+            <button className={styles.sideLink} onClick={() => handleNavClick("about")}>
+              <Mountain className="w-5 h-5" />
+              <span>About</span>
+            </button>
+            <button className={styles.sideLink} onClick={() => handleNavClick("help")}>
+              <HelpCircle className="w-5 h-5" />
+              <span>Help</span>
+            </button>
+            <button className={styles.sideLink} onClick={() => handleNavClick("logout")}>
+              <LogOut className="w-5 h-5" />
+              <span>Log Out</span>
+            </button>
           </div>
         </nav>
       </aside>
@@ -91,9 +145,38 @@ const router = useRouter();
           {/* Mini cards */}
           <div className={styles.miniCardsContainer}>
             <section className={styles.miniCards}>
-              <div className={styles.card}>Archives</div>
-              <div className={styles.card}>Saved Chapters</div>
-              <div className={styles.card}>unsay ibutang diri????</div>
+              <button className={`${styles.card} ${styles.miniCard}`} onClick={() => handleCardClick("Archives")}>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardHeader}>
+                    <Archive className={styles.cardIcon} />
+                    <span className={styles.cardTitle}>Archives</span>
+                  </div>
+                  <p className={styles.cardSubtitle}>Post Archive</p>
+                  <div className={styles.cardBadge}>248 entries</div>
+                </div>
+              </button>
+
+              <button className={`${styles.card} ${styles.miniCard}`} onClick={() => handleCardClick("Saved")}>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardHeader}>
+                    <Bookmark className={styles.cardIcon} />
+                    <span className={styles.cardTitle}>Saved</span>
+                  </div>
+                  <p className={styles.cardSubtitle}>Saved Chapters</p>
+                  <div className={styles.cardBadge}>12 Chapters</div>
+                </div>
+              </button>
+
+              <button className={`${styles.card} ${styles.miniCard}`} onClick={() => handleCardClick("Daily Readings")}>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardHeader}>
+                    <Calendar className={styles.cardIcon} />
+                    <span className={styles.cardTitle}>Daily Readings</span>
+                  </div>
+                  <p className={styles.cardSubtitle}>{"Today's Quest"}</p>
+                  <div className={styles.cardBadge}>15 min left</div>
+                </div>
+              </button>
             </section>
           </div>
         </main>
