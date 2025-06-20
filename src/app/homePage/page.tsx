@@ -66,7 +66,7 @@ const router = useRouter();
   }
 
   return (
-    <div className={`${styles.screen} ${isDarkMode ? styles.dark : styles.light}`}>
+    <div className={`${styles.screen} ${styles.baseFontSize} ${isDarkMode ? styles.dark : styles.light}`}>
       {/* ---------- Top Navbar ---------- */}
       <header className={styles.navbar}>
         <div className={styles.brand}>
@@ -74,7 +74,7 @@ const router = useRouter();
           <span>Amenity</span>
         </div>
         <div className={styles.searchWrapper}>
-          <form onSubmit={handleSearch}>
+          <form onSubmit={handleSearch} style={{width: '100%'}}>
             <div className={styles.searchContainer}>
               <Search className={styles.searchIcon} />
               <input
@@ -88,7 +88,7 @@ const router = useRouter();
           </form>
         </div>
         <button className={styles.darkModeBtn} onClick={toggleDarkMode}>
-          {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+          {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
         </button>
       </header>
 
@@ -97,15 +97,15 @@ const router = useRouter();
         <nav>
           <div className={styles.navTop}>
             <button className={styles.sideLink} onClick={() => handleNavClick("home")}>
-              <Home className="w-5 h-5" />
+              <Home size={20} />
               <span>Home</span>
             </button>
             <button className={styles.sideLink} onClick={() => handleNavClick("popular")}>
-              <Flame className="w-5 h-5" />
+              <Flame size={20} />
               <span>Popular</span>
             </button>
             <button className={styles.sideLink} onClick={() => handleNavClick("bible")}>
-              <Book className="w-5 h-5" />
+              <Book size={20} />
               <span>Bible</span>
             </button>
             <hr className={styles.divider} />
@@ -113,15 +113,15 @@ const router = useRouter();
 
           <div className={styles.navBottom}>
             <button className={styles.sideLink} onClick={() => handleNavClick("about")}>
-              <Mountain className="w-5 h-5" />
+              <Mountain size={20} />
               <span>About</span>
             </button>
             <button className={styles.sideLink} onClick={() => handleNavClick("help")}>
-              <HelpCircle className="w-5 h-5" />
+              <HelpCircle size={20} />
               <span>Help</span>
             </button>
             <button className={styles.sideLink} onClick={() => handleNavClick("logout")}>
-              <LogOut className="w-5 h-5" />
+              <LogOut size={20} />
               <span>Log Out</span>
             </button>
           </div>
@@ -135,9 +135,9 @@ const router = useRouter();
           <div className={styles.verseOfTheDay}>
             <section className={`${styles.card} ${styles.verseCard}`}>
               <h2>
-                VERSE OF
+                VERSE OF
                 <br />
-                THE DAY
+                THE DAY
               </h2>
             </section>
           </div>
@@ -148,7 +148,7 @@ const router = useRouter();
               <button className={`${styles.card} ${styles.miniCard}`} onClick={() => handleCardClick("Archives")}>
                 <div className={styles.cardContent}>
                   <div className={styles.cardHeader}>
-                    <Archive className={styles.cardIcon} />
+                    <Archive className={styles.cardIcon} size={20} />
                     <span className={styles.cardTitle}>Archives</span>
                   </div>
                   <p className={styles.cardSubtitle}>Post Archive</p>
@@ -159,7 +159,7 @@ const router = useRouter();
               <button className={`${styles.card} ${styles.miniCard}`} onClick={() => handleCardClick("Saved")}>
                 <div className={styles.cardContent}>
                   <div className={styles.cardHeader}>
-                    <Bookmark className={styles.cardIcon} />
+                    <Bookmark className={styles.cardIcon} size={20} />
                     <span className={styles.cardTitle}>Saved</span>
                   </div>
                   <p className={styles.cardSubtitle}>Saved Chapters</p>
@@ -170,7 +170,7 @@ const router = useRouter();
               <button className={`${styles.card} ${styles.miniCard}`} onClick={() => handleCardClick("Daily Readings")}>
                 <div className={styles.cardContent}>
                   <div className={styles.cardHeader}>
-                    <Calendar className={styles.cardIcon} />
+                    <Calendar className={styles.cardIcon} size={20} />
                     <span className={styles.cardTitle}>Daily Readings</span>
                   </div>
                   <p className={styles.cardSubtitle}>{"Today's Quest"}</p>
