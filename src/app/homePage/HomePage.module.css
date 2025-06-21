@@ -84,7 +84,8 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 40rem;
+  min-width: 35rem;;
+  max-width: 80rem;
   margin: 0 1rem;
   margin-left: -9rem;
   position: relative;
@@ -98,6 +99,8 @@
 
 .search {
   width: 100%;
+  min-width: 35rem;
+  max-width: 80rem;
   height: 2.5rem;
   border-radius: 3.125rem;
   border: none;
@@ -107,14 +110,17 @@
   position: relative;
 }
 
+
 .searchIcon {
   position: absolute;
-  left: 1rem;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 20px;
+  height: 20px;
   transition: color 0.3s ease;
+  z-index: 2;
+  color: #e0c58f;
 }
 
 .dark .searchIcon {
@@ -308,7 +314,7 @@
 .MenuCard {
   display: flex;
   flex: 1;
-  margin-left: 15rem;
+  margin-left: 20rem;
   margin-top: 4.5rem;
   margin-right: 15rem;
   padding: 1.5rem;
