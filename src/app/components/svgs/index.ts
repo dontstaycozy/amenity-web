@@ -8,3 +8,6 @@ export { default as Logout } from './Logout.svg';
 export { default as Profile } from './Profile.svg';
 export { default as Search } from './Search.svg';
 export { default as Sun } from './Sun.svg';
+export { default as CrossEye } from './CrossEye.svg';
+export { default as NoCrossEye } from './NoCrossEye.svg';
+export { default as Create } from './Create.svg';
