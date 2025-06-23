@@ -69,7 +69,7 @@ export default function HomePage() {
           <div className={styles.headerLeft}>
             <h3 className="headingMedium">Amenity</h3>
           </div>
-          
+         
           <div className={styles.headerMid}>
             <div className={styles.searchContainer}>
               <span className={styles.searchIcon}>🔍</span>
