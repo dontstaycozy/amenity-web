@@ -2,6 +2,19 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
+import {
+About,
+Bell,
+Bible,
+Fire,
+Help,
+Home,
+Logout,
+Profile,
+Search,
+Sun
+} from '@/app/components/svgs'; // Adjust the import path as necessary
+
 
 // Custom icon components
 const ArchiveIcon = () => (
@@ -72,7 +85,7 @@ export default function HomePage() {
           
           <div className={styles.headerMid}>
             <div className={styles.searchContainer}>
-              <span className={styles.searchIcon}>🔍</span>
+              <span className={styles.searchIcon}><Search /></span>
               <input 
                 type="text" 
                 className={styles.searchInput} 
@@ -83,7 +96,7 @@ export default function HomePage() {
           
           <div className={styles.headerRight}>
             {/* Notification Icon */}
-            <span className={styles.headerIcon}>🔔</span>
+            <span className={styles.headerIcon}><Bell /> </span>
             
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>
@@ -91,22 +104,22 @@ export default function HomePage() {
                 className={styles.headerIcon} 
                 onClick={toggleProfileMenu}
               >
-                👤
+                <Profile />
               </span>
               
               {/* Profile Dropdown Menu */}
               {showProfileMenu && (
                 <div className={styles.profileDropdown}>
                   <div className={styles.dropdownItem}>
-                    <span>👤</span>
+                    <span><Profile /></span>
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}>
-                    <span>🚪</span>
+                    <span><Logout /></span>
                     <span>Log Out</span>
                   </div>
                   <div className={styles.dropdownItem}>
-                    <span>💡</span>
+                    <span><Sun /></span>
                     <span>Light Mode</span>
                   </div>
                 </div>
@@ -123,29 +136,29 @@ export default function HomePage() {
           <div className={styles.mainLeft}>
             <div className={styles.mainLeftUp}>
               <div className={styles.navItem}>
-                <div className={styles.navIcon}>🏠</div>
+                <div className={styles.navIcon}><Home /></div>
                 <span className={styles.navText}>Home</span>
               </div>
               
               <div className={styles.navItem}>
-                <div className={styles.navIcon}>🔥</div>
+                <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
               
               <div className={styles.navItem}>
-                <div className={styles.navIcon}>📖</div>
+                <div className={styles.navIcon}><Bible /></div>
                 <span className={styles.navText}>Bible</span>
               </div>
             </div>
             
             <div className={styles.mainLeftBottom}>
               <div className={styles.navItem}>
-                <div className={styles.navIcon}>ℹ️</div>
+                <div className={styles.navIcon}><About/></div>
                 <span className={styles.navText}>About</span>
               </div>
               
               <div className={styles.navItem}>
-                <div className={styles.navIcon}>❓</div>
+                <div className={styles.navIcon}><Help/></div>
                 <span className={styles.navText}>Help</span>
               </div>
             </div>

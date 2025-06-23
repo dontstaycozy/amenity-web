@@ -1,0 +1,10 @@
+export { default as About } from './About.svg';
+export { default as Bell } from './Bell.svg';
+export { default as Bible } from './Bible.svg';
+export { default as Fire } from './Fire.svg';
+export { default as Help } from './Help.svg';
+export { default as Home } from './Home.svg';
+export { default as Logout } from './Logout.svg';
+export { default as Profile } from './Profile.svg';
+export { default as Search } from './Search.svg';
+export { default as Sun } from './Sun.svg';
