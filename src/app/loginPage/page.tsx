@@ -1,26 +1,40 @@
 "use client";
   import React, { useState } from 'react';
 import styles from "./index.module.css";
-import { collection, addDoc } from "firebase/firestore";
 import { useRouter} from "next/navigation";
-import { db } from '../Firebaseconfig';
+import supabase from '../lib/supabaseclient';
 import { signIn } from "next-auth/react";
 
-//async function for adding data to firebase
- async function addData(username: string, password: string, email:string): Promise<boolean> {
-  try {
-    const docRef = await addDoc(collection(db, "Users"), {
-      username,
-      password,
-      email,
-    });
-    console.log("Successfull!! Document written with ID:", docRef.id);
+
+ async function addData(username: string, password: string, email: string): Promise<boolean> {
+ 
+
+  const { data, error } = await supabase
+    .from('Users_Accounts')
+    
+    .insert([
+      {
+        username: username,
+        password: password, // Keeping the password in plain text for experimentation
+        email: email,
+      }
+    ]);
+
+  if (error) {
+    console.log("Sending insert:", {
+  username: username,
+  password: password,
+  email: email,
+});
+   console.log("Insert failed (full error):");
+console.dir(error, { depth: null });
+return false;
+  } 
+    console.log('Insert success:', data);
     return true;
-  } catch (error) {
-    console.error("Error adding data", error);
-    return false;
-  }
+  
 }
+
 
 // Types
 interface FormState {
@@ -38,6 +52,7 @@ interface SignUpFormState {
 
 // Login form component with form state management and validation
 const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
+
   // Form state management
   const router = useRouter();
   const [form, setForm] = useState<FormState>({
@@ -81,7 +96,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
       remember: false,
     });
     setError("");
-    router.push('/homePage')
+    router.push('/Homepage')
   }else{
  setForm({
       username: '',
@@ -223,6 +238,8 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
 
 // Sign up form component with form state management and validation
 const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
+    console.log("Supabase type:", typeof supabase);
+    console.log("Supabase.from type:", typeof supabase.from);
   // Form state management
   const [form, setForm] = useState<SignUpFormState>({
     username: "",
@@ -256,9 +273,9 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
       return;
     }
     //calling addData function to store user newly created accounts
-    const success = await addData(form.username, form.password,form.email);
-
-    if(success){
+   const data_insertion = await addData(form.username, form.password, form.email);
+console.log('Insert result: ', data_insertion);
+    if(data_insertion){
       setForm({
       username: '',
       email: '',
