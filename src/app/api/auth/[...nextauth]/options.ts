@@ -1,7 +1,7 @@
 // src/lib/options.ts
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
-import { adminDb } from "@/app/lib/firebaseadmin";
+import supabase from "@/app/lib/supabaseclient";
 
 export const options: NextAuthOptions = {
   providers: [
@@ -13,33 +13,36 @@ export const options: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
-          console.log("Missing credentials");
+          console.log("[Auth] Missing credentials");
           return null;
         }
 
         try {
-          const snapshot = await adminDb
-            .collection("Users")
-            .where("username", "==", credentials.username)
-            .limit(1)
-            .get();
+          const { data, error } = await supabase
+            .from("Users_Accounts")
+            .select("id, username, password, email")
+            .eq("username", credentials.username)
+            .single();
 
-          if (snapshot.empty) return null;
-
-          const userDoc = snapshot.docs[0];
-          const user = userDoc.data();
-
-          if (user.password === credentials.password) {
-            return {
-              id: userDoc.id,
-              name: user.username,
-              email: user.email || null,
-            };
-          } else {
+          if (error || !data) {
+            console.log("[Auth] User not found or Supabase error:", error?.message);
             return null;
           }
-        } catch (error) {
-          console.error("Error during Firestore auth:", error);
+
+          const passwordsMatch = data.password === credentials.password;
+
+          if (!passwordsMatch) {
+            console.log("[Auth] Incorrect password");
+            return null;
+          }
+
+          return {
+            id: data.id,
+            name: data.username,
+            email: data.email ?? null,
+          };
+        } catch (err) {
+          console.error("[Auth] Unexpected error:", err);
           return null;
         }
       },
@@ -50,12 +53,10 @@ export const options: NextAuthOptions = {
     signIn: "/login",
   },
 
-  
   session: {
     strategy: "jwt",
   },
 
- 
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -64,7 +65,7 @@ export const options: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token?.id) {
         session.id = token.id as string;
       }
       return session;
