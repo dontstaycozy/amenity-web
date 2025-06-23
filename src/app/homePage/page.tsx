@@ -12,7 +12,8 @@ Home,
 Logout,
 Profile,
 Search,
-Sun
+Sun,
+Create
 } from '@/app/components/svgs'; // Adjust the import path as necessary
 
 
