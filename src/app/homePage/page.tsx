@@ -3,19 +3,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
 import {
-About,
-Bell,
-Bible,
-Fire,
-Help,
-Home,
-Logout,
-Profile,
-Search,
-Sun,
-Create
+  About,
+  Bell,
+  Bible,
+  Fire,
+  Help,
+  Home,
+  Logout,
+  Profile,
+  Search,
+  Sun,
+  Create
 } from '@/app/components/svgs'; // Adjust the import path as necessary
-
+import { signOut } from 'next-auth/react';
 
 // Custom icon components
 const ArchiveIcon = () => (
@@ -41,7 +41,7 @@ const CalendarIcon = () => (
 export default function HomePage() {
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  
+
   // Reference to the dropdown container
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +49,7 @@ export default function HomePage() {
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
   };
-  
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -57,10 +57,10 @@ export default function HomePage() {
         setShowProfileMenu(false);
       }
     }
-    
+
     // Add event listener
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     // Clean up
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -83,31 +83,31 @@ export default function HomePage() {
           <div className={styles.headerLeft}>
             <h3 className="headingMedium">Amenity</h3>
           </div>
-          
+
           <div className={styles.headerMid}>
             <div className={styles.searchContainer}>
               <span className={styles.searchIcon}><Search /></span>
-              <input 
-                type="text" 
-                className={styles.searchInput} 
-                placeholder="Search..." 
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Search..."
               />
             </div>
           </div>
-          
+
           <div className={styles.headerRight}>
             {/* Notification Icon */}
             <span className={styles.headerIcon}><Bell /> </span>
-            
+
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>
-              <span 
-                className={styles.headerIcon} 
+              <span
+                className={styles.headerIcon}
                 onClick={toggleProfileMenu}
               >
                 <Profile />
               </span>
-              
+
               {/* Profile Dropdown Menu */}
               {showProfileMenu && (
                 <div className={styles.profileDropdown}>
@@ -115,7 +115,7 @@ export default function HomePage() {
                     <span><Profile /></span>
                     <span>View Profile</span>
                   </div>
-                  <div className={styles.dropdownItem}>
+                  <div className={styles.dropdownItem} onClick={() => signOut({ callbackUrl: '/loginPage' })}>
                     <span><Logout /></span>
                     <span>Log Out</span>
                   </div>
@@ -140,31 +140,31 @@ export default function HomePage() {
                 <div className={styles.navIcon}><Home /></div>
                 <span className={styles.navText}>Home</span>
               </div>
-              
+
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
-              
+
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><Bible /></div>
                 <span className={styles.navText}>Bible</span>
               </div>
             </div>
-            
+
             <div className={styles.mainLeftBottom}>
               <div className={styles.navItem}>
-                <div className={styles.navIcon}><About/></div>
+                <div className={styles.navIcon}><About /></div>
                 <span className={styles.navText}>About</span>
               </div>
-              
+
               <div className={styles.navItem}>
-                <div className={styles.navIcon}><Help/></div>
+                <div className={styles.navIcon}><Help /></div>
                 <span className={styles.navText}>Help</span>
               </div>
             </div>
           </div>
-          
+
           {/* Middle Content Area - Now Scrollable */}
           <div className={styles.mainMid}>
             {/* Verse of the Day */}
@@ -172,7 +172,7 @@ export default function HomePage() {
               <h2 className="headingLarge">VERSE OF THE DAY</h2>
               <p className="paragraph">"For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life." - John 3:16</p>
             </div>
-            
+
             {/* Card Container */}
             <div className={styles.cardContainer}>
               <div className={styles.card}>
@@ -183,7 +183,7 @@ export default function HomePage() {
                 <p className={styles.cardInfo}>Post Archive</p>
                 <p className={styles.cardInfo}>248 entries</p>
               </div>
-              
+
               <div className={styles.card}>
                 <div className={styles.cardIcon}>
                   <SavedIcon />
@@ -192,7 +192,7 @@ export default function HomePage() {
                 <p className={styles.cardInfo}>Saved Chapters</p>
                 <p className={styles.cardInfo}>12 Chapters</p>
               </div>
-              
+
               <div className={styles.card}>
                 <div className={styles.cardIcon}>
                   <CalendarIcon />
@@ -202,16 +202,16 @@ export default function HomePage() {
                 <p className={styles.cardInfo}>15 min left</p>
               </div>
             </div>
-            
+
             {/* Additional Content */}
             <div style={{ marginTop: '3rem' }}>
               <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>More Inspirational Verses</h2>
               {additionalVerses.map(verse => (
-                <div 
+                <div
                   key={verse.id}
-                  style={{ 
-                    backgroundColor: '#1E2B48', 
-                    padding: '1.75rem', 
+                  style={{
+                    backgroundColor: '#1E2B48',
+                    padding: '1.75rem',
                     borderRadius: '12px',
                     marginBottom: '1.25rem',
                     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
@@ -221,13 +221,13 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            
+
             {/* Recent Activity */}
             <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
               <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>Recent Activity</h2>
-              <div style={{ 
-                backgroundColor: '#1E2B48', 
-                padding: '1.75rem', 
+              <div style={{
+                backgroundColor: '#1E2B48',
+                padding: '1.75rem',
                 borderRadius: '12px',
                 boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
               }}>
@@ -235,12 +235,12 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          
+
           {/* Right Section */}
           <div className={styles.mainRight}>
             <div className={styles.rightContainer}>
               <h3 className="headingMedium">Streak Plant!</h3>
-              
+
               {/* Glass Bell Component */}
               <div className={styles.glassBellContainer}>
                 <div className={styles.glassBell}></div>
