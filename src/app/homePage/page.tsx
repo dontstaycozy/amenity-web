@@ -2,6 +2,21 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
+import { useRouter } from 'next/navigation';
+import {
+  Search,
+  Moon,
+  Sun,
+  Home,
+  Flame,
+  Book,
+  Mountain,
+  HelpCircle,
+  LogOut,
+  Archive,
+  Bookmark,
+  Calendar,
+} from "lucide-react";
 
 // Custom icon components
 const ArchiveIcon = () => (
@@ -25,6 +40,7 @@ const CalendarIcon = () => (
 );
 
 export default function HomePage() {
+  const router = useRouter();
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
@@ -35,6 +51,10 @@ export default function HomePage() {
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
   };
+
+  const biblePage = () => {
+    router.push('/biblePage');
+  }
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -132,10 +152,10 @@ export default function HomePage() {
                 <span className={styles.navText}>Popular</span>
               </div>
               
-              <div className={styles.navItem}>
+              <button className={styles.navItem} onClick={biblePage}>
                 <div className={styles.navIcon}>📖</div>
                 <span className={styles.navText}>Bible</span>
-              </div>
+              </button>
             </div>
             
             <div className={styles.mainLeftBottom}>
