@@ -112,7 +112,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
 
   return (
     <div className={styles.signupForm}>
-  <GoogleButton onClick={() => signIn('google', { callbackUrl: '/Homepage' })} />
+
       <h1>Log In</h1>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
         <div
@@ -231,8 +231,10 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
             </a>
           </span>
         </div>
+          <GoogleButton onClick={() => signIn('google', { callbackUrl: '/Homepage' })} />
         {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
         <button type="submit">Log In</button>
+        
       </form>
     </div>
   );
