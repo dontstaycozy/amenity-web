@@ -16,7 +16,8 @@ import {
   Create
 } from '@/app/components/svgs'; // Adjust the import path as necessary
 import { signOut } from 'next-auth/react';
-
+import CreatePostModal from './CreatePostModal';
+import { useSession } from "next-auth/react";
 // Custom icon components
 const ArchiveIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg ">
@@ -75,7 +76,11 @@ export default function HomePage() {
     { id: 4, text: '"Be strong and courageous. Do not be afraid; do not be discouraged, for the LORD your God will be with you wherever you go." - Joshua 1:9' }
   ];
 
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { data: session } = useSession();
+
   return (
+    
     <div className={styles.body}>
       {/* Header Section */}
       <header className={styles.header}>
@@ -217,10 +222,21 @@ export default function HomePage() {
                 {/*posting stuff goes here*/}
 
               </div>
-              <button className={styles.CreateButton} aria-label="Create Post" style = {{fontSize: '1.5rem', marginTop: '1.5rem'}}>
+              <button
+                className={styles.CreateButton}
+                aria-label="Create Post"
+                style={{ fontSize: '1.5rem', marginTop: '1.5rem' }}
+                onClick={() => setShowCreateModal(true)}
+              >
                 <Create />
               </button>
             </div>
+            {/* Modal for creating a post */}
+            <CreatePostModal
+              isOpen={showCreateModal}
+              onClose={() => setShowCreateModal(false)}
+              username={session?.user?.name || ""}
+            />
           </div>
 
           {/* Right Section */}
