@@ -291,6 +291,29 @@
   border-radius: 10px;
 }
 
+.CreateButton {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  background: #2d3a5a;
+  border: none;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s;
+  margin-right: 16.25rem;
+}
+
+.CreateButton:hover {
+  background: #3e4a6b;
+}
+
 .verseContainer {
   background-color: #1E2B48;
   border-radius: 12px;
