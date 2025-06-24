@@ -2,6 +2,8 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
 import supabase from "@/app/lib/supabaseclient";
+import GoogleProvider from "next-auth/providers/google";
+
 
 export const options: NextAuthOptions = {
   providers: [
@@ -47,6 +49,11 @@ export const options: NextAuthOptions = {
         }
       },
     }),
+
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret:process.env.GOOGLE_CLIENT_SECRET!, 
+    })
   ],
 
   pages: {

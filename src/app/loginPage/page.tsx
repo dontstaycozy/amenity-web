@@ -4,6 +4,7 @@ import styles from "./index.module.css";
 import { useRouter} from "next/navigation";
 import supabase from '../lib/supabaseclient';
 import { signIn } from "next-auth/react";
+import GoogleButton from "react-google-button";
 
 
  async function addData(username: string, password: string, email: string): Promise<boolean> {
@@ -111,6 +112,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
 
   return (
     <div className={styles.signupForm}>
+  <GoogleButton onClick={() => signIn('google', { callbackUrl: '/Homepage' })} />
       <h1>Log In</h1>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
         <div
