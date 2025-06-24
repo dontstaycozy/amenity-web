@@ -1,168 +1,156 @@
 .background {
-	width: 100vw;
-	min-height: 100vh;
-	background-image: url('/images/login-page-4.png');
-	background-size: cover;
-	background-position: center;
-	background-repeat: no-repeat;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+    width: 100vw;
+    min-height: 100vh;
+    background-image: url('/images/login-page-4.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
-.signupContainer {
-	display: flex;
-	width: 90vw;
-	max-width: 1300px;
-	align-items: center;
-	justify-content: space-between;
-	min-height: 80vh;
+.signupContainer { /* This name is a bit misleading as it also contains the login form */
+    display: flex;
+    width: 90vw;
+    max-width: 1300px;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 80vh;
 }
 
 .treeLogo {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex: 1;
-	height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 100%;
 }
 
 .treeLogo img {
-	max-width: 350px;
-	width: 100%;
-	height: auto;
-	filter: drop-shadow(0 0 80px #e0c58f88) drop-shadow(0 0 40px #e0c58f44);
+    max-width: 350px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 80px #e0c58f88) drop-shadow(0 0 40px #e0c58f44);
 }
 
-.signupForm {
-	flex: 1.2;
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	justify-content: center;
-	background: rgba(0, 0, 0, 0.0);
-	padding: 2vw 0 2vw 0;
-	border-radius: 24px;
-	min-width: 420px;
-	max-width: 500px;
+.signupForm { /* This class is applied to both signupForm and loginForm components */
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.0);
+    padding: 2vw 0 2vw 0;
+    border-radius: 24px;
+    min-width: 420px;
+    max-width: 500px;
 }
 
-.signupForm h1 {
-	color: #e0c58f;
-	font-size: 2.5rem;
-	font-weight: 700;
-	margin-bottom: 32px;
-	align-self: center;
-	text-align: center;
-	font-family: 'Segoe UI Emoji';
+.signupForm h1 { /* Used for both "Log In" and "Sign Up" headings */
+    color: #e0c58f;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 32px;
+    align-self: center;
+    text-align: center;
+    font-family: 'Segoe UI Emoji';
 }
 
-.signupForm input {
-	width: 100%;
-	height: 40px;
-	border-radius: 24px;
-	border: none;
-	margin-top: 6px;
-	margin-bottom: 16px;
-	padding-left: 24px;
-	font-size: 1.1rem;
-	background: #3c507d;
-	color: #fff;
-	outline: none;
-	font-family: 'Segoe UI Emoji';
+.signupForm input { /* General input styles for both forms */
+    width: 100%;
+    height: 40px;
+    border-radius: 24px;
+    border: none;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    padding-left: 24px;
+    font-size: 1.1rem;
+    background: #3c507d;
+    color: #fff;
+    outline: none;
+    font-family: 'Segoe UI Emoji';
 }
 
-.signupForm label {
-	color: #fff;
-	font-weight: 700;
-	font-size: 1.1rem;
-	font-family: 'Segoe UI Emoji';
+.signupForm label { /* General label styles for both forms */
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: 'Segoe UI Emoji';
 }
 
-.signupForm .row {
-	display: flex;
-	gap: 32px;
-	width: 100%;
+.signupForm .row { /* Used for arranging multiple inputs on one row */
+    display: flex;
+    gap: 32px;
+    width: 100%;
 }
 
-.signupForm .row>div {
-	flex: 1;
+.signupForm .row>div { /* Defines how elements within a row behave */
+    flex: 1;
 }
 
-.signupForm .divider {
-	width: 100%;
-	border-bottom: 1px solid #e0c58f;
-	margin-bottom: 8px;
+.signupForm .divider { /* The horizontal line separating sections */
+    width: 100%;
+    border-bottom: 1px solid #e0c58f;
+    margin-bottom: 8px;
 }
 
-.signupForm .footer {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	margin-bottom: 8px;
-	text-align: center;
+.signupForm .footer { /* The footer containing "Don't have an account?" or "Already have an account?" */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+    text-align: center;
 }
 
-.signupForm .footer span {
-	color: #e0c58f;
-	font-size: 13px;
-	font-family: 'Segoe UI Emoji';
+.signupForm .footer span { /* Text style within the footer */
+    color: #e0c58f;
+    font-size: 13px;
+    font-family: 'Segoe UI Emoji';
 }
 
-.signupForm button {
-	margin-top: 18px;
-	width: 140px;
-	height: 48px;
-	border-radius: 24px;
-	background: #f5f0e9;
-	color: #3c507d;
-	font-weight: 700;
-	font-size: 1.3rem;
-	border: none;
-	cursor: pointer;
-	box-shadow: 0 2px 16px 0 #0002;
-	align-self: flex-end;
-	transition: background 0.2s;
+.signupForm button { /* General button styles for both forms */
+    margin-top: 18px;
+    width: 140px;
+    height: 48px;
+    border-radius: 24px;
+    background: #f5f0e9;
+    color: #3c507d;
+    font-weight: 700;
+    font-size: 1.3rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 16px 0 #0002;
+    align-self: flex-end;
+    transition: background 0.2s;
 }
 
-.signupForm button:hover {
-	background: #e0c58f;
-	color: #2c3655;
+.signupForm button:hover { /* Hover effect for buttons */
+    background: #e0c58f;
+    color: #2c3655;
 }
 
-.signupForm .forgotPassword {
-	font-size: 15px;
-	font-family: 'Segoe UI Emoji';
-	color: #e0c58f;
-	cursor: pointer;
-	text-decoration: underline;
-}
+@media (max-width: 900px) { /* Responsive adjustments for smaller screens */
+    .signupContainer {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: unset;
+    }
 
-.signupForm label[for="remember"] {
-	color: #e0c58f;
-}
+    .treeLogo {
+        margin-bottom: 32px;
+    }
 
-@media (max-width: 900px) {
-	.signupContainer {
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		min-height: unset;
-	}
-
-	.treeLogo {
-		margin-bottom: 32px;
-	}
-
-	.signupForm {
-		min-width: 0;
-		width: 90vw;
-		max-width: 98vw;
-	}
+    .signupForm {
+        min-width: 0;
+        width: 90vw;
+        max-width: 98vw;
+    }
 }

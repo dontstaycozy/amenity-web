@@ -2,8 +2,23 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './BiblePage.module.css';
+import {
+  About,
+  Bell,
+  Bible,
+  Fire,
+  Help,
+  Home,
+  Logout,
+  Profile,
+  Search,
+  Sun,
+  Create,
+  LOGO
+} from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import BibleDisplay from '../bibleAPI/BibleDisplay';
 
 type BookChapters = {
@@ -235,12 +250,14 @@ export default function HomePage() {
       <header className={styles.header}>
         <div className={styles.headerContainer}>
           <div className={styles.headerLeft}>
-            <h3 className="headingMedium">Amenity</h3>
+            <LOGO style={{ width: 100, height: 100 }} /><h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
           
           <div className={styles.headerMid}>
             <div className={styles.searchContainer}>
-              <span className={styles.searchIcon}>🔍</span>
+              <span className={styles.searchIcon}>  <button className={styles.searchIcon}>
+                <Search style={{ cursor: "pointer" }} />
+              </button></span>
               <input 
                 type="text" 
                 className={styles.searchInput} 
@@ -251,7 +268,7 @@ export default function HomePage() {
           
           <div className={styles.headerRight}>
             {/* Notification Icon */}
-            <span className={styles.headerIcon}>🔔</span>
+            <span className={styles.headerIcon}><Bell /> </span>
             
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>
@@ -259,22 +276,22 @@ export default function HomePage() {
                 className={styles.headerIcon} 
                 onClick={toggleProfileMenu}
               >
-                👤
+                <Profile />
               </span>
               
               {/* Profile Dropdown Menu */}
               {showProfileMenu && (
                 <div className={styles.profileDropdown}>
                     <button className={styles.dropdownItem}>
-                    <span>👤</span>
+                    <span><Profile /></span>
                     <span>View Profile</span>
                     </button>
                     <button className={styles.dropdownItem} onClick={handleLogOut}>
-                    <span>🚪</span>
+                    <span><Logout /></span>
                     <span>Log Out</span>
                     </button>
                     <button className={styles.dropdownItem}>
-                    <span>💡</span>
+                    <span><Sun /></span>
                     <span>Light Mode</span>
                     </button>
                 </div>
@@ -292,29 +309,29 @@ export default function HomePage() {
             <div className={styles.mainLeftUp}>
 
               <button className={styles.navItem} onClick={homePage}>
-                <div className={styles.navIcon}>🏠</div>
+                <div className={styles.navIcon}><Home /></div>
                 <span className={styles.navText}>Home</span>
               </button>
               
               <div className={styles.navItem}>
-                <div className={styles.navIcon}>🔥</div>
+                <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
               
               <div className={styles.navItem}>
-                <div className={styles.navIcon}>📖</div>
+                <div className={styles.navIcon}><Bible /></div>
                 <span className={styles.navText}>Bible</span>
               </div>
             </div>
             
             <div className={styles.mainLeftBottom}>
               <div className={styles.navItem}>
-                <div className={styles.navIcon}>ℹ️</div>
+                <div className={styles.navIcon}><About /></div>
                 <span className={styles.navText}>About</span>
               </div>
               
               <div className={styles.navItem}>
-                <div className={styles.navIcon}>❓</div>
+                <div className={styles.navIcon}><Help /></div>
                 <span className={styles.navText}>Help</span>
               </div>
             </div>

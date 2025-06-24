@@ -1,0 +1,15 @@
+export { default as About } from './About.svg';
+export { default as Bell } from './Bell.svg';
+export { default as Bible } from './Bible.svg';
+export { default as Fire } from './Fire.svg';
+export { default as Help } from './Help.svg';
+export { default as Home } from './Home.svg';
+export { default as Logout } from './Logout.svg';
+export { default as Profile } from './Profile.svg';
+export { default as Search } from './Search.svg';
+export { default as Sun } from './Sun.svg';
+export { default as CrossEye } from './CrossEye.svg';
+export { default as NoCrossEye } from './NoCrossEye.svg';
+export { default as Create } from './Create.svg';
+export { default as Image } from './Image.svg';
+export { default as LOGO} from './AMENITREE.svg';

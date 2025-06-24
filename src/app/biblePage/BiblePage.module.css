@@ -66,7 +66,7 @@
 }
 
 .searchIcon {
-  position: absolute;
+  position: relative;
   left: 1rem;
   color: #8b9cb3;
   z-index: 1;
@@ -103,10 +103,12 @@
 /* Header icons and profile dropdown styles */
 .headerIcon {
   color: #f5f0e9;
-  margin-left: 1.5rem;
   cursor: pointer;
   transition: opacity 0.2s;
   font-size: 1.25rem;
+  margin: 0.5rem;
+  display: flex;
+  align-items: center;
 }
 
 .headerIcon:hover {
