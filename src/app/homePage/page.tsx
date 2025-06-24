@@ -13,7 +13,8 @@ import {
   Profile,
   Search,
   Sun,
-  Create
+  Create,
+  LOGO
 } from '@/app/components/svgs'; // Adjust the import path as necessary
 import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
@@ -80,13 +81,13 @@ export default function HomePage() {
   const { data: session } = useSession();
 
   return (
-    
+
     <div className={styles.body}>
       {/* Header Section */}
       <header className={styles.header}>
         <div className={styles.headerContainer}>
           <div className={styles.headerLeft}>
-            <h3 className="headingMedium">Amenity</h3>
+            <LOGO style={{ width: 100, height: 100 }} /><h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
 
           <div className={styles.headerMid}>
