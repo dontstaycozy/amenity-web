@@ -1,24 +1,19 @@
 "use client";
-  import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from "./index.module.css";
 import { collection, addDoc } from "firebase/firestore";
-import { useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import { db } from '../Firebaseconfig';
 import { signIn } from "next-auth/react";
+import Image from 'next/image';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
+import { BsBoxArrowLeft } from 'react-icons/bs';
 
-//async function for adding data to firebase
- async function addData(username: string, password: string, email:string): Promise<boolean> {
-  try {
-    const docRef = await addDoc(collection(db, "Users"), {
-      username,
-      password,
-      email,
-    });
-    console.log("Successfull!! Document written with ID:", docRef.id);
-    return true;
-  } catch (error) {
-    console.error("Error adding data", error);
-    return false;
+// Add JSX namespace declaration
+declare namespace JSX {
+  interface IntrinsicElements {
+    [elemName: string]: any;
   }
 }
 
@@ -36,9 +31,24 @@ interface SignUpFormState {
   confirmPassword: string;
 }
 
-// Login form component with form state management and validation
+// Async function for adding data to firebase
+async function addData(username: string, password: string, email: string): Promise<boolean> {
+  try {
+    const docRef = await addDoc(collection(db, "Users"), {
+      username,
+      password,
+      email,
+    });
+    console.log("Successful! Document written with ID:", docRef.id);
+    return true;
+  } catch (error) {
+    console.error("Error adding data", error);
+    return false;
+  }
+}
+
+// Login form component
 const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
-  // Form state management
   const router = useRouter();
   const [form, setForm] = useState<FormState>({
     username: "",
@@ -48,16 +58,14 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
+    setForm((prev: FormState) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -65,165 +73,121 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
       setError("Username and password are required.");
       return;
     }
-    const res = await signIn('credentials', {
-      redirect: false,
-
-      username: form.username,
-      password: form.password,
-
-      
-    });
     
-  if(res?.ok){
-    setForm({
-      username: '',
-      password: '',
-      remember: false,
-    });
-    setError("");
-    router.push('/homePage')
-  }else{
- setForm({
-      username: '',
-      password: '',
-      remember: false,
-    });
-    setError("invalid credentials");
-  }
-  
+    try {
+      const res = await signIn('credentials', {
+        redirect: false,
+        username: form.username,
+        password: form.password,
+      });
+      
+      if (res?.ok) {
+        setForm({
+          username: '',
+          password: '',
+          remember: false,
+        });
+        setError("");
+        router.push('/homePage');
+      } else {
+        setForm({
+          username: '',
+          password: '',
+          remember: false,
+        });
+        setError("Invalid credentials");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("An error occurred during login");
+    }
   };
-  
+
+  const handleGoogleSignIn = () => {
+    signIn('google', { callbackUrl: '/homePage' });
+  };
 
   return (
-    <div className={styles.signupForm}>
-      <h1>Log In</h1>
-      <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-        <div
-          style={{
-            marginBottom: 18,
-            position: "relative",
-            maxWidth: 500,
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
-        >
-          <label style={{ display: "none" }}>Username</label>
-          <span
-            style={{
-              position: "absolute",
-              left: 16,
-              top: 10,
-              fontSize: 22,
-              color: "#222",
-            }}
-          >
-            👤
-          </span>
+    <div className={styles.formContainer}>
+      <h1 className={styles.loginTitle}>Login</h1>
+      
+      <form onSubmit={handleSubmit}>
+        <div className={styles.inputGroup}>
+          <label htmlFor="username">Username</label>
           <input
             type="text"
+            id="username"
             name="username"
             value={form.username}
             onChange={handleChange}
             placeholder="Username"
-            style={{ paddingLeft: 48, width: "100%" }}
           />
         </div>
-        <div
-          style={{
-            marginBottom: 18,
-            position: "relative",
-            maxWidth: 500,
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
-        >
-          <label style={{ display: "none" }}>Password</label>
-          <span
-            style={{
-              position: "absolute",
-              left: 16,
-              top: 10,
-              fontSize: 22,
-              color: "#222",
-            }}
-          >
-            🔒
-          </span>
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Password"
-            style={{ paddingLeft: 48, width: "100%" }}
-          />
-          <span
-            onClick={() => setShowPassword((v) => !v)}
-            style={{
-              position: "absolute",
-              right: 16,
-              top: 10,
-              fontSize: 22,
-              color: "#222",
-              cursor: "pointer",
-              userSelect: "none",
-            }}
-            title={showPassword ? "Hide password" : "Show password"}
-          >
-            {showPassword ? "🙈" : "👁️"}
-          </span>
+        
+        <div className={styles.inputGroup}>
+          <label htmlFor="password">Password</label>
+          <div className={styles.passwordInput}>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Password"
+            />
+            <button 
+              type="button" 
+              className={styles.togglePassword}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? 
+                <FaEyeSlash className={styles.hidePasswordIcon} /> : 
+                <FaEye className={styles.showPasswordIcon} />
+              }
+            </button>
+          </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 8,
-          }}
-        >
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              fontSize: 15,
-            }}
-            htmlFor="remember"
-          >
+        
+        <div className={styles.formOptions}>
+          <div className={styles.rememberMe}>
             <input
               type="checkbox"
-              name="remember"
               id="remember"
+              name="remember"
               checked={form.remember}
               onChange={handleChange}
-              style={{ marginRight: 8 }}
             />
-            Remember me
-          </label>
-          <span className={styles.forgotPassword}>Forgot Password?</span>
+            <label htmlFor="remember" className={styles.yellowText}>Remember me</label>
+          </div>
+          <button 
+            type="button" 
+            className={`${styles.forgotPassword} ${styles.yellowText}`}
+            onClick={(e) => e.preventDefault()}
+          >
+            Forgot Password?
+          </button>
         </div>
-        <div className={styles.divider} />
-        <div className={styles.footer}>
-          <span>
-            Don't have an account?{" "}
-            <a
-              href="#"
-              style={{ color: "#e0c58f", textDecoration: "underline" }}
-              onClick={onSwitch}
-            >
-              Sign Up
-            </a>
-          </span>
+        
+        {error && <div className={styles.errorMessage}>{error}</div>}
+        
+        <div className={styles.googleButtonWrapper}>
+          <button 
+            type="button" 
+            className={styles.googleSignInButton} 
+            onClick={handleGoogleSignIn}
+          >
+            <FcGoogle className={styles.googleIcon} /> Sign in with Google
+          </button>
         </div>
-        {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
-        <button type="submit">Log In</button>
+        
+        <button type="submit" className={styles.loginButton}>LOGIN</button>
       </form>
     </div>
   );
 };
 
-// Sign up form component with form state management and validation
+// Sign up form component
 const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
-  // Form state management
   const [form, setForm] = useState<SignUpFormState>({
     username: "",
     email: "",
@@ -231,135 +195,208 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
- 
-
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      !form.username ||
-      !form.email ||
-      !form.password ||
-      !form.confirmPassword
-    ) {
+    
+    if (!form.username || !form.email || !form.password || !form.confirmPassword) {
       setError("All fields are required.");
       return;
     }
+    
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-    //calling addData function to store user newly created accounts
-    const success = await addData(form.username, form.password,form.email);
-
-    if(success){
-      setForm({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
-
-   
-    setError("Sign up successful!");
     
-    }else{
-      setForm({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
-      setError("failed to sign up");
+    try {
+      const success = await addData(form.username, form.password, form.email);
+
+      if (success) {
+        setForm({
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        });
+        setError("Sign up successful!");
+      } else {
+        setForm({
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        });
+        setError("Failed to sign up");
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      setError("An error occurred during sign up");
     }
   };
- 
 
   return (
-    <div className={styles.signupForm}>
-      <h1>Sign Up</h1>
-      <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-        <div style={{ marginBottom: 18 }}>
-          <label>Username</label>
+    <div className={styles.formContainer}>
+      <h1 className={styles.signUpTitle}>Sign Up</h1>
+      
+      <form onSubmit={handleSubmit}>
+        <div className={styles.inputGroup}>
+          <label htmlFor="signup-username">Username</label>
           <input
             type="text"
+            id="signup-username"
             name="username"
             value={form.username}
             onChange={handleChange}
-            placeholder="Enter your username"
+            placeholder="Username"
           />
         </div>
-        <div style={{ marginBottom: 18 }}>
-          <label>Email Address</label>
+        
+        <div className={styles.inputGroup}>
+          <label htmlFor="email">Email Address</label>
           <input
             type="email"
+            id="email"
             name="email"
             value={form.email}
             onChange={handleChange}
-            placeholder="Enter your email"
+            placeholder="Email Address"
           />
         </div>
-        <div className={styles.row} style={{ marginBottom: 18 }}>
-          <div>
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="Password"
-            />
+        
+        <div className={styles.passwordRow}>
+          <div className={styles.passwordColumn}>
+            <label htmlFor="signup-password">Password</label>
+            <div className={styles.passwordInput}>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="signup-password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Password"
+              />
+              <button 
+                type="button" 
+                className={styles.togglePassword}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? 
+                  <FaEyeSlash className={styles.hidePasswordIcon} /> : 
+                  <FaEye className={styles.showPasswordIcon} />
+                }
+              </button>
+            </div>
           </div>
-          <div>
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm Password"
-            />
+          
+          <div className={styles.passwordColumn}>
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className={styles.passwordInput}>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm Password"
+              />
+              <button 
+                type="button" 
+                className={styles.togglePassword}
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? 
+                  <FaEyeSlash className={styles.hidePasswordIcon} /> : 
+                  <FaEye className={styles.showPasswordIcon} />
+                }
+              </button>
+            </div>
           </div>
         </div>
-        <div className={styles.divider} />
-        <div className={styles.footer}>
-          <span>
-            Already have an account?{" "}
-            <a
-              href="#"
-              style={{ color: "#e0c58f", textDecoration: "underline" }}
-              onClick={onSwitch}
-            >
-              Login
-            </a>
-          </span>
-        </div>
-        {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
-        <button type="submit">Sign Up</button>
+        
+        {error && <div className={styles.errorMessage}>{error}</div>}
+        
+        <button type="submit" className={styles.createAccountButton}>CREATE ACCOUNT</button>
       </form>
     </div>
   );
 };
 
-// Main authentication page component that handles switching between login and signup forms
+// Main authentication page component
 const AuthPage = () => {
+  const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  
+  // Initialize component state after mount to avoid hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  const handleBackToLanding = () => {
+    router.push('/landingPage');
+  };
+  
+  // Handle switch between login and signup
+  const handleSwitchForm = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowLogin(!showLogin);
+  };
+  
+  // Simple loading state while client rendering is ready
+  if (!isClient) {
+    return <div className={styles.loading}>Loading...</div>;
+  }
+  
   return (
-    <div className={styles.background}>
-      <div className={styles.signupContainer}>
-        <div className={styles.treeLogo}></div>
-        {showLogin ? (
-          <LogInForm onSwitch={() => setShowLogin(false)} />
-        ) : (
-          <SignUpForm onSwitch={() => setShowLogin(true)} />
-        )}
+    <div className={styles.pageContainer}>
+      <div className={styles.authContainer}>
+        <div className={styles.leftBox}>
+          <div className={styles.logoContainer}>
+            <div className={styles.logoWrapper}>
+              <Image 
+                src="/images/tree.png"
+                alt="Amenity Logo"
+                width={400}
+                height={400}
+                className={styles.logo}
+                priority
+              />
+            </div>
+            <h1 className={styles.brandName}>Amenity</h1>
+          </div>
+          
+          <div className={styles.bottomText}>
+            {showLogin ? (
+              <p className={styles.alreadyAccountText}>Don't have an account? <button className={styles.linkButton} onClick={handleSwitchForm}>Sign Up</button></p>
+            ) : (
+              <p className={styles.alreadyAccountText}>Already have an account? <button className={styles.linkButton} onClick={handleSwitchForm}>Login</button></p>
+            )}
+          </div>
+        </div>
+        
+        <div className={styles.rightBox}>
+          {showLogin ? (
+            <LogInForm onSwitch={() => setShowLogin(false)} />
+          ) : (
+            <SignUpForm onSwitch={() => setShowLogin(true)} />
+          )}
+        </div>
       </div>
+      
+      <button 
+        className={styles.backButton} 
+        onClick={handleBackToLanding}
+        aria-label="Back to landing page"
+      >
+        <BsBoxArrowLeft className={styles.backButtonIcon} />
+      </button>
     </div>
   );
 };

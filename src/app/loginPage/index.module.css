@@ -1,168 +1,540 @@
-.background {
+/* Main page container */
+.pageContainer {
 	width: 100vw;
 	min-height: 100vh;
-	background-image: url('/images/login-page-4.png');
+	background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 70%, rgba(4, 21, 40, 0.8) 90%, rgba(0, 0, 0, 1) 100%), url('/images/background.jpg');
 	background-size: cover;
 	background-position: center;
-	background-repeat: no-repeat;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	padding: 10px; /* Reduced from 20px */
+	position: relative;
+	box-sizing: border-box;
 }
 
-.signupContainer {
+/* Auth container - holds both left and right boxes */
+.authContainer {
 	display: flex;
-	width: 90vw;
-	max-width: 1300px;
-	align-items: center;
-	justify-content: space-between;
-	min-height: 80vh;
-}
-
-.treeLogo {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex: 1;
-	height: 100%;
-}
-
-.treeLogo img {
-	max-width: 350px;
 	width: 100%;
-	height: auto;
-	filter: drop-shadow(0 0 80px #e0c58f88) drop-shadow(0 0 40px #e0c58f44);
+	max-width: 1000px;
+	min-height: 450px; /* Reduced from 480px */
+	background-color: transparent;
+	overflow: hidden;
+	gap: 20px; /* Space between left and right boxes */
+	justify-content: center; /* Center horizontally */
+	align-items: center; /* Center vertically */
+	margin: 0 auto; /* Center the container */
+	position: relative;
+	transform: translateY(0px); /* No vertical offset - perfect center */
 }
 
-.signupForm {
+/* Left box - contains logo and branding */
+.leftBox {
 	flex: 1.2;
+	background-color: #041528;
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
-	justify-content: center;
-	background: rgba(0, 0, 0, 0.0);
-	padding: 2vw 0 2vw 0;
-	border-radius: 24px;
-	min-width: 420px;
-	max-width: 500px;
+	align-items: center;
+	justify-content: space-between; /* Changed from center to space-between */
+	padding: 20px; /* Reduced from 25px */
+	position: relative;
+	border-radius: 40px 0 0 0; /* More curved on upper left corner */
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 0, 0, 0.3);
+	max-width: 420px;
+	min-height: 450px; /* Reduced from 520px */
+	padding-bottom: 40px; /* Add extra padding at the bottom */
 }
 
-.signupForm h1 {
-	color: #e0c58f;
-	font-size: 2.5rem;
-	font-weight: 700;
-	margin-bottom: 32px;
-	align-self: center;
-	text-align: center;
-	font-family: 'Segoe UI Emoji';
-}
-
-.signupForm input {
-	width: 100%;
-	height: 40px;
-	border-radius: 24px;
-	border: none;
-	margin-top: 6px;
-	margin-bottom: 16px;
-	padding-left: 24px;
-	font-size: 1.1rem;
-	background: #3c507d;
-	color: #fff;
-	outline: none;
-	font-family: 'Segoe UI Emoji';
-}
-
-.signupForm label {
-	color: #fff;
-	font-weight: 700;
-	font-size: 1.1rem;
-	font-family: 'Segoe UI Emoji';
-}
-
-.signupForm .row {
+/* Logo container */
+.logoContainer {
 	display: flex;
-	gap: 32px;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	z-index: 2;
+	position: relative;
 	width: 100%;
+	padding: 5px; /* Reduced from 10px */
+	margin-top: 20px; /* Add margin at the top */
 }
 
-.signupForm .row>div {
-	flex: 1;
-}
-
-.signupForm .divider {
+/* Logo wrapper to maintain proportions */
+.logoWrapper {
+	position: relative;
 	width: 100%;
-	border-bottom: 1px solid #e0c58f;
-	margin-bottom: 8px;
-}
-
-.signupForm .footer {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	width: 100%;
-	margin-bottom: 8px;
-	text-align: center;
+	margin-bottom: 0;
 }
 
-.signupForm .footer span {
-	color: #e0c58f;
-	font-size: 13px;
-	font-family: 'Segoe UI Emoji';
+/* Logo image */
+.logo {
+	width: 260px;
+	height: auto;
+	margin-bottom: 0;
+	filter: drop-shadow(0 0 20px rgba(224, 197, 143, 0.4));
 }
 
-.signupForm button {
-	margin-top: 18px;
-	width: 140px;
-	height: 48px;
-	border-radius: 24px;
-	background: #f5f0e9;
-	color: #3c507d;
+/* Brand name */
+.brandName {
+	font-size: 3rem;
 	font-weight: 700;
-	font-size: 1.3rem;
-	border: none;
-	cursor: pointer;
-	box-shadow: 0 2px 16px 0 #0002;
-	align-self: flex-end;
-	transition: background 0.2s;
+	color: #ffffff;
+	margin: 0;
+	margin-bottom: 10px;
+	font-family: 'Segoe Script', cursive, 'Segoe UI', sans-serif;
 }
 
-.signupForm button:hover {
-	background: #e0c58f;
-	color: #2c3655;
+/* Bottom text in left box */
+.bottomText {
+	width: 100%;
+	text-align: center;
+	margin-bottom: 5px;
 }
 
-.signupForm .forgotPassword {
-	font-size: 15px;
-	font-family: 'Segoe UI Emoji';
+.bottomText p {
+	color: #ffffff;
+	font-size: 0.9rem;
+	margin: 0;
+}
+
+/* Already have account text */
+.alreadyAccountText {
+	color: #e0c58f !important;
+	font-size: 0.9rem;
+	margin: 0;
+}
+
+.bottomText a {
 	color: #e0c58f;
+	text-decoration: none;
+	font-weight: 500;
+}
+
+.bottomText a:hover {
+	text-decoration: underline;
+}
+
+/* Link button for switching forms */
+.linkButton {
+	background: none;
+	border: none;
+	color: #e0c58f;
+	font-size: 0.9rem;
+	padding: 0;
 	cursor: pointer;
 	text-decoration: underline;
 }
 
-.signupForm label[for="remember"] {
-	color: #e0c58f;
+.linkButton:hover {
+	opacity: 0.8;
 }
 
-@media (max-width: 900px) {
-	.signupContainer {
+/* Right box - contains forms */
+.rightBox {
+	flex: 0.8;
+	background-color: rgba(27, 38, 59, 0.75); /* Lighter opacity */
+	padding: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 0; /* No curved edges - sharp corners */
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 0, 0, 0.3);
+	max-width: 320px;
+	min-height: 450px;
+}
+
+/* Login title */
+.loginTitle {
+	color: #e0c58f;
+	font-size: 2.2rem; /* Reduced from 2.5rem */
+	font-weight: 600;
+	margin-bottom: 20px; /* Reduced from 25px */
+	text-align: center;
+}
+
+/* Sign Up title */
+.signUpTitle {
+	color: #e0c58f;
+	font-size: 2.2rem; /* Reduced from 2.5rem */
+	font-weight: 600;
+	margin-bottom: 20px; /* Reduced from 25px */
+	text-align: center;
+}
+
+/* Form container */
+.formContainer {
+	width: 100%;
+	max-width: 300px; /* Reduced from 320px */
+}
+
+/* Form element */
+.formContainer form {
+	width: 100%;
+}
+
+/* Input groups */
+.inputGroup {
+	margin-bottom: 12px; /* Reduced from 15px */
+}
+
+/* Password row layout */
+.passwordRow {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px; /* Reduced from 15px */
+	margin-bottom: 15px; /* Reduced from 20px */
+}
+
+.passwordColumn {
+	flex: 1;
+}
+
+/* Form labels */
+.formContainer label {
+	display: block;
+	color: #ffffff;
+	font-size: 0.9rem; /* Reduced from 0.95rem */
+	margin-bottom: 6px; /* Reduced from 8px */
+	font-weight: normal;
+}
+
+/* Form inputs */
+.formContainer input {
+	width: 100%;
+	padding: 8px 14px; /* Reduced from 10px 16px */
+	border-radius: 30px;
+	border: none;
+	background-color: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
+	font-size: 0.85rem; /* Reduced from 0.9rem */
+	transition: all 0.3s;
+}
+
+.formContainer input:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(224, 197, 143, 0.2);
+}
+
+/* Password input container */
+.passwordInput {
+	position: relative;
+	width: 100%;
+}
+
+/* Toggle password button */
+.togglePassword {
+	position: absolute;
+	right: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	color: #e0c58f;
+	cursor: pointer;
+	font-size: 1rem;
+	padding: 0;
+	transition: color 0.3s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 5;
+}
+
+.hidePasswordIcon, .showPasswordIcon {
+	color: #e0c58f;
+	opacity: 0.9;
+	font-size: 14px;
+}
+
+.togglePassword:hover .hidePasswordIcon,
+.togglePassword:hover .showPasswordIcon {
+	opacity: 1;
+}
+
+/* Form options (remember me and forgot password) */
+.formOptions {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px; /* Reduced from 20px */
+}
+
+/* Remember me container */
+.rememberMe {
+	display: flex;
+	align-items: center;
+}
+
+.rememberMe input {
+	width: auto;
+	margin-right: 8px;
+}
+
+.rememberMe label {
+	margin-bottom: 0;
+	font-size: 0.85rem;
+}
+
+/* Yellow text class */
+.yellowText {
+	color: #e0c58f !important;
+}
+
+/* Forgot password link */
+.forgotPassword {
+	color: #e0c58f;
+	font-size: 0.85rem;
+	text-decoration: none;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.forgotPassword:hover {
+	text-decoration: underline;
+}
+
+/* Login link wrapper */
+.loginLinkWrapper {
+	text-align: center;
+	margin-top: 15px;
+}
+
+/* Already have account text */
+.alreadyHaveAccount {
+	color: #e0c58f;
+	font-size: 0.9rem;
+}
+
+/* Login link */
+.loginLink {
+	color: #e0c58f;
+	font-size: 0.9rem;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+/* Google Sign In button wrapper */
+.googleButtonWrapper {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 15px;
+}
+
+/* Google Sign In button */
+.googleSignInButton {
+	background: none;
+	border: none;
+	color: #e0c58f;
+	cursor: pointer;
+	font-size: 0.9rem;
+	padding: 0;
+	transition: all 0.3s;
+	text-decoration: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Google icon */
+.googleIcon {
+	font-size: 18px;
+	margin-right: 2px;
+}
+
+.googleSignInButton:hover {
+	text-decoration: underline;
+}
+
+/* Login button */
+.loginButton {
+	width: 100%;
+	padding: 10px; /* Reduced from 12px */
+	background-color: #ffffff;
+	color: #0d1b2a;
+	border: none;
+	border-radius: 30px;
+	font-size: 0.85rem; /* Reduced from 0.9rem */
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.3s;
+	margin-bottom: 12px; /* Reduced from 15px */
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+.loginButton:hover, .loginButton:active {
+	background-color: #ffdb9e;
+	transform: translateY(-2px);
+}
+
+/* Create account button */
+.createAccountButton {
+	width: 100%;
+	padding: 10px; /* Reduced from 12px */
+	background-color: #ffffff;
+	color: #0d1b2a;
+	border: none;
+	border-radius: 30px;
+	font-size: 0.85rem; /* Reduced from 0.9rem */
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.3s;
+	margin-bottom: 5px;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+.createAccountButton:hover, .createAccountButton:active {
+	background-color: #ffdb9e;
+	transform: translateY(-2px);
+}
+
+/* Error message */
+.errorMessage {
+	background-color: rgba(255, 87, 87, 0.1);
+	border-left: 3px solid #ff5757;
+	color: #ff5757;
+	padding: 8px 10px;
+	margin-bottom: 15px;
+	font-size: 0.8rem;
+	border-radius: 4px;
+}
+
+/* Back button */
+.backButton {
+	position: absolute;
+	bottom: 25px;
+	left: 25px;
+	width: 48px;
+	height: 48px;
+	background-color: transparent;
+	border: none;
+	color: #e0c58f;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s;
+	z-index: 100;
+	padding: 0;
+}
+
+.backButtonIcon {
+	font-size: 1.6rem;
+}
+
+.backButton:hover, .backButton:active {
+	color: #ffdb9e;
+	transform: scale(1.1);
+}
+
+/* Loading state */
+.loading {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	width: 100vw;
+	font-size: 1.5rem;
+	color: #ffffff;
+	background-color: #041528;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+	.authContainer {
 		flex-direction: column;
+		min-height: auto;
+		gap: 20px;
 		align-items: center;
-		justify-content: center;
-		min-height: unset;
 	}
 
-	.treeLogo {
-		margin-bottom: 32px;
+	.leftBox {
+		width: 100%;
+		max-width: 350px;
+		padding: 20px;
+		min-height: 260px;
 	}
 
-	.signupForm {
-		min-width: 0;
-		width: 90vw;
-		max-width: 98vw;
+	.rightBox {
+		width: 100%;
+		max-width: 350px;
+		padding: 20px;
+		min-height: auto;
 	}
+
+	.logo {
+		width: 180px;
+	}
+
+	.brandName {
+		font-size: 2.2rem;
+		margin-bottom: 10px;
+	}
+	
+	.rowContainer {
+		flex-direction: column;
+		gap: 0;
+	}
+	
+	.backButton {
+		bottom: 15px;
+		left: 15px;
+		width: 40px;
+		height: 40px;
+	}
+	
+	.backButtonIcon {
+		font-size: 1.4rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.backButton {
+		bottom: 10px;
+		left: 10px;
+		width: 36px;
+		height: 36px;
+	}
+	
+	.backButtonIcon {
+		font-size: 1.2rem;
+	}
+}
+
+/* Divider with text */
+.divider {
+	display: flex;
+	align-items: center;
+	text-align: center;
+	margin: 15px 0;
+	color: #ffffff;
+}
+
+.divider::before,
+.divider::after {
+	content: '';
+	flex: 1;
+	border-bottom: 1px solid rgba(224, 197, 143, 0.3);
+}
+
+.divider::before {
+	margin-right: 10px;
+}
+
+.divider::after {
+	margin-left: 10px;
+}
+
+.dividerText {
+	font-size: 0.8rem;
+	color: #e0c58f;
 }
