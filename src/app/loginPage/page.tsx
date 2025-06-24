@@ -9,6 +9,37 @@ import Image from 'next/image';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { BsBoxArrowLeft } from 'react-icons/bs';
+import supadata from '../lib/supabaseclient';
+
+
+ console.log("type of: ", supadata);
+async function addData(username: string, password: string, email: string): Promise<boolean> {
+ const {data,error} = await supadata
+ .from('Users_Accounts')
+ .insert([
+{
+  username:username,
+  password: password,
+  email: email,
+}
+
+ ])
+
+  if (error) {
+    console.log("Sending insert:", {
+  username: username,
+  password: password,
+  email: email,
+});
+ console.log("Insert failed (full error):");
+console.dir(error, { depth: null });
+return false;
+  } 
+    console.log('Insert success:', data);
+    return true;
+  
+}
+
 
 // Add JSX namespace declaration
 declare namespace JSX {
@@ -29,22 +60,6 @@ interface SignUpFormState {
   email: string;
   password: string;
   confirmPassword: string;
-}
-
-// Async function for adding data to firebase
-async function addData(username: string, password: string, email: string): Promise<boolean> {
-  try {
-    const docRef = await addDoc(collection(db, "Users"), {
-      username,
-      password,
-      email,
-    });
-    console.log("Successful! Document written with ID:", docRef.id);
-    return true;
-  } catch (error) {
-    console.error("Error adding data", error);
-    return false;
-  }
 }
 
 // Login form component
@@ -88,7 +103,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
           remember: false,
         });
         setError("");
-        router.push('/homePage');
+        router.push('/Homepage');
       } else {
         setForm({
           username: '',
@@ -104,7 +119,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
   };
 
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/homePage' });
+    signIn('google', { callbackUrl: '/Homepage' });
   };
 
   return (
@@ -215,29 +230,27 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
       return;
     }
     
-    try {
-      const success = await addData(form.username, form.password, form.email);
+   const data_insertion = await addData(form.username, form.password, form.email);
+console.log('Insert result: ', data_insertion);
+    if(data_insertion){
+      setForm({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
 
-      if (success) {
-        setForm({
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-        });
-        setError("Sign up successful!");
-      } else {
-        setForm({
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-        });
-        setError("Failed to sign up");
-      }
-    } catch (err) {
-      console.error("Signup error:", err);
-      setError("An error occurred during sign up");
+   
+    setError("Sign up successful!");
+    
+    }else{
+      setForm({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+      setError("failed to sign up");
     }
   };
 
@@ -400,5 +413,4 @@ const AuthPage = () => {
     </div>
   );
 };
-
 export default AuthPage;

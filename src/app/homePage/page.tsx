@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
+import { signOut } from 'next-auth/react';
 
 // Custom icon components
 const ArchiveIcon = () => (
@@ -101,7 +102,8 @@ export default function HomePage() {
                     <span>👤</span>
                     <span>View Profile</span>
                   </div>
-                  <div className={styles.dropdownItem}>
+                  <div className={styles.dropdownItem}
+                  onClick = {() => signOut({callbackUrl: "/loginPage"})}>
                     <span>🚪</span>
                     <span>Log Out</span>
                   </div>
