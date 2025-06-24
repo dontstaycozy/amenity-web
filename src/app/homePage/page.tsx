@@ -19,6 +19,7 @@ import {
 import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
 import { useSession } from "next-auth/react";
+import { useRouter } from 'next/navigation';
 // Custom icon components
 const ArchiveIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg ">
@@ -41,6 +42,7 @@ const CalendarIcon = () => (
 );
 
 export default function HomePage() {
+  const router = useRouter();
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -52,6 +54,10 @@ export default function HomePage() {
     setShowProfileMenu(!showProfileMenu);
   };
 
+  const biblePage = () => {
+    router.push('/biblePage');
+  }
+  
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -153,11 +159,11 @@ export default function HomePage() {
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
-
-              <div className={styles.navItem}>
+              
+              <button className={styles.navItem} onClick={biblePage}>
                 <div className={styles.navIcon}><Bible /></div>
                 <span className={styles.navText}>Bible</span>
-              </div>
+              </button>
             </div>
 
             <div className={styles.mainLeftBottom}>
