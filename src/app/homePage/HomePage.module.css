@@ -66,7 +66,7 @@
 }
 
 .searchIcon {
-  position: absolute;
+  position: relative;
   left: 1rem;
   color: #8b9cb3;
   z-index: 1;

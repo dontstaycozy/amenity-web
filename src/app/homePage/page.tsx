@@ -92,7 +92,9 @@ export default function HomePage() {
 
           <div className={styles.headerMid}>
             <div className={styles.searchContainer}>
-              <span className={styles.searchIcon}><Search /></span>
+              <span className={styles.searchIcon}>  <button className={styles.searchIcon}>
+                <Search style={{ cursor: "pointer" }} />
+              </button></span>
               <input
                 type="text"
                 className={styles.searchInput}
