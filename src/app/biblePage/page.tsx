@@ -100,6 +100,73 @@ const CalendarIcon = () => (
   </svg>
 );
 
+// Helper: Deterministic random number generator (seeded)
+function mulberry32(a: number): () => number {
+  return function() {
+    var t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+
+// Helper: Get daily chapters
+function getDailyChapters(
+  chapterCounts: Record<string, number>,
+  numChapters = 3
+): { book: string; chapter: number }[] {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const rand = mulberry32(seed);
+  const books = Object.keys(chapterCounts);
+  const selected: { book: string; chapter: number }[] = [];
+  const usedBooks = new Set<string>();
+  while (selected.length < numChapters && usedBooks.size < books.length) {
+    const bookIdx = Math.floor(rand() * books.length);
+    const book = books[bookIdx];
+    if (usedBooks.has(book)) continue;
+    usedBooks.add(book);
+    const maxChapter = chapterCounts[book];
+    const chapter = Math.floor(rand() * maxChapter) + 1;
+    selected.push({ book, chapter });
+  }
+  return selected;
+}
+
+// Component to fetch and display a single chapter
+interface DailyChapterProps {
+  book: string;
+  chapter: number;
+}
+interface Verse {
+  chapter: number;
+  verse: number;
+  text: string;
+}
+function DailyChapter({ book, chapter }: DailyChapterProps) {
+  const [verses, setVerses] = useState<Verse[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    fetch(`https://bible-api.com/${encodeURIComponent(book)}+${chapter}`)
+      .then(res => res.json())
+      .then(data => setVerses(data.verses || []))
+      .finally(() => setLoading(false));
+  }, [book, chapter]);
+  if (loading) return <p className="paragraph">Loading {book} {chapter}...</p>;
+  if (!verses.length) return <p className="paragraph">No data available for {book} {chapter}.</p>;
+  return (
+    <div style={{marginBottom: '2rem'}}>
+      <h3 style={{marginBottom: '1rem'}}>{book} Chapter {chapter}</h3>
+      <p className="paragraph">
+        {verses.map(v => (
+          <span key={v.verse}><sup>{v.verse}</sup> {v.text} </span>
+        ))}
+      </p>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const router = useRouter();
   // State for profile dropdown
@@ -110,6 +177,7 @@ export default function HomePage() {
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   const [activeView, setActiveView] = useState<'bible' | 'daily' | 'book'>('bible');
+  const dailyChapters = getDailyChapters(bibleBooks, 3);
 
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
@@ -126,12 +194,7 @@ export default function HomePage() {
 
   const handleDailyClick = () => {
     setActiveView('daily');
-    // Load Daily Reading logic
   };
-
-  const bibleBook = () => {
-    <BibleDisplay selectedBook="Genesis"/>;
-  }
 
   const homePage = () => {
     router.push('/homePage');
@@ -286,14 +349,26 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-
-              {/* ✅ Now pass selectedBook to BibleDisplay */}
-              <BibleDisplay selectedBook="Genesis" />
             </div>
             {/* Verse of the Day */}
             <div className={styles.verseContainer}>
-              <h2 className="headingLarge">GENESIS</h2>
-              <BibleDisplay selectedBook={selectedBook} />
+              {activeView === 'bible' && (
+                <>
+                  <h2 className="headingLarge">BIBLE</h2>
+                  <BibleDisplay selectedBook={selectedBook} />
+                </>
+              )}
+              {activeView === 'daily' && (
+                <>
+                  <h2 className="headingLarge">Daily Reading</h2>
+                  {dailyChapters.map(({book, chapter}) => (
+                    <DailyChapter key={book + chapter} book={book} chapter={chapter} />
+                  ))}
+                  <button className={styles.finishReadingBtn} onClick={() => alert("Congratulations! You finished today's reading!")}>
+                    Finish Reading
+                  </button>
+                </>
+              )}
             </div>
           </div>
           

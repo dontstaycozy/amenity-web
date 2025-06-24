@@ -86,16 +86,17 @@ export default function BibleDisplay({ selectedBook = "Genesis" }: Props) {
   const [loading, setLoading] = useState(true);
   const [reference, setReference] = useState("Genesis");
 
+  const fetchBook = async (book: string) => {
+    const chapterCount = chapterCounts[book];
+    if (!chapterCount) return;
 
-  useEffect(() => {
-    const fetchGenesisAll = async () => {
     setLoading(true);
     try {
       const chapterPromises = [];
-      for (let i = 1; i <= 50; i++) {
+      for (let i = 1; i <= chapterCount; i++) {
         chapterPromises.push(
-          fetch(`https://bible-api.com/genesis+${i}`).then((res) => {
-            if (!res.ok) throw new Error(`Chapter ${i} failed`);
+          fetch(`https://bible-api.com/${encodeURIComponent(book)}+${i}`).then((res) => {
+            if (!res.ok) throw new Error(`Failed to load ${book} ${i}`);
             return res.json();
           })
         );
@@ -103,23 +104,24 @@ export default function BibleDisplay({ selectedBook = "Genesis" }: Props) {
 
       const results = await Promise.allSettled(chapterPromises);
       const successful = results
-        .filter((result): result is PromiseFulfilledResult<any> => result.status === "fulfilled")
-        .map((result) => result.value);
+        .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
+        .map((r) => r.value);
 
       const allVerses = successful.flatMap((chapter) => chapter.verses || []);
       setVerses(allVerses);
-      setReference("Genesis");
-    } catch (err) {
-      console.error("Error loading Genesis:", err);
+      setReference(book);
+    } catch (error) {
+      console.error(`Error loading ${book}:`, error);
     } finally {
       setLoading(false);
     }
   };
-
-  fetchGenesisAll();
+  
+  useEffect(() => {
+    fetchBook(selectedBook);
   }, [selectedBook]);
 
-  if (loading) return <p className="paragraph">Loading Genesis...</p>;
+  if (loading) return <p className="paragraph">Loading Bible...</p>;
   if (!verses.length) return <p className="paragraph">No data available.</p>;
 
   // Group verses by chapter

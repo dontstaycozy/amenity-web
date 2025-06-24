@@ -352,6 +352,17 @@
   margin-right: 0;
 }
 
+.finishReadingBtn {
+  margin-top: 2rem;
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  background: #4f658c;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
 .dropdown {
   position: relative;
   display: inline-block;
