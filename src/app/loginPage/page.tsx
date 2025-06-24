@@ -8,8 +8,7 @@ import GoogleButton from "react-google-button";
 
 
  async function addData(username: string, password: string, email: string): Promise<boolean> {
- 
-
+  console.log("type of: ", supabase);
   const { data, error } = await supabase
     .from('Users_Accounts')
     
