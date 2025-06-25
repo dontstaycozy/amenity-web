@@ -10,6 +10,7 @@ type Verse = {
 
 type Props = {
   selectedBook?: string;
+  selectedChapter?: number;
 }
 
 const chapterCounts: Record<string, number> = {
@@ -81,35 +82,42 @@ const chapterCounts: Record<string, number> = {
   Revelation: 22,
 };
 
-export default function BibleDisplay({ selectedBook = "Genesis" }: Props) {
+export default function BibleDisplay({ selectedBook = "Genesis", selectedChapter }: Props) {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
   const [reference, setReference] = useState("Genesis");
 
-  const fetchBook = async (book: string) => {
+  const fetchBookOrChapter = async (book: string, chapter?: number) => {
     const chapterCount = chapterCounts[book];
     if (!chapterCount) return;
-
     setLoading(true);
     try {
-      const chapterPromises = [];
-      for (let i = 1; i <= chapterCount; i++) {
-        chapterPromises.push(
-          fetch(`https://bible-api.com/${encodeURIComponent(book)}+${i}`).then((res) => {
-            if (!res.ok) throw new Error(`Failed to load ${book} ${i}`);
-            return res.json();
-          })
-        );
+      if (chapter) {
+        // Fetch only the selected chapter
+        const res = await fetch(`https://bible-api.com/${encodeURIComponent(book)}+${chapter}`);
+        if (!res.ok) throw new Error(`Failed to load ${book} ${chapter}`);
+        const data = await res.json();
+        setVerses(data.verses || []);
+        setReference(`${book} ${chapter}`);
+      } else {
+        // Fetch all chapters
+        const chapterPromises = [];
+        for (let i = 1; i <= chapterCount; i++) {
+          chapterPromises.push(
+            fetch(`https://bible-api.com/${encodeURIComponent(book)}+${i}`).then((res) => {
+              if (!res.ok) throw new Error(`Failed to load ${book} ${i}`);
+              return res.json();
+            })
+          );
+        }
+        const results = await Promise.allSettled(chapterPromises);
+        const successful = results
+          .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
+          .map((r) => r.value);
+        const allVerses = successful.flatMap((chapter) => chapter.verses || []);
+        setVerses(allVerses);
+        setReference(book);
       }
-
-      const results = await Promise.allSettled(chapterPromises);
-      const successful = results
-        .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
-        .map((r) => r.value);
-
-      const allVerses = successful.flatMap((chapter) => chapter.verses || []);
-      setVerses(allVerses);
-      setReference(book);
     } catch (error) {
       console.error(`Error loading ${book}:`, error);
     } finally {
@@ -118,8 +126,8 @@ export default function BibleDisplay({ selectedBook = "Genesis" }: Props) {
   };
   
   useEffect(() => {
-    fetchBook(selectedBook);
-  }, [selectedBook]);
+    fetchBookOrChapter(selectedBook, selectedChapter);
+  }, [selectedBook, selectedChapter]);
 
   if (loading) return <p className="paragraph">Loading Bible...</p>;
   if (!verses.length) return <p className="paragraph">No data available.</p>;
@@ -134,11 +142,11 @@ export default function BibleDisplay({ selectedBook = "Genesis" }: Props) {
   return (
     <div className={`${styles.verseScroll}`}>
       <h2 className="headingLarge">{reference}</h2>
-      {Object.entries(versesByChapter).map(([chapterNumber, chapterVerses]) => (
-        <div key={chapterNumber} className={styles.chapterBlock}>
-          <h4 className={styles.chapterHeading}>Chapter {chapterNumber}</h4>
+      {selectedChapter ? (
+        <div className={styles.chapterBlock}>
+          <h4 className={styles.chapterHeading}>Chapter {selectedChapter}</h4>
           <p className="paragraph">
-            {chapterVerses.map((verse) => (
+            {verses.map((verse) => (
               <span key={`${verse.chapter}-${verse.verse}`}>
                 <sup className={styles.superscript}>{verse.verse}</sup>{" "}
                 {verse.text.replace(/\n/g, " ").trim()}{" "}
@@ -146,7 +154,21 @@ export default function BibleDisplay({ selectedBook = "Genesis" }: Props) {
             ))}
           </p>
         </div>
-      ))}
+      ) : (
+        Object.entries(versesByChapter).map(([chapterNumber, chapterVerses]) => (
+          <div key={chapterNumber} className={styles.chapterBlock}>
+            <h4 className={styles.chapterHeading}>Chapter {chapterNumber}</h4>
+            <p className="paragraph">
+              {chapterVerses.map((verse) => (
+                <span key={`${verse.chapter}-${verse.verse}`}>
+                  <sup className={styles.superscript}>{verse.verse}</sup>{" "}
+                  {verse.text.replace(/\n/g, " ").trim()}{" "}
+                </span>
+              ))}
+            </p>
+          </div>
+        ))
+      )}
     </div>
   );
 }

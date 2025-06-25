@@ -186,7 +186,9 @@ export default function HomePage() {
   const router = useRouter();
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [hoveredBook, setHoveredBook] = useState<string | null>(null);
   const [selectedBook, setSelectedBook] = useState("Genesis");
+  const [selectedChapter, setSelectedChapter] = useState<number>(1);
   
   // Reference to the dropdown container
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -203,8 +205,10 @@ export default function HomePage() {
   setActiveView('bible');
   };
 
-  const handleBookClick = (book: string) => {
+  const handleBookClick = (book: string, chapter?: number) => {
     setSelectedBook(book);
+    setSelectedChapter(chapter || 1);
+    setActiveView('bible');
   };
 
   const handleDailyClick = () => {
@@ -347,8 +351,6 @@ export default function HomePage() {
                 <button className={`${styles.navBibleOp} ${activeView === 'daily' ? styles.active : ''}`} onClick={handleDailyClick}>
                   <span className={styles.navText}>Daily Reading</span>
                 </button>
-              </div>
-              <div className={styles.navRight}>
                 <div className={styles.dropdown}>
                   <button className={styles.navBibleOp}>
                     <span className={styles.navText}>Book ▾</span>
@@ -358,9 +360,27 @@ export default function HomePage() {
                       <div
                         key={book}
                         className={styles.dropdownItem}
-                        onClick={() => handleBookClick(book)}
+                        onMouseEnter={() => setHoveredBook(book)}
+                        onMouseLeave={() => setHoveredBook(null)}
+                        style={{ position: 'relative', display: 'block' }}
                       >
-                        {book}
+                        <div style={{ fontWeight: hoveredBook === book ? 'bold' : 'normal' }}>{book}</div>
+                        {hoveredBook === book && (
+                          <div className={styles.chapterGrid} style={{ marginTop: '0.5rem' }}>
+                            {Array.from({ length: bibleBooks[book] }, (_, i) => i + 1).map((chapter) => (
+                              <div
+                                key={chapter}
+                                className={`${styles.chapterItem} ${selectedBook === book && selectedChapter === chapter ? styles.selectedChapter : ''}`}
+                                onClick={() => {
+                                  handleBookClick(book, chapter);
+                                  setHoveredBook(null);
+                                }}
+                              >
+                                {chapter}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -372,7 +392,7 @@ export default function HomePage() {
               {activeView === 'bible' && (
                 <>
                   <h2 className="headingLarge">BIBLE</h2>
-                  <BibleDisplay selectedBook={selectedBook} />
+                  <BibleDisplay selectedBook={selectedBook} selectedChapter={selectedChapter} />
                 </>
               )}
               {activeView === 'daily' && (
