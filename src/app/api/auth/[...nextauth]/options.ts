@@ -1,7 +1,9 @@
 // src/lib/options.ts
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
-import { adminDb } from "@/app/lib/firebaseadmin";
+import supadata from "@/app/lib/supabaseclient";
+import GoogleProvider from "next-auth/providers/google";
+
 
 export const options: NextAuthOptions = {
   providers: [
@@ -10,52 +12,83 @@ export const options: NextAuthOptions = {
       credentials: {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
+        email: {label:"Email", type :"email"},
+        mode: {label:"Mode", type: "text"},
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) {
-          console.log("Missing credentials");
-          return null;
-        }
+         const { username, password, email, mode } = credentials as any;
+console.log("Received credentials in authorize:", credentials);
+  // 🔁 If user is resetting password
+  if (mode === "resetpassword") {
+    try {
+      const { error } = await supadata.auth.resetPasswordForEmail(email, {
+        redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/resetpassword`,
+      });
 
-        try {
-          const snapshot = await adminDb
-            .collection("Users")
-            .where("username", "==", credentials.username)
-            .limit(1)
-            .get();
+      if (error) {
+        console.error("[ResetPassword] Supabase error:", error.message);
+        throw new Error(error.message);
+      }
 
-          if (snapshot.empty) return null;
+      console.log("[ResetPassword] Email sent");
+      return null; // Don't create a session
+    } catch (err) {
+      console.error("[ResetPassword] Unexpected error:", err);
+      throw new Error("Something went wrong while sending reset email.");
+    }
+  }
 
-          const userDoc = snapshot.docs[0];
-          const user = userDoc.data();
+  // 🔐 Regular login flow
+  if (!username || !password) {
+    console.log("[Auth] Missing credentials");
+    return null;
+  }
 
-          if (user.password === credentials.password) {
-            return {
-              id: userDoc.id,
-              name: user.username,
-              email: user.email || null,
-            };
-          } else {
-            return null;
-          }
-        } catch (error) {
-          console.error("Error during Firestore auth:", error);
-          return null;
-        }
+  try {
+    const { data, error } = await supadata
+      .from("Users_Accounts")
+      .select("userId, username, password, email")
+      .eq("username", username)
+      .single();
+
+    if (error || !data) {
+      console.log("[Auth] User not found or Supabase error:", error?.message);
+      return null;
+    }
+
+    const passwordsMatch = data.password === password;
+
+    if (!passwordsMatch) {
+      console.log("[Auth] Incorrect password");
+      return null;
+    }
+
+    return {
+      id: data.userId,
+      name: data.username,
+      email: data.email ?? null,
+    };
+  } catch (err) {
+    console.error("[Auth] Unexpected error:", err);
+    return null;
+  }
       },
     }),
+
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret:process.env.GOOGLE_CLIENT_SECRET!, 
+    })
   ],
 
   pages: {
     signIn: "/login",
   },
 
-  
   session: {
     strategy: "jwt",
   },
 
- 
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -64,7 +97,7 @@ export const options: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token?.id) {
         session.id = token.id as string;
       }
       return session;
