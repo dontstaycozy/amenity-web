@@ -113,7 +113,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
           remember: false,
         });
         setError("");
-        router.push('/Homepage');
+        router.push('/homePage');
       } else {
         setForm({
           username: '',
