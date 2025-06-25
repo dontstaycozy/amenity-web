@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
+import { useSession } from 'next-auth/react';
 
 import {
   About,

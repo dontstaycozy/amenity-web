@@ -1,9 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import styles from "./index.module.css";
-import { collection, addDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { db } from '../Firebaseconfig';
 import { signIn } from "next-auth/react";
 import Image from 'next/image';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -115,7 +113,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
           remember: false,
         });
         setError("");
-        router.push('/Homepage');
+        router.push('/homePage');
       } else {
         setForm({
           username: '',
