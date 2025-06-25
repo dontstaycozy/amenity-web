@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './CreatePostModal.module.css';
 import { Image } from '@/app/components/svgs';
-import { supabase } from '../lib/supabaseclient';
+import { supadata } from '../lib/supabaseclient';
 
 interface CreatePostModalProps {
     isOpen: boolean;
@@ -13,12 +13,23 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
     if (!isOpen) return null;
 
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [topic, setTopic] = useState('');
     const [content, setContent] = useState('');
+
+    // Clean up the preview URL when image changes or modal closes
+    useEffect(() => {
+        return () => {
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setImageFile(e.target.files[0]);
+            setImagePreview(URL.createObjectURL(e.target.files[0]));
         }
     };
 
@@ -58,6 +69,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
             setTopic('');
             setContent('');
             setImageFile(null);
+            setImagePreview(null);
             onClose();
         }
     };
@@ -83,6 +95,16 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
                     value={content}
                     onChange={e => setContent(e.target.value)}
                 />
+                {/* Image preview */}
+                {imagePreview && (
+                    <div style={{ margin: '1rem 0', textAlign: 'center' }}>
+                        <img
+                            src={imagePreview}
+                            alt="Preview"
+                            style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 12 }}
+                        />
+                    </div>
+                )}
                 <input
                     type="file"
                     accept="image/*"
