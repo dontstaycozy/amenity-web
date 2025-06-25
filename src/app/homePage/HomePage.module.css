@@ -9,8 +9,8 @@
   font-family: 'Segoe UI Emoji';
   margin: 0;
   padding: 0;
-  background: linear-gradient(to bottom, #0B1532 0%, #071021 85%, #000000 100%); /* Dark navy background with gradient */
-
+  background: #0B1532;
+  /* Dark navy background */
   color: #f5f0e9;
   overflow: hidden;
   position: absolute;
