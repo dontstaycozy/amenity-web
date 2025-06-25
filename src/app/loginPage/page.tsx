@@ -25,6 +25,18 @@ async function addData(username: string, password: string, email: string): Promi
 
  ])
 
+ const {error: authError} = await supadata.auth.signUp({
+    email,
+    password,
+
+
+ })
+
+ if(authError){
+  console.log("Auth signup failesd: ", authError.message);
+  return false;
+ }
+
   if (error) {
     console.log("Sending insert:", {
   username: username,
@@ -177,7 +189,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
           <button 
             type="button" 
             className={`${styles.forgotPassword} ${styles.yellowText}`}
-            onClick={(e) => e.preventDefault()}
+            onClick={(e) => router.push('/forgotpassword')}
           >
             Forgot Password?
           </button>
@@ -231,6 +243,8 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
     }
     
    const data_insertion = await addData(form.username, form.password, form.email);
+     
+    
 console.log('Insert result: ', data_insertion);
     if(data_insertion){
       setForm({
@@ -252,6 +266,7 @@ console.log('Insert result: ', data_insertion);
     });
       setError("failed to sign up");
     }
+ 
   };
 
   return (

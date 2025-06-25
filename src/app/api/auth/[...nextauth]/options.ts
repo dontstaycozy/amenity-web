@@ -12,41 +12,66 @@ export const options: NextAuthOptions = {
       credentials: {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
+        email: {label:"Email", type :"email"},
+        mode: {label:"Mode", type: "text"},
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) {
-          console.log("[Auth] Missing credentials");
-          return null;
-        }
+         const { username, password, email, mode } = credentials as any;
+console.log("Received credentials in authorize:", credentials);
+  // 🔁 If user is resetting password
+  if (mode === "resetpassword") {
+    try {
+      const { error } = await supadata.auth.resetPasswordForEmail(email, {
+        redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/resetpassword`,
+      });
 
-        try {
-          const { data, error } = await supadata
-            .from("Users_Accounts")
-            .select("id, username, password, email")
-            .eq("username", credentials.username)
-            .single();
+      if (error) {
+        console.error("[ResetPassword] Supabase error:", error.message);
+        throw new Error(error.message);
+      }
 
-          if (error || !data) {
-            console.log("[Auth] User not found or Supabase error:", error?.message);
-            return null;
-          }
+      console.log("[ResetPassword] Email sent");
+      return null; // Don't create a session
+    } catch (err) {
+      console.error("[ResetPassword] Unexpected error:", err);
+      throw new Error("Something went wrong while sending reset email.");
+    }
+  }
 
-          const passwordsMatch = data.password === credentials.password;
+  // 🔐 Regular login flow
+  if (!username || !password) {
+    console.log("[Auth] Missing credentials");
+    return null;
+  }
 
-          if (!passwordsMatch) {
-            console.log("[Auth] Incorrect password");
-            return null;
-          }
+  try {
+    const { data, error } = await supadata
+      .from("Users_Accounts")
+      .select("userId, username, password, email")
+      .eq("username", username)
+      .single();
 
-          return {
-            id: data.id,
-            name: data.username,
-            email: data.email ?? null,
-          };
-        } catch (err) {
-          console.error("[Auth] Unexpected error:", err);
-          return null;
-        }
+    if (error || !data) {
+      console.log("[Auth] User not found or Supabase error:", error?.message);
+      return null;
+    }
+
+    const passwordsMatch = data.password === password;
+
+    if (!passwordsMatch) {
+      console.log("[Auth] Incorrect password");
+      return null;
+    }
+
+    return {
+      id: data.userId,
+      name: data.username,
+      email: data.email ?? null,
+    };
+  } catch (err) {
+    console.error("[Auth] Unexpected error:", err);
+    return null;
+  }
       },
     }),
 
