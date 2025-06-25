@@ -8,7 +8,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 10px; /* Reduced from 20px */
+	padding: 10px;
 	position: relative;
 	box-sizing: border-box;
 }
@@ -18,15 +18,15 @@
 	display: flex;
 	width: 100%;
 	max-width: 1000px;
-	min-height: 450px; /* Reduced from 480px */
+	min-height: 450px;
 	background-color: transparent;
 	overflow: hidden;
-	gap: 20px; /* Space between left and right boxes */
-	justify-content: center; /* Center horizontally */
-	align-items: center; /* Center vertically */
-	margin: 0 auto; /* Center the container */
+	gap: 20px;
+	justify-content: center;
+	align-items: center;
+	margin: 0 auto;
 	position: relative;
-	transform: translateY(0px); /* No vertical offset - perfect center */
+	transform: translateY(0px);
 }
 
 /* Left box - contains logo and branding */
@@ -36,14 +36,14 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: space-between; /* Changed from center to space-between */
-	padding: 20px; /* Reduced from 25px */
+	justify-content: space-between;
+	padding: 20px;
 	position: relative;
-	border-radius: 40px 0 0 0; /* More curved on upper left corner */
+	border-radius: 40px 0 0 0;
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 0, 0, 0.3);
 	max-width: 420px;
-	min-height: 450px; /* Reduced from 520px */
-	padding-bottom: 40px; /* Add extra padding at the bottom */
+	min-height: 450px;
+	padding-bottom: 40px;
 }
 
 /* Logo container */
@@ -55,8 +55,8 @@
 	z-index: 2;
 	position: relative;
 	width: 100%;
-	padding: 5px; /* Reduced from 10px */
-	margin-top: 20px; /* Add margin at the top */
+	padding: 5px;
+	margin-top: 20px;
 }
 
 /* Logo wrapper to maintain proportions */
@@ -100,7 +100,6 @@
 	margin: 0;
 }
 
-/* Already have account text */
 .alreadyAccountText {
 	color: #e0c58f !important;
 	font-size: 0.9rem;
@@ -117,7 +116,6 @@
 	text-decoration: underline;
 }
 
-/* Link button for switching forms */
 .linkButton {
 	background: none;
 	border: none;
@@ -135,81 +133,67 @@
 /* Right box - contains forms */
 .rightBox {
 	flex: 0.8;
-	background-color: rgba(27, 38, 59, 0.75); /* Lighter opacity */
+	background-color: rgba(27, 38, 59, 0.75);
 	padding: 20px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: 0; /* No curved edges - sharp corners */
+	border-radius: 0;
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 0, 0, 0.3);
 	max-width: 320px;
 	min-height: 450px;
 }
 
-/* Login title */
-.loginTitle {
-	color: #e0c58f;
-	font-size: 2.2rem; /* Reduced from 2.5rem */
-	font-weight: 600;
-	margin-bottom: 20px; /* Reduced from 25px */
-	text-align: center;
-}
-
-/* Sign Up title */
+.loginTitle,
 .signUpTitle {
 	color: #e0c58f;
-	font-size: 2.2rem; /* Reduced from 2.5rem */
+	font-size: 2.2rem;
 	font-weight: 600;
-	margin-bottom: 20px; /* Reduced from 25px */
+	margin-bottom: 20px;
 	text-align: center;
 }
 
 /* Form container */
 .formContainer {
 	width: 100%;
-	max-width: 300px; /* Reduced from 320px */
+	max-width: 300px;
 }
 
-/* Form element */
 .formContainer form {
 	width: 100%;
 }
 
-/* Input groups */
 .inputGroup {
-	margin-bottom: 12px; /* Reduced from 15px */
+	margin-bottom: 12px;
 }
 
-/* Password row layout */
 .passwordRow {
 	display: flex;
 	justify-content: space-between;
-	gap: 12px; /* Reduced from 15px */
-	margin-bottom: 15px; /* Reduced from 20px */
+	gap: 12px;
+	margin-bottom: 15px;
 }
 
 .passwordColumn {
 	flex: 1;
 }
 
-/* Form labels */
 .formContainer label {
 	display: block;
 	color: #ffffff;
-	font-size: 0.9rem; /* Reduced from 0.95rem */
-	margin-bottom: 6px; /* Reduced from 8px */
+	font-size: 0.9rem;
+	margin-bottom: 6px;
 	font-weight: normal;
 }
 
-/* Form inputs */
 .formContainer input {
 	width: 100%;
-	padding: 8px 14px; /* Reduced from 10px 16px */
+	padding: 8px 14px;
 	border-radius: 30px;
 	border: none;
 	background-color: rgba(255, 255, 255, 0.2);
 	color: #ffffff;
-	font-size: 0.85rem; /* Reduced from 0.9rem */
+	font-size: 0.85rem;
 	transition: all 0.3s;
 }
 
@@ -218,13 +202,11 @@
 	box-shadow: 0 0 0 2px rgba(224, 197, 143, 0.2);
 }
 
-/* Password input container */
 .passwordInput {
 	position: relative;
 	width: 100%;
 }
 
-/* Toggle password button */
 .togglePassword {
 	position: absolute;
 	right: 12px;
@@ -243,7 +225,8 @@
 	z-index: 5;
 }
 
-.hidePasswordIcon, .showPasswordIcon {
+.hidePasswordIcon,
+.showPasswordIcon {
 	color: #e0c58f;
 	opacity: 0.9;
 	font-size: 14px;
@@ -254,15 +237,13 @@
 	opacity: 1;
 }
 
-/* Form options (remember me and forgot password) */
 .formOptions {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 15px; /* Reduced from 20px */
+	margin-bottom: 15px;
 }
 
-/* Remember me container */
 .rememberMe {
 	display: flex;
 	align-items: center;
@@ -278,12 +259,10 @@
 	font-size: 0.85rem;
 }
 
-/* Yellow text class */
 .yellowText {
 	color: #e0c58f !important;
 }
 
-/* Forgot password link */
 .forgotPassword {
 	color: #e0c58f;
 	font-size: 0.85rem;
@@ -298,19 +277,16 @@
 	text-decoration: underline;
 }
 
-/* Login link wrapper */
 .loginLinkWrapper {
 	text-align: center;
 	margin-top: 15px;
 }
 
-/* Already have account text */
 .alreadyHaveAccount {
 	color: #e0c58f;
 	font-size: 0.9rem;
 }
 
-/* Login link */
 .loginLink {
 	color: #e0c58f;
 	font-size: 0.9rem;
@@ -321,14 +297,12 @@
 	text-decoration: underline;
 }
 
-/* Google Sign In button wrapper */
 .googleButtonWrapper {
 	display: flex;
 	justify-content: center;
 	margin-bottom: 15px;
 }
 
-/* Google Sign In button */
 .googleSignInButton {
 	background: none;
 	border: none;
@@ -343,7 +317,6 @@
 	gap: 8px;
 }
 
-/* Google icon */
 .googleIcon {
 	font-size: 18px;
 	margin-right: 2px;
@@ -353,51 +326,38 @@
 	text-decoration: underline;
 }
 
-/* Login button */
-.loginButton {
-	width: 100%;
-	padding: 10px; /* Reduced from 12px */
-	background-color: #ffffff;
-	color: #0d1b2a;
-	border: none;
-	border-radius: 30px;
-	font-size: 0.85rem; /* Reduced from 0.9rem */
-	font-weight: 700;
-	cursor: pointer;
-	transition: all 0.3s;
-	margin-bottom: 12px; /* Reduced from 15px */
-	text-transform: uppercase;
-	letter-spacing: 1px;
-}
-
-.loginButton:hover, .loginButton:active {
-	background-color: #ffdb9e;
-	transform: translateY(-2px);
-}
-
-/* Create account button */
+.loginButton,
 .createAccountButton {
 	width: 100%;
-	padding: 10px; /* Reduced from 12px */
+	padding: 10px;
 	background-color: #ffffff;
 	color: #0d1b2a;
 	border: none;
 	border-radius: 30px;
-	font-size: 0.85rem; /* Reduced from 0.9rem */
+	font-size: 0.85rem;
 	font-weight: 700;
 	cursor: pointer;
 	transition: all 0.3s;
-	margin-bottom: 5px;
 	text-transform: uppercase;
 	letter-spacing: 1px;
 }
 
-.createAccountButton:hover, .createAccountButton:active {
+.loginButton:hover,
+.loginButton:active,
+.createAccountButton:hover,
+.createAccountButton:active {
 	background-color: #ffdb9e;
 	transform: translateY(-2px);
 }
 
-/* Error message */
+.loginButton {
+	margin-bottom: 12px;
+}
+
+.createAccountButton {
+	margin-bottom: 5px;
+}
+
 .errorMessage {
 	background-color: rgba(255, 87, 87, 0.1);
 	border-left: 3px solid #ff5757;
@@ -408,7 +368,6 @@
 	border-radius: 4px;
 }
 
-/* Back button */
 .backButton {
 	position: absolute;
 	bottom: 25px;
@@ -431,12 +390,12 @@
 	font-size: 1.6rem;
 }
 
-.backButton:hover, .backButton:active {
+.backButton:hover,
+.backButton:active {
 	color: #ffdb9e;
 	transform: scale(1.1);
 }
 
-/* Loading state */
 .loading {
 	display: flex;
 	justify-content: center;
@@ -479,19 +438,19 @@
 		font-size: 2.2rem;
 		margin-bottom: 10px;
 	}
-	
+
 	.rowContainer {
 		flex-direction: column;
 		gap: 0;
 	}
-	
+
 	.backButton {
 		bottom: 15px;
 		left: 15px;
 		width: 40px;
 		height: 40px;
 	}
-	
+
 	.backButtonIcon {
 		font-size: 1.4rem;
 	}
@@ -504,13 +463,12 @@
 		width: 36px;
 		height: 36px;
 	}
-	
+
 	.backButtonIcon {
 		font-size: 1.2rem;
 	}
 }
 
-/* Divider with text */
 .divider {
 	display: flex;
 	align-items: center;
