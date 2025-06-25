@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
 import { useSession } from 'next-auth/react';
-
+import { supabase } from '../lib/supabaseclient';
 import {
   About,
   Bell,
@@ -22,6 +22,7 @@ import {
 import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
 import { useRouter } from 'next/navigation';
+
 // Custom icon components
 const ArchiveIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg ">
@@ -59,7 +60,7 @@ export default function HomePage() {
   const biblePage = () => {
     router.push('/biblePage');
   }
-  
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -79,7 +80,36 @@ export default function HomePage() {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { data: session } = useSession();
+  const [posts, setPosts] = useState<any[]>([]);
 
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const { data, error } = await supabase
+        .from('Posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) {
+        console.error('Error fetching posts:', error);
+      } else {
+        setPosts(data || []);
+      }
+    };
+    fetchPosts();
+  }, []);
+
+  // Add handleDelete function
+  const handleDelete = async (postId: number) => {
+    const { error } = await supabase
+      .from('Posts')
+      .delete()
+      .eq('id', postId);
+
+    if (error) {
+      alert('Failed to delete post!');
+    } else {
+      setPosts(posts => posts.filter(post => post.id !== postId));
+    }
+  };
   return (
 
     <div className={styles.body}>
@@ -123,7 +153,7 @@ export default function HomePage() {
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}
-                  onClick = {() => signOut({callbackUrl: "/loginPage"})}>
+                    onClick={() => signOut({ callbackUrl: "/loginPage" })}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>
@@ -154,7 +184,7 @@ export default function HomePage() {
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
-              
+
               <button className={styles.navItem} onClick={biblePage}>
                 <div className={styles.navIcon}><Bible /></div>
                 <span className={styles.navText}>Bible</span>
@@ -223,7 +253,38 @@ export default function HomePage() {
                 boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
               }}>
 
-                {/*posting stuff goes here*/}
+                <div>
+                  {posts.map(post => (
+                    <div key={post.id} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244', position: 'relative' }}>
+                      {/* Delete button, only for post owner */}
+                      {post.user_id === session?.user?.id && (
+                        <button
+                          onClick={() => handleDelete(post.id)}
+                          style={{
+                            position: 'absolute',
+                            top: 10,
+                            right: 10,
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: 'red',
+                            fontSize: '1.5rem'
+                          }}
+                          title="Delete post"
+                        >
+                          <Delete />
+                        </button>
+                      )}
+                      <div>
+                        <strong>{post.topic}</strong> | {post.created_at}
+                      </div>
+                      <div>{post.content}</div>
+                      {post.image_url && (
+                        <img src={post.image_url} alt="Post image" style={{ maxWidth: '100%', marginTop: '1rem' }} />
+                      )}
+                    </div>
+                  ))}
+                </div>
 
               </div>
               <button
