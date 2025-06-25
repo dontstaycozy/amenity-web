@@ -37,7 +37,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
         e.preventDefault();
         let imageUrl = null;
         if (imageFile) {
-            const { data, error } = await supabase.storage
+            const { data, error } = await supadata.storage
                 .from('post-images') // your bucket name
                 .upload(`public/${Date.now()}_${imageFile.name}`, imageFile);
 
@@ -46,7 +46,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
                 return;
             }
             // Get the public URL
-            const { data: publicUrlData } = supabase
+            const { data: publicUrlData } = supadata
                 .storage
                 .from('post-images')
                 .getPublicUrl(data.path);
@@ -54,7 +54,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
         }
         // Handle form submission
 
-        const { error } = await supabase
+        const { error } = await supadata
             .from('Posts')
             .insert([
                 {
@@ -97,7 +97,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
                 />
                 {/* Image preview */}
                 {imagePreview && (
-                    <div style={{ margin: '1rem 0', textAlign: 'center' }}>
+                    <div style={{ margin: '1rem', textAlign: 'center' }}>
                         <img
                             src={imagePreview}
                             alt="Preview"
