@@ -16,7 +16,8 @@ import {
   Search,
   Sun,
   Create,
-  LOGO
+  LOGO,
+  Delete
 } from '@/app/components/svgs'; // Adjust the import path as necessary
 import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
@@ -75,14 +76,6 @@ export default function HomePage() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [profileDropdownRef]);
-
-  // Sample verses for demonstration
-  const additionalVerses = [
-    { id: 1, text: '"Trust in the LORD with all your heart and lean not on your own understanding." - Proverbs 3:5' },
-    { id: 2, text: '"I can do all things through Christ who strengthens me." - Philippians 4:13' },
-    { id: 3, text: '"The LORD is my shepherd; I shall not want." - Psalm 23:1' },
-    { id: 4, text: '"Be strong and courageous. Do not be afraid; do not be discouraged, for the LORD your God will be with you wherever you go." - Joshua 1:9' }
-  ];
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { data: session } = useSession();

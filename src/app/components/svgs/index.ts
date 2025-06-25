@@ -12,4 +12,5 @@ export { default as CrossEye } from './CrossEye.svg';
 export { default as NoCrossEye } from './NoCrossEye.svg';
 export { default as Create } from './Create.svg';
 export { default as Image } from './Image.svg';
-export { default as LOGO} from './AMENITREE.svg';
+export { default as LOGO } from './AMENITREE.svg';
+export { default as Delete } from './Delete.svg';

@@ -117,7 +117,7 @@ const CalendarIcon = () => (
 
 // Helper: Deterministic random number generator (seeded)
 function mulberry32(a: number): () => number {
-  return function() {
+  return function () {
     var t = a += 0x6D2B79F5;
     t = Math.imul(t ^ t >>> 15, t | 1);
     t ^= t + Math.imul(t ^ t >>> 7, t | 61);
@@ -171,8 +171,8 @@ function DailyChapter({ book, chapter }: DailyChapterProps) {
   if (loading) return <p className="paragraph">Loading {book} {chapter}...</p>;
   if (!verses.length) return <p className="paragraph">No data available for {book} {chapter}.</p>;
   return (
-    <div style={{marginBottom: '2rem'}}>
-      <h3 style={{marginBottom: '1rem'}}>{book} Chapter {chapter}</h3>
+    <div style={{ marginBottom: '2rem' }}>
+      <h3 style={{ marginBottom: '1rem' }}>{book} Chapter {chapter}</h3>
       <p className="paragraph">
         {verses.map(v => (
           <span key={v.verse}><sup>{v.verse}</sup> {v.text} </span>
@@ -189,7 +189,7 @@ export default function HomePage() {
   const [hoveredBook, setHoveredBook] = useState<string | null>(null);
   const [selectedBook, setSelectedBook] = useState("Genesis");
   const [selectedChapter, setSelectedChapter] = useState<number>(1);
-  
+
   // Reference to the dropdown container
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -202,7 +202,7 @@ export default function HomePage() {
   };
 
   const handleBibleClick = () => {
-  setActiveView('bible');
+    setActiveView('bible');
   };
 
   const handleBookClick = (book: string, chapter?: number) => {
@@ -220,9 +220,9 @@ export default function HomePage() {
   }
 
   const handleLogOut = () => {
-  signOut({ callbackUrl: '/loginPage' });
+    signOut({ callbackUrl: '/loginPage' });
   };
-  
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -230,23 +230,15 @@ export default function HomePage() {
         setShowProfileMenu(false);
       }
     }
-    
+
     // Add event listener
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     // Clean up
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [profileDropdownRef]);
-
-  // Sample verses for demonstration
-  const additionalVerses = [
-    { id: 1, text: '"Trust in the LORD with all your heart and lean not on your own understanding." - Proverbs 3:5' },
-    { id: 2, text: '"I can do all things through Christ who strengthens me." - Philippians 4:13' },
-    { id: 3, text: '"The LORD is my shepherd; I shall not want." - Psalm 23:1' },
-    { id: 4, text: '"Be strong and courageous. Do not be afraid; do not be discouraged, for the LORD your God will be with you wherever you go." - Joshua 1:9' }
-  ];
 
   return (
     <div className={styles.body}>
@@ -256,50 +248,52 @@ export default function HomePage() {
           <div className={styles.headerLeft}>
             <LOGO style={{ width: 100, height: 100 }} /><h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
-          
+
           <div className={styles.headerMid}>
             <div className={styles.searchContainer}>
               <span className={styles.searchIcon}>  <button className={styles.searchIcon}>
                 <Search style={{ cursor: "pointer" }} />
               </button></span>
-              <input 
-                type="text" 
-                className={styles.searchInput} 
-                placeholder="Search..." 
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Search..."
               />
             </div>
           </div>
-          
+
           <div className={styles.headerRight}>
             {/* Notification Icon */}
             <span className={styles.headerIcon}><Bell /> </span>
-            
+
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>
-              <span 
-                className={styles.headerIcon} 
+              <span
+                className={styles.headerIcon}
                 onClick={toggleProfileMenu}
               >
                 <Profile />
               </span>
-              
+
               {/* Profile Dropdown Menu */}
               {showProfileMenu && (
                 <div className={styles.profileDropdown}>
-                    <button className={styles.dropdownItem}>
+                  <div className={styles.dropdownItem}>
                     <span><Profile /></span>
                     <span>View Profile</span>
-                    </button>
-                    <button className={styles.dropdownItem} onClick={handleLogOut}>
+                  </div>
+                  <div className={styles.dropdownItem}
+                  onClick = {() => signOut({callbackUrl: "/loginPage"})}>
                     <span><Logout /></span>
+
                     <span>Log Out</span>
-                    </button>
-                    <button className={styles.dropdownItem}>
+                  </div>
+                  <div className={styles.dropdownItem}>
                     <span><Sun /></span>
                     <span>Light Mode</span>
-                    </button>
+                  </div>
                 </div>
-                )}
+              )}
             </div>
           </div>
         </div>
@@ -316,37 +310,37 @@ export default function HomePage() {
                 <div className={styles.navIcon}><Home /></div>
                 <span className={styles.navText}>Home</span>
               </button>
-              
+
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
-              
+
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><Bible /></div>
                 <span className={styles.navText}>Bible</span>
               </div>
             </div>
-            
+
             <div className={styles.mainLeftBottom}>
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><About /></div>
                 <span className={styles.navText}>About</span>
               </div>
-              
+
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><Help /></div>
                 <span className={styles.navText}>Help</span>
               </div>
             </div>
           </div>
-          
+
           {/* Middle Content Area - Now Scrollable */}
           <div className={styles.mainMid}>
             <div className={styles.navContainer}>
               <div className={styles.navLeft}>
                 <button className={`${styles.navBibleOp} ${activeView === 'bible' || activeView === 'book' ? styles.active : ''}`} onClick={handleBibleClick}>
-                    <span className={styles.navText}>Bible</span>
+                  <span className={styles.navText}>Bible</span>
                 </button>
                 <button className={`${styles.navBibleOp} ${activeView === 'daily' ? styles.active : ''}`} onClick={handleDailyClick}>
                   <span className={styles.navText}>Daily Reading</span>
@@ -398,7 +392,7 @@ export default function HomePage() {
               {activeView === 'daily' && (
                 <>
                   <h2 className="headingLarge">Daily Reading</h2>
-                  {dailyChapters.map(({book, chapter}) => (
+                  {dailyChapters.map(({ book, chapter }) => (
                     <DailyChapter key={book + chapter} book={book} chapter={chapter} />
                   ))}
                   <button className={styles.finishReadingBtn} onClick={() => alert("Congratulations! You finished today's reading!")}>
@@ -408,12 +402,12 @@ export default function HomePage() {
               )}
             </div>
           </div>
-          
+
           {/* Right Section */}
           <div className={styles.mainRight}>
             <div className={styles.rightContainer}>
               <h3 className="headingMedium">Streak Plant!</h3>
-              
+
               {/* Glass Bell Component */}
               <div className={styles.glassBellContainer}>
                 <div className={styles.glassBell}></div>
