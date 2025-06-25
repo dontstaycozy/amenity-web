@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
 import { useSession } from 'next-auth/react';
-import { supabase } from '../lib/supabaseclient';
+import { supadata } from '../lib/supabaseclient';
 import {
   About,
   Bell,
