@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
+
 import {
   About,
   Bell,
@@ -18,7 +19,6 @@ import {
 } from '@/app/components/svgs'; // Adjust the import path as necessary
 import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
-import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 // Custom icon components
 const ArchiveIcon = () => (
@@ -95,7 +95,6 @@ export default function HomePage() {
           <div className={styles.headerLeft}>
             <LOGO style={{ width: 100, height: 100 }} /><h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
-
           <div className={styles.headerMid}>
             <div className={styles.searchContainer}>
               <span className={styles.searchIcon}>  <button className={styles.searchIcon}>
@@ -129,8 +128,10 @@ export default function HomePage() {
                     <span><Profile /></span>
                     <span>View Profile</span>
                   </div>
-                  <div className={styles.dropdownItem} onClick={() => signOut({ callbackUrl: '/loginPage' })}>
-                    <span><Logout /></span>
+                  <div className={styles.dropdownItem}
+                  onClick = {() => signOut({callbackUrl: "/loginPage"})}>
+                    <span>🚪</span>
+
                     <span>Log Out</span>
                   </div>
                   <div className={styles.dropdownItem}>
