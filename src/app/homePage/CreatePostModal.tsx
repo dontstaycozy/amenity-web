@@ -1,78 +1,121 @@
 import React, { useState, useEffect } from 'react';
 import styles from './CreatePostModal.module.css';
 import { Image } from '@/app/components/svgs';
-import { supadata } from '../lib/supabaseclient';
+import supadata from '../lib/supabaseclient';
 
 interface CreatePostModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    username: string;
+  isOpen: boolean;
+  onClose: () => void;
+  username: string;
+}
+
+// Upload image and return public URL or null
+async function uploadImage(file: File): Promise<string | null> {
+  const filePath = `public/${Date.now()}_${file.name}`;
+  const { data, error } = await supadata.storage
+    .from('post-images')
+    .upload(filePath, file);
+
+  if (error || !data) {
+    console.error('Image upload failed:', error?.message);
+    return null;
+  }
+
+  const { data: publicUrlData } = supadata.storage
+    .from('post-images')
+    .getPublicUrl(data.path);
+
+  return publicUrlData?.publicUrl || null;
+}
+
+// Add post to database
+async function addPost(
+  content: string,
+  image_url: string | null,
+  topic: string,
+  usernameOrEmail: string
+): Promise<boolean> {
+  const { data: userData, error: userError } = await supadata
+    .from('Users_Accounts')
+    .select('userId')
+    .eq('username', usernameOrEmail);
+
+  if (userError || !userData || userData.length === 0) {
+    console.error('User lookup failed:', userError?.message);
+    return false;
+  }
+
+  const user_id = userData[0].userId;
+  const updatedAt = new Date().toISOString();
+
+  const { error: postError } = await supadata.from('Posts').insert([
+    {
+      content: content,
+      image_url: image_url,
+      topic: topic,
+      user_id,
+      updated_at: updatedAt,
+    },
+  ]);
+
+  if (postError) {
+    console.error('Post insert error:', postError.message);
+    return false;
+  }
+
+  return true;
 }
 
 const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, username }) => {
-    if (!isOpen) return null;
+  if (!isOpen) return null;
 
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [topic, setTopic] = useState('');
-    const [content, setContent] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [topic, setTopic] = useState('');
+  const [content, setContent] = useState('');
 
-    // Clean up the preview URL when image changes or modal closes
-    useEffect(() => {
-        return () => {
-            if (imagePreview) {
-                URL.revokeObjectURL(imagePreview);
-            }
-        };
-    }, [imagePreview]);
-
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setImageFile(e.target.files[0]);
-            setImagePreview(URL.createObjectURL(e.target.files[0]));
-        }
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
     };
+  }, [imagePreview]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        let imageUrl = null;
-        if (imageFile) {
-            const { data, error } = await supadata.storage
-                .from('post-images') // your bucket name
-                .upload(`public/${Date.now()}_${imageFile.name}`, imageFile);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
-            if (error) {
-                alert('Image upload failed!');
-                return;
-            }
-            // Get the public URL
-            const { data: publicUrlData } = supadata
-                .storage
-                .from('post-images')
-                .getPublicUrl(data.path);
-            imageUrl = publicUrlData.publicUrl;
-        }
-        // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-        const { error } = await supadata
-            .from('Posts')
-            .insert([
-                {
-                    topic,
-                    content,
-                    image_url: imageUrl,
-                    user_id: userId,
-                    updated_at: new Date().toISOString()
-                }
-            ]);
-        if (!error) {
-            setTopic('');
-            setContent('');
-            setImageFile(null);
-            setImagePreview(null);
-            onClose();
-        }
-    };
+    let imageUrl: string | null = null;
+
+    if (imageFile) {
+      imageUrl = await uploadImage(imageFile);
+      if (!imageUrl) {
+        alert('Image upload failed!');
+        return;
+      }
+    }
+
+    const success = await addPost(content, imageUrl, topic, username);
+
+    if (success) {
+      alert('Post created!');
+      setContent('');
+      setTopic('');
+      setImageFile(null);
+      setImagePreview(null);
+      onClose();
+    } else {
+      alert('Failed to create post. Try again.');
+    }
+  };
 
     return (
         <div className={styles.overlay} onClick={onClose}>

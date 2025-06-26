@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import BibleDisplay from '../bibleAPI/BibleDisplay';
+import supadata from '../lib/supabaseclient';
 
 type BookChapters = {
   [book: string]: number;
@@ -181,8 +182,46 @@ function DailyChapter({ book, chapter }: DailyChapterProps) {
     </div>
   );
 }
+async function addbookmark(book: string, Chapter: number, userid: string): Promise<boolean> {
+   
+  const updatedAt = new Date().toISOString();
+
+
+
+ const {data,error} = await supadata
+ .from('bookmarking')
+ .insert([
+{
+  Book_name: book,
+  chapter_number: Chapter,
+  user_id: userid,
+  saved_at: updatedAt
+}
+
+ ])
+
+
+  if (error) {
+    console.log("Sending insert:", {
+ Book_name: book,
+  chapter_number: Chapter,
+  user_id: userid,
+  saved_at: updatedAt
+});
+ console.log("Insert failed (full error):");
+console.dir(error, { depth: null });
+return false;
+  } 
+    console.log('Insert success:', data);
+    return true;
+  
+}
+
+
+
 
 export default function HomePage() {
+  const { data: session } = useSession();
   const router = useRouter();
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -239,6 +278,17 @@ export default function HomePage() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [profileDropdownRef]);
+  const handleBookmark = async (book: string, chapter: number, username:string) => {
+      const success = await addbookmark(book, chapter, username)
+ if(success){
+  console.log("Successful!");
+  alert("Bookmarked: "+ book +  chapter)
+ }else{
+
+  alert("Failed!")
+
+ }
+};
 
   return (
     <div className={styles.body}>
@@ -349,6 +399,14 @@ export default function HomePage() {
                   <button className={styles.navBibleOp}>
                     <span className={styles.navText}>Book ▾</span>
                   </button>
+                    <button
+                        className={styles.bookmarkbutton} 
+                     onClick = {() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)} 
+                    >
+
+                  Bookmark
+
+                </button>
                   <div className={styles.dropdownMenu}>
                     {Object.keys(bibleBooks).map((book) => (
                       <div
@@ -386,8 +444,11 @@ export default function HomePage() {
               {activeView === 'bible' && (
                 <>
                   <h2 className="headingLarge">BIBLE</h2>
+
                   <BibleDisplay selectedBook={selectedBook} selectedChapter={selectedChapter} />
+              
                 </>
+                
               )}
               {activeView === 'daily' && (
                 <>

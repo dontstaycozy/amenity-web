@@ -96,9 +96,10 @@ console.log("Received credentials in authorize:", credentials);
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token, user }) {
       if (token?.id) {
-        session.id = token.id as string;
+        session.user.id = token.id as string;
+       
       }
       return session;
     },
