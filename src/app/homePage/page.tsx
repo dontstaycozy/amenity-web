@@ -22,6 +22,7 @@ import {
 import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
 import { useRouter } from 'next/navigation';
+import CommentSection from './CommentSection';
 
 // Custom icon components
 const ArchiveIcon = () => (
@@ -43,7 +44,10 @@ const CalendarIcon = () => (
     <path d="M12 13H17V18H12V13Z" fill="#rgba(255, 232, 163, 1)" />
   </svg>
 );
-
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+}
 export default function HomePage() {
   const router = useRouter();
   // State for profile dropdown
@@ -243,7 +247,6 @@ export default function HomePage() {
             </div>
 
 
-            {/* Recent Activity */}
             <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
               <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>See what's going on...</h2>
               <div style={{
@@ -276,12 +279,14 @@ export default function HomePage() {
                         </button>
                       )}
                       <div>
-                        <strong>{post.topic}</strong> | {post.created_at}
+                        <strong>{post.topic}</strong> | {formatDate(post.created_at)}
                       </div>
                       <div>{post.content}</div>
                       {post.image_url && (
                         <img src={post.image_url} alt="Post image" style={{ maxWidth: '100%', marginTop: '1rem' }} />
                       )}
+
+                      <CommentSection postId={post.id} currentUserId={session?.user?.id || ''} />
                     </div>
                   ))}
                 </div>
