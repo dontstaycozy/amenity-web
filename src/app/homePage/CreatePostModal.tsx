@@ -35,7 +35,10 @@ async function addPost(
   topic: string,
   usernameOrEmail: string
 ): Promise<boolean> {
+
+  console.log("username: " + usernameOrEmail);
   const { data: userData, error: userError } = await supadata
+
     .from('Users_Accounts')
     .select('userId')
     .eq('username', usernameOrEmail);

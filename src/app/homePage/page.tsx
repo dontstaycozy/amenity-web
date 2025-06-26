@@ -84,7 +84,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await supadata
         .from('Posts')
         .select('*')
         .order('created_at', { ascending: false });
@@ -99,7 +99,7 @@ export default function HomePage() {
 
   // Add handleDelete function
   const handleDelete = async (postId: number) => {
-    const { error } = await supabase
+    const { error } = await supadata
       .from('Posts')
       .delete()
       .eq('id', postId);
