@@ -65,6 +65,10 @@ export default function HomePage() {
     router.push('/biblePage');
   }
 
+  const goToHelp = () => {
+    router.push('/helpPage');
+  };
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -201,10 +205,10 @@ export default function HomePage() {
                 <span className={styles.navText}>About</span>
               </div>
 
-              <div className={styles.navItem}>
+              <button className={styles.navItem} onClick={goToHelp}>
                 <div className={styles.navIcon}><Help /></div>
                 <span className={styles.navText}>Help</span>
-              </div>
+              </button>
             </div>
           </div>
 

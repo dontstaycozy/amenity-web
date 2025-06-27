@@ -116,6 +116,8 @@ const CalendarIcon = () => (
   </svg>
 );
 
+
+
 // Helper: Deterministic random number generator (seeded)
 function mulberry32(a: number): () => number {
   return function () {
@@ -183,38 +185,38 @@ function DailyChapter({ book, chapter }: DailyChapterProps) {
   );
 }
 async function addbookmark(book: string, Chapter: number, userid: string): Promise<boolean> {
-   
+
   const updatedAt = new Date().toISOString();
 
 
 
- const {data,error} = await supadata
- .from('bookmarking')
- .insert([
-{
-  Book_name: book,
-  chapter_number: Chapter,
-  user_id: userid,
-  saved_at: updatedAt
-}
+  const { data, error } = await supadata
+    .from('bookmarking')
+    .insert([
+      {
+        Book_name: book,
+        chapter_number: Chapter,
+        user_id: userid,
+        saved_at: updatedAt
+      }
 
- ])
+    ])
 
 
   if (error) {
     console.log("Sending insert:", {
- Book_name: book,
-  chapter_number: Chapter,
-  user_id: userid,
-  saved_at: updatedAt
-});
- console.log("Insert failed (full error):");
-console.dir(error, { depth: null });
-return false;
-  } 
-    console.log('Insert success:', data);
-    return true;
-  
+      Book_name: book,
+      chapter_number: Chapter,
+      user_id: userid,
+      saved_at: updatedAt
+    });
+    console.log("Insert failed (full error):");
+    console.dir(error, { depth: null });
+    return false;
+  }
+  console.log('Insert success:', data);
+  return true;
+
 }
 
 
@@ -262,6 +264,10 @@ export default function HomePage() {
     signOut({ callbackUrl: '/loginPage' });
   };
 
+  const goToHelp = () => {
+    router.push('/helpPage');
+  };
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -278,17 +284,17 @@ export default function HomePage() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [profileDropdownRef]);
-  const handleBookmark = async (book: string, chapter: number, username:string) => {
-      const success = await addbookmark(book, chapter, username)
- if(success){
-  console.log("Successful!");
-  alert("Bookmarked: "+ book +  chapter)
- }else{
+  const handleBookmark = async (book: string, chapter: number, username: string) => {
+    const success = await addbookmark(book, chapter, username)
+    if (success) {
+      console.log("Successful!");
+      alert("Bookmarked: " + book + chapter)
+    } else {
 
-  alert("Failed!")
+      alert("Failed!")
 
- }
-};
+    }
+  };
 
   return (
     <div className={styles.body}>
@@ -333,7 +339,7 @@ export default function HomePage() {
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}
-                  onClick = {() => signOut({callbackUrl: "/loginPage"})}>
+                    onClick={() => signOut({ callbackUrl: "/loginPage" })}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>
@@ -378,10 +384,10 @@ export default function HomePage() {
                 <span className={styles.navText}>About</span>
               </div>
 
-              <div className={styles.navItem}>
+              <button className={styles.navItem} onClick={goToHelp}>
                 <div className={styles.navIcon}><Help /></div>
                 <span className={styles.navText}>Help</span>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -399,14 +405,14 @@ export default function HomePage() {
                   <button className={styles.navBibleOp}>
                     <span className={styles.navText}>Book ▾</span>
                   </button>
-                    <button
-                        className={styles.bookmarkbutton} 
-                     onClick = {() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)} 
-                    >
+                  <button
+                    className={styles.bookmarkbutton}
+                    onClick={() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)}
+                  >
 
-                  Bookmark
+                    Bookmark
 
-                </button>
+                  </button>
                   <div className={styles.dropdownMenu}>
                     {Object.keys(bibleBooks).map((book) => (
                       <div
@@ -446,9 +452,9 @@ export default function HomePage() {
                   <h2 className="headingLarge">BIBLE</h2>
 
                   <BibleDisplay selectedBook={selectedBook} selectedChapter={selectedChapter} />
-              
+
                 </>
-                
+
               )}
               {activeView === 'daily' && (
                 <>

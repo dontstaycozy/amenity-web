@@ -14,3 +14,4 @@ export { default as Create } from './Create.svg';
 export { default as Image } from './Image.svg';
 export { default as LOGO } from './AMENITREE.svg';
 export { default as Delete } from './Delete.svg';
+export { default as Plus } from './Plus.svg';
