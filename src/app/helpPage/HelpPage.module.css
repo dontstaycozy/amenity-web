@@ -37,7 +37,19 @@
 }
 
 .faqAnswer {
-  margin-top: 12px;
+  margin-top: 0;
   color: #ffe8a3;
   white-space: pre-line;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding-top: 0;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s, padding-top 0.2s;
+}
+
+.faqAnswer.open {
+  max-height: 500px;
+  margin-top: 12px;
+  opacity: 1;
+  padding-top: 8px;
 }
