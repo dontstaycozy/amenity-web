@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
 import { useSession } from 'next-auth/react';
@@ -68,6 +67,10 @@ export default function HomePage() {
   const goToHelp = () => {
     router.push('/helpPage');
   };
+
+  const logOut = () => {
+    signOut({ callbackUrl: "/loginPage" });
+  }
 
   // Close dropdown when clicking outside
   useEffect(() => {

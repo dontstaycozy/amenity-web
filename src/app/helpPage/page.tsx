@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from '../homePage/HomePage.module.css'; // Reuse HomePage styles!
 import {
     About,
@@ -17,9 +17,36 @@ import {
 import { useRouter } from 'next/navigation';
 import FAQItem from './FAQItem';
 import { faqList } from './FAQdata';
+import { signOut } from 'next-auth/react';
 
 export default function HelpPage() {
     const router = useRouter();
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+    // Reference to the dropdown container
+    const profileDropdownRef = useRef<HTMLDivElement>(null);
+
+    // Toggle profile dropdown
+    const toggleProfileMenu = () => {
+        setShowProfileMenu(!showProfileMenu);
+    };
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+                setShowProfileMenu(false);
+            }
+        }
+
+        // Add event listener
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Clean up
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [profileDropdownRef]);
+
 
     const homePage = () => {
         router.push('/homePage');
@@ -28,6 +55,10 @@ export default function HelpPage() {
     const biblePage = () => {
         router.push('/biblePage');
     };
+
+    const logOut = () => {
+        signOut({ callbackUrl: "/loginPage" });
+      }
     // Add navigation for Help/About if you want
 
     return (
@@ -55,7 +86,36 @@ export default function HelpPage() {
                     </div>
                     <div className={styles.headerRight}>
                         <span className={styles.headerIcon}><Bell /></span>
-                        <span className={styles.headerIcon}><Profile /></span>
+
+                        {/* Profile Icon with Dropdown */}
+                        <div className={styles.profileContainer} ref={profileDropdownRef}>
+                            <span
+                                className={styles.headerIcon}
+                                onClick={toggleProfileMenu}
+                            >
+                                <Profile />
+                            </span>
+
+                            {/* Profile Dropdown Menu */}
+                            {showProfileMenu && (
+                                <div className={styles.profileDropdown}>
+                                    <div className={styles.dropdownItem}>
+                                        <span><Profile /></span>
+                                        <span>View Profile</span>
+                                    </div>
+                                    <div className={styles.dropdownItem}
+                    onClick={() => signOut({ callbackUrl: "/loginPage" })}>
+                    <span><Logout /></span>
+
+                    <span>Log Out</span>
+                  </div>
+                                    <div className={styles.dropdownItem}>
+                                        <span><Sun /></span>
+                                        <span>Light Mode</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </header>
@@ -93,7 +153,7 @@ export default function HelpPage() {
 
                     {/* Middle Content Area - FAQ */}
                     <div className={styles.mainMid}>
-                        <div style={{ maxWidth: 700, margin: '40px auto', padding: 24, background: '#18213a', borderRadius: 12 }}>
+                        <div>
                             <h2 style={{ color: '#ffe8a3', marginBottom: 24 }}>Amenity – Frequently Asked Questions (FAQ)</h2>
                             {faqList.map((faq, idx) => (
                                 <FAQItem key={idx} question={faq.question} answer={faq.answer} />
