@@ -4,6 +4,7 @@ import styles from './HomePage.module.css';
 import { useSession } from 'next-auth/react';
 import supadata from '../lib/supabaseclient';
 import {
+  Archive,
   About,
   Bell,
   Bible,
@@ -16,20 +17,14 @@ import {
   Sun,
   Create,
   LOGO,
-  Delete
+  Delete,
+  UnArchive
 } from '@/app/components/svgs'; // Adjust the import path as necessary
 import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
 import { useRouter } from 'next/navigation';
 import CommentSection from './CommentSection';
-
-// Custom icon components
-const ArchiveIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg ">
-    <path d="M20 4H4C2.9 4 2 4.9 2 6V8C2 8.55 2.45 9 3 9H21C21.55 9 22 8.55 22 8V6C22 4.9 21.1 4 20 4Z" fill="rgba(255, 232, 163, 1)" />
-    <path d="M20 10H4C3.45 10 3 10.45 3 11V18C3 19.1 3.9 20 5 20H19C20.1 20 21 19.1 21 18V11C21 10.45 20.55 10 20 10ZM15 16H9C8.45 16 8 15.55 8 15C8 14.45 8.45 14 9 14H15C15.55 14 16 14.45 16 15C16 15.55 15.55 16 15 16Z" fill="rgba(255, 232, 163, 1)" />
-  </svg>
-);
+import Image from 'next/image';
 
 const SavedIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -68,9 +63,9 @@ export default function HomePage() {
     router.push('/helpPage');
   };
 
-  const logOut = () => {
-    signOut({ callbackUrl: "/loginPage" });
-  }
+  const archivedPage = () => {
+    router.push('/archivedPage');
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -91,22 +86,66 @@ export default function HomePage() {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { data: session } = useSession();
-  const [posts, setPosts] = useState<any[]>([]);
-  const [savedCount, setSavedCount] = useState<number>(0);
+  const [posts, setPosts] = useState<Array<{
+    id: number;
+    topic: string;
+    content: string;
+    image_url?: string;
+    created_at: string;
+    user_id: string;
+  }>>([]);
 
+  // Add state to track archived posts for the current user
+  const [archivedPostIds, setArchivedPostIds] = useState<Set<number>>(new Set());
+
+  // Fetch archived posts for the current user
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchArchivedPosts = async () => {
+      if (!session?.user?.id) return;
       const { data, error } = await supadata
-        .from('Posts')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) {
-        console.error('Error fetching posts:', error);
-      } else {
-        setPosts(data || []);
+        .from('archived_posts')
+        .select('id, post_id')
+        .eq('user_id', session.user.id);
+      if (!error && data) {
+        setArchivedPostIds(new Set(data.map((row: any) => row.post_id)));
       }
     };
-    fetchPosts();
+    fetchArchivedPosts();
+  }, [session?.user?.id]);
+
+  const [savedCount, setSavedCount] = useState<number>(0);
+  const [timeLeft, setTimeLeft] = useState<string>('');
+
+  // Calculate time left until end of day
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const endOfDay = new Date(now);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const difference = endOfDay.getTime() - now.getTime();
+      
+      if (difference > 0) {
+        const hours = Math.floor(difference / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        
+        if (hours > 0) {
+          setTimeLeft(`${hours}h ${minutes}m left`);
+        } else {
+          setTimeLeft(`${minutes}m left`);
+        }
+      } else {
+        setTimeLeft('0m left');
+      }
+    };
+
+    // Calculate immediately
+    calculateTimeLeft();
+    
+    // Update every minute
+    const timer = setInterval(calculateTimeLeft, 60000);
+    
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -124,6 +163,21 @@ export default function HomePage() {
     fetchSavedCount();
   }, [session]);
 
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const { data, error } = await supadata
+        .from('Posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) {
+        console.error('Error fetching posts:', error);
+      } else {
+        setPosts(data || []);
+      }
+    };
+    fetchPosts();
+  }, []);
+
   // Add handleDelete function
   const handleDelete = async (postId: number) => {
     const { error } = await supadata
@@ -135,6 +189,34 @@ export default function HomePage() {
       alert('Failed to delete post!');
     } else {
       setPosts(posts => posts.filter(post => post.id !== postId));
+    }
+  };
+
+  // Archive/unarchive logic
+  const handleArchive = async (postId: number) => {
+    if (!session?.user?.id) return;
+    if (archivedPostIds.has(postId)) {
+      // Unarchive
+      const { error } = await supadata
+        .from('archived_posts')
+        .delete()
+        .eq('user_id', session.user.id)
+        .eq('post_id', postId);
+      if (!error) {
+        setArchivedPostIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(postId);
+          return newSet;
+        });
+      }
+    } else {
+      // Archive
+      const { error } = await supadata
+        .from('archived_posts')
+        .insert([{ user_id: session.user.id, post_id: postId, created_at: new Date().toISOString() }]);
+      if (!error) {
+        setArchivedPostIds(prev => new Set(prev).add(postId));
+      }
     }
   };
   return (
@@ -236,24 +318,21 @@ export default function HomePage() {
             {/* Verse of the Day */}
             <div className={styles.verseContainer}>
               <h2 className="headingLarge">VERSE OF THE DAY</h2>
-              <p className="paragraph">"For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life." - John 3:16</p>
+              <p className="paragraph">&ldquo;For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.&rdquo; - John 3:16</p>
             </div>
 
             {/* Card Container */}
             <div className={styles.cardContainer}>
-              <div className={styles.card} tabIndex={0} role="button">
+              <div className={styles.card} tabIndex={0} role="button" onClick={archivedPage}>
                 <div className={styles.cardIcon}>
-                  <ArchiveIcon />
+                  <Archive />
                 </div>
                 <h3 className={styles.cardTitle}>Archives</h3>
                 <p className={styles.cardInfo}>Post Archive</p>
                 <p className={styles.cardInfo}>248 entries</p>
               </div>
 
-              <div
-                className={styles.card}
-                tabIndex={0}
-                role="button"
+              <div className={styles.card} tabIndex={0} role="button"
                 onClick={() => {
                   localStorage.setItem('biblePageActiveView', 'saveChapter');
                   router.push('/biblePage');
@@ -273,14 +352,14 @@ export default function HomePage() {
                   <CalendarIcon />
                 </div>
                 <h3 className={styles.cardTitle}>Daily Readings</h3>
-                <p className={styles.cardInfo}>Today's Quest</p>
-                <p className={styles.cardInfo}>15 min left</p>
+                <p className={styles.cardInfo}>Today&apos;s Quest</p>
+                <p className={styles.cardInfo}>{timeLeft}</p>
               </div>
             </div>
 
 
             <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
-              <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>See what's going on...</h2>
+              <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>See what&apos;s going on...</h2>
               <div style={{
                 backgroundColor: '#1E2B48',
                 padding: '1.75rem',
@@ -291,6 +370,24 @@ export default function HomePage() {
                 <div>
                   {posts.map(post => (
                     <div key={post.id} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244', position: 'relative' }}>
+                      {/* Archive button, always at top right, left of delete if owner */}
+                      <button
+                        onClick={() => handleArchive(post.id)}
+                        style={{
+                          position: 'absolute',
+                          top: 6,
+                          right: post.user_id === session?.user?.id ? 50 : 10,
+                          cursor: 'pointer',
+                          color: archivedPostIds.has(post.id) ? '#ffe8a3' : '#aaa',
+                          fontSize: '1.5rem',
+                          zIndex: 1
+                        }}
+                        title={archivedPostIds.has(post.id) ? 'Unarchive post' : 'Archive post'}
+                      >
+                          {archivedPostIds.has(post.id) ? <Archive /> : <UnArchive />}
+                      </button>
+
+
                       {/* Delete button, only for post owner */}
                       {post.user_id === session?.user?.id && (
                         <button
@@ -303,7 +400,8 @@ export default function HomePage() {
                             border: 'none',
                             cursor: 'pointer',
                             color: 'red',
-                            fontSize: '1.5rem'
+                            fontSize: '1.5rem',
+                            zIndex: 2
                           }}
                           title="Delete post"
                         >
@@ -315,7 +413,13 @@ export default function HomePage() {
                       </div>
                       <div>{post.content}</div>
                       {post.image_url && (
-                        <img src={post.image_url} alt="Post image" style={{ maxWidth: '100%', marginTop: '1rem' }} />
+                        <Image 
+                          src={post.image_url} 
+                          alt="Post image" 
+                          width={500}
+                          height={300}
+                          style={{ maxWidth: '100%', marginTop: '1rem' }} 
+                        />
                       )}
 
                       <CommentSection postId={post.id} currentUserId={session?.user?.id || ''} />

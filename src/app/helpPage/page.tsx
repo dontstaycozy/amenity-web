@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../homePage/HomePage.module.css';
-
 import {
     About,
     Bell,
