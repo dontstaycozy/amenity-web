@@ -15,3 +15,5 @@ export { default as Image } from './Image.svg';
 export { default as LOGO } from './AMENITREE.svg';
 export { default as Delete } from './Delete.svg';
 export { default as Plus } from './Plus.svg';
+export { default as Archive } from './Archive.svg';
+export { default as Close } from './Close.svg';

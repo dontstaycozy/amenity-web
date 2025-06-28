@@ -4,6 +4,7 @@ import styles from './HomePage.module.css';
 import { useSession } from 'next-auth/react';
 import supadata from '../lib/supabaseclient';
 import {
+  Archive,
   About,
   Bell,
   Bible,
@@ -22,14 +23,6 @@ import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
 import { useRouter } from 'next/navigation';
 import CommentSection from './CommentSection';
-
-// Custom icon components
-const ArchiveIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg ">
-    <path d="M20 4H4C2.9 4 2 4.9 2 6V8C2 8.55 2.45 9 3 9H21C21.55 9 22 8.55 22 8V6C22 4.9 21.1 4 20 4Z" fill="rgba(255, 232, 163, 1)" />
-    <path d="M20 10H4C3.45 10 3 10.45 3 11V18C3 19.1 3.9 20 5 20H19C20.1 20 21 19.1 21 18V11C21 10.45 20.55 10 20 10ZM15 16H9C8.45 16 8 15.55 8 15C8 14.45 8.45 14 9 14H15C15.55 14 16 14.45 16 15C16 15.55 15.55 16 15 16Z" fill="rgba(255, 232, 163, 1)" />
-  </svg>
-);
 
 const SavedIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -93,6 +86,27 @@ export default function HomePage() {
   const { data: session } = useSession();
   const [posts, setPosts] = useState<any[]>([]);
 
+
+  // Add state to track archived posts for the current user
+  const [archivedPostIds, setArchivedPostIds] = useState<Set<number>>(new Set());
+
+  // Fetch archived posts for the current user
+  useEffect(() => {
+    const fetchArchivedPosts = async () => {
+      if (!session?.user?.id) return;
+      const { data, error } = await supadata
+        .from('archived_posts')
+        .select('id, post_id')
+        .eq('user_id', session.user.id);
+      if (!error && data) {
+        setArchivedPostIds(new Set(data.map((row: any) => row.post_id)));
+      }
+    };
+    fetchArchivedPosts();
+  }, [session?.user?.id]);
+
+
+
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error } = await supadata
@@ -119,6 +133,34 @@ export default function HomePage() {
       alert('Failed to delete post!');
     } else {
       setPosts(posts => posts.filter(post => post.id !== postId));
+    }
+  };
+
+  // Archive/unarchive logic
+  const handleArchive = async (postId: number) => {
+    if (!session?.user?.id) return;
+    if (archivedPostIds.has(postId)) {
+      // Unarchive
+      const { error } = await supadata
+        .from('archived_posts')
+        .delete()
+        .eq('user_id', session.user.id)
+        .eq('post_id', postId);
+      if (!error) {
+        setArchivedPostIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(postId);
+          return newSet;
+        });
+      }
+    } else {
+      // Archive
+      const { error } = await supadata
+        .from('archived_posts')
+        .insert([{ user_id: session.user.id, post_id: postId, created_at: new Date().toISOString() }]);
+      if (!error) {
+        setArchivedPostIds(prev => new Set(prev).add(postId));
+      }
     }
   };
   return (
@@ -227,7 +269,7 @@ export default function HomePage() {
             <div className={styles.cardContainer}>
               <div className={styles.card}>
                 <div className={styles.cardIcon}>
-                  <ArchiveIcon />
+                  <Archive />
                 </div>
                 <h3 className={styles.cardTitle}>Archives</h3>
                 <p className={styles.cardInfo}>Post Archive</p>
@@ -266,6 +308,24 @@ export default function HomePage() {
                 <div>
                   {posts.map(post => (
                     <div key={post.id} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244', position: 'relative' }}>
+                      {/* Archive button, always at top right, left of delete if owner */}
+                      <button
+                        onClick={() => handleArchive(post.id)}
+                        style={{
+                          position: 'absolute',
+                          top: 6,
+                          right: post.user_id === session?.user?.id ? 50 : 10,
+                          cursor: 'pointer',
+                          color: archivedPostIds.has(post.id) ? '#ffe8a3' : '#aaa',
+                          fontSize: '1.5rem',
+                          zIndex: 1
+                        }}
+                        title={archivedPostIds.has(post.id) ? 'Unarchive post' : 'Archive post'}
+                      >
+                        <Archive />
+                      </button>
+
+
                       {/* Delete button, only for post owner */}
                       {post.user_id === session?.user?.id && (
                         <button
@@ -278,7 +338,8 @@ export default function HomePage() {
                             border: 'none',
                             cursor: 'pointer',
                             color: 'red',
-                            fontSize: '1.5rem'
+                            fontSize: '1.5rem',
+                            zIndex: 2
                           }}
                           title="Delete post"
                         >
