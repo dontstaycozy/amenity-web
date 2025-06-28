@@ -8,6 +8,8 @@ import {
   About,
   Bell,
   Bible,
+  Bookmark,
+  Calendar,
   Fire,
   Help,
   Home,
@@ -26,18 +28,6 @@ import { useRouter } from 'next/navigation';
 import CommentSection from './CommentSection';
 import Image from 'next/image';
 
-const SavedIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M17 3H7C5.9 3 5 3.9 5 5V21L12 18L19 21V5C19 3.9 18.1 3 17 3Z" fill="rgba(255, 232, 163, 1)" />
-  </svg>
-);
-
-const CalendarIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(255, 232, 163, 1)" xmlns="http://www.w3.org/2000/svg">
-    <path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3.01 4.9 3.01 6L3 20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V9H19V20Z" fill="#rgba(255, 232, 163, 1)" />
-    <path d="M12 13H17V18H12V13Z" fill="#rgba(255, 232, 163, 1)" />
-  </svg>
-);
 function formatDate(dateString: string) {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
@@ -340,7 +330,7 @@ export default function HomePage() {
                 style={{ cursor: 'pointer' }}
               >
                 <div className={styles.cardIcon}>
-                  <SavedIcon />
+                  <Bookmark />
                 </div>
                 <h3 className={styles.cardTitle}>Saved</h3>
                 <p className={styles.cardInfo}>Saved Chapters</p>
@@ -355,7 +345,7 @@ export default function HomePage() {
                 style={{ cursor: 'pointer' }}
               >
                 <div className={styles.cardIcon}>
-                  <CalendarIcon />
+                  <Calendar />
                 </div>
                 <h3 className={styles.cardTitle}>Daily Readings</h3>
                 <p className={styles.cardInfo}>Today&apos;s Quest</p>

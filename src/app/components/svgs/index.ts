@@ -20,3 +20,4 @@ export { default as Bookmark } from './Bookmark.svg';
 export { default as Archive } from './Archive.svg';
 export { default as Close } from './Close.svg';
 export { default as UnArchive } from './UnArchive.svg';
+export { default as Calendar } from './Calendar.svg';
