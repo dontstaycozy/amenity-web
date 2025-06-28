@@ -17,3 +17,4 @@ export { default as Delete } from './Delete.svg';
 export { default as Plus } from './Plus.svg';
 export { default as Archive } from './Archive.svg';
 export { default as Close } from './Close.svg';
+export { default as UnArchive } from './UnArchive.svg';

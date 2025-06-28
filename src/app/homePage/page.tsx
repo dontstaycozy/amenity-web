@@ -17,7 +17,8 @@ import {
   Sun,
   Create,
   LOGO,
-  Delete
+  Delete,
+  UnArchive
 } from '@/app/components/svgs'; // Adjust the import path as necessary
 import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
@@ -64,6 +65,9 @@ export default function HomePage() {
   const logOut = () => {
     signOut({ callbackUrl: "/loginPage" });
   }
+  const archivedPage = () => {
+    router.push('/archivedPage');
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -267,7 +271,7 @@ export default function HomePage() {
 
             {/* Card Container */}
             <div className={styles.cardContainer}>
-              <div className={styles.card}>
+              <div className={styles.card}  onClick={archivedPage}>
                 <div className={styles.cardIcon}>
                   <Archive />
                 </div>
@@ -322,7 +326,7 @@ export default function HomePage() {
                         }}
                         title={archivedPostIds.has(post.id) ? 'Unarchive post' : 'Archive post'}
                       >
-                        <Archive />
+                          {archivedPostIds.has(post.id) ? <Archive /> : <UnArchive />}
                       </button>
 
 
