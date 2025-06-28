@@ -114,6 +114,16 @@ export default function HomePage() {
       setPosts(posts => posts.filter(post => post.id !== postId));
     }
   };
+
+  const handleLogOut = async () => {
+    try {
+      await signOut({ callbackUrl: '/loginPage' });
+    } catch (error) {
+      console.error('Logout error:', error);
+      router.push('/loginPage');
+    }
+  };
+
   return (
 
     <div className={styles.body}>
@@ -157,7 +167,7 @@ export default function HomePage() {
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}
-                    onClick={() => signOut({ callbackUrl: "/loginPage" })}>
+                    onClick={handleLogOut}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>
