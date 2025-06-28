@@ -92,6 +92,7 @@ export default function HomePage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { data: session } = useSession();
   const [posts, setPosts] = useState<any[]>([]);
+  const [savedCount, setSavedCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -107,6 +108,21 @@ export default function HomePage() {
     };
     fetchPosts();
   }, []);
+
+  useEffect(() => {
+    const fetchSavedCount = async () => {
+      if (session?.user?.id) {
+        const { count, error } = await supadata
+          .from('bookmarking')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', session.user.id);
+        if (!error && typeof count === 'number') {
+          setSavedCount(count);
+        }
+      }
+    };
+    fetchSavedCount();
+  }, [session]);
 
   // Add handleDelete function
   const handleDelete = async (postId: number) => {
@@ -225,7 +241,7 @@ export default function HomePage() {
 
             {/* Card Container */}
             <div className={styles.cardContainer}>
-              <div className={styles.card}>
+              <div className={styles.card} tabIndex={0} role="button">
                 <div className={styles.cardIcon}>
                   <ArchiveIcon />
                 </div>
@@ -234,16 +250,25 @@ export default function HomePage() {
                 <p className={styles.cardInfo}>248 entries</p>
               </div>
 
-              <div className={styles.card}>
+              <div
+                className={styles.card}
+                tabIndex={0}
+                role="button"
+                onClick={() => {
+                  localStorage.setItem('biblePageActiveView', 'saveChapter');
+                  router.push('/biblePage');
+                }}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.cardIcon}>
                   <SavedIcon />
                 </div>
                 <h3 className={styles.cardTitle}>Saved</h3>
                 <p className={styles.cardInfo}>Saved Chapters</p>
-                <p className={styles.cardInfo}>12 Chapters</p>
+                <p className={styles.cardInfo}>{savedCount} Chapters</p>
               </div>
 
-              <div className={styles.card}>
+              <div className={styles.card} tabIndex={0} role="button">
                 <div className={styles.cardIcon}>
                   <CalendarIcon />
                 </div>
