@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../homePage/HomePage.module.css';
+import FAQstyles from './HelpPage.module.css';
 import {
     About,
     Bell,
@@ -154,7 +155,7 @@ export default function HelpPage() {
                     {/* Middle Content Area - FAQ */}
                     <div className={styles.mainMid}>
                         <div>
-                            <h2 style={{ color: '#ffe8a3', marginBottom: 24 }}>Amenity – Frequently Asked Questions (FAQ)</h2>
+                            <h2 className={FAQstyles.faqTitle}>FAQ</h2>
                             {faqList.map((faq, idx) => (
                                 <FAQItem key={idx} question={faq.question} answer={faq.answer} />
                             ))}

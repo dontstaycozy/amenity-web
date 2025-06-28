@@ -13,7 +13,6 @@ import {
   Profile,
   Search,
   Sun,
-  Create,
   SaveChapIcon,
   Bookmark,
   LOGO

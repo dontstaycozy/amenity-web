@@ -112,13 +112,13 @@ export default function HomePage() {
       const now = new Date();
       const endOfDay = new Date(now);
       endOfDay.setHours(23, 59, 59, 999);
-      
+
       const difference = endOfDay.getTime() - now.getTime();
-      
+
       if (difference > 0) {
         const hours = Math.floor(difference / (1000 * 60 * 60));
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        
+
         if (hours > 0) {
           setTimeLeft(`${hours}h ${minutes}m left`);
         } else {
@@ -131,10 +131,10 @@ export default function HomePage() {
 
     // Calculate immediately
     calculateTimeLeft();
-    
+
     // Update every minute
     const timer = setInterval(calculateTimeLeft, 60000);
-    
+
     return () => clearInterval(timer);
   }, []);
 
@@ -353,7 +353,6 @@ export default function HomePage() {
               </div>
             </div>
 
-
             <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
               <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>See what&apos;s going on...</h2>
               <div style={{
@@ -380,7 +379,7 @@ export default function HomePage() {
                         }}
                         title={archivedPostIds.has(post.id) ? 'Unarchive post' : 'Archive post'}
                       >
-                          {archivedPostIds.has(post.id) ? <Archive /> : <UnArchive />}
+                        {archivedPostIds.has(post.id) ? <Archive /> : <UnArchive />}
                       </button>
 
 
@@ -409,12 +408,12 @@ export default function HomePage() {
                       </div>
                       <div>{post.content}</div>
                       {post.image_url && (
-                        <Image 
-                          src={post.image_url} 
-                          alt="Post image" 
+                        <Image
+                          src={post.image_url}
+                          alt="Post image"
                           width={500}
                           height={300}
-                          style={{ maxWidth: '100%', marginTop: '1rem' }} 
+                          style={{ maxWidth: '100%', marginTop: '1rem' }}
                         />
                       )}
 
