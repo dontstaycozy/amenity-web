@@ -347,7 +347,13 @@ export default function HomePage() {
                 <p className={styles.cardInfo}>{savedCount} Chapters</p>
               </div>
 
-              <div className={styles.card} tabIndex={0} role="button">
+              <div className={styles.card} tabIndex={0} role="button"
+                onClick={() => {
+                  localStorage.setItem('biblePageActiveView', 'daily');
+                  router.push('/biblePage');
+                }}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.cardIcon}>
                   <CalendarIcon />
                 </div>

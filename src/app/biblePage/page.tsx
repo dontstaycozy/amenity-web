@@ -243,6 +243,10 @@ export default function HomePage() {
         localStorage.removeItem('biblePageActiveView');
         return 'saveChapter';
       }
+      if (stored === 'daily') {
+        localStorage.removeItem('biblePageActiveView');
+        return 'daily';
+      }
     }
     return 'bible';
   });
