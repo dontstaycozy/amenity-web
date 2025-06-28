@@ -345,6 +345,22 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.navBibleOpSavedChapter{
+  background-color: #1E2B48;
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #3a4d6b;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: fit-content;
+}
 .active {
   background-color: #4f658c;
   border-color: #6c86bd;
@@ -681,20 +697,86 @@
 }
 
 .bookmarkbutton {
-  background-color: #1E2B48;
+  background-color: #0B1532;
   color: #fff;
   padding: 0.6rem 1.5rem;
-  border-radius: 12px;
-  border: 2px solid #3a4d6b;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-left: 22.5rem;
+  margin-left: 10rem;
+  border: none;
+  border-radius: 6px;
 }
 
 .bookmarkbutton:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: transparent;
   transform: translateY(-2px);
+}
+
+.bookmarkbutton:hover svg {
+  outline: 2px solid #f5f0e9;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Saved Chapters Section */
+.savedChaptersContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.savedChapterItem {
+  background: #1E2B48;
+  border-radius: 12px;
+  padding: 1rem;
+  position: relative;
+  color: #fff;
+}
+
+.savedChapterHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.savedChapterTitle {
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: #ffd700;
+  font-size: 1.3rem;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-left: 12px;
+}
+
+.savedChapterVerses {
+  margin-top: 8px;
+  color: #bfc9e0;
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+.savedChapterNote {
+  margin-top: 8px;
+  color: #bfc9e0;
+  font-size: 0.95rem;
+  word-break: break-word;
 }

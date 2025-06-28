@@ -14,6 +14,8 @@ import {
   Search,
   Sun,
   Create,
+  SaveChapIcon,
+  Bookmark,
   LOGO
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
@@ -234,8 +236,24 @@ export default function HomePage() {
   // Reference to the dropdown container
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  const [activeView, setActiveView] = useState<'bible' | 'daily' | 'book'>('bible');
+  const [activeView, setActiveView] = useState<'bible' | 'daily' | 'book' | 'saveChapter'>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('biblePageActiveView');
+      if (stored === 'saveChapter') {
+        localStorage.removeItem('biblePageActiveView');
+        return 'saveChapter';
+      }
+      if (stored === 'daily') {
+        localStorage.removeItem('biblePageActiveView');
+        return 'daily';
+      }
+    }
+    return 'bible';
+  });
   const dailyChapters = getDailyChapters(bibleBooks, 3);
+  const [savedChapters, setSavedChapters] = useState<any[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [expandedChapters, setExpandedChapters] = useState<{ [id: number]: { loading: boolean, verses: any[] } }>({});
 
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
@@ -255,6 +273,10 @@ export default function HomePage() {
   const handleDailyClick = () => {
     setActiveView('daily');
   };
+
+  const handleSavedChapterClick = () => {
+    setActiveView('saveChapter');
+  }
 
   const homePage = () => {
     router.push('/homePage');
@@ -293,6 +315,56 @@ export default function HomePage() {
 
       alert("Failed!")
 
+    }
+  };
+
+  // Fetch saved chapters/bookmarks when activeView changes to 'saveChapter'
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      if (activeView === 'saveChapter' && session?.user?.id) {
+        setLoadingSaved(true);
+        const { data, error } = await supadata
+          .from('bookmarking')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .order('saved_at', { ascending: false });
+        if (!error) setSavedChapters(data || []);
+        setLoadingSaved(false);
+      }
+    };
+    fetchBookmarks();
+  }, [activeView, session]);
+
+  // Delete a bookmark
+  const handleDeleteBookmark = async (id: number) => {
+    const { error } = await supadata.from('bookmarking').delete().eq('id', id);
+    if (!error) {
+      setSavedChapters((prev) => prev.filter((item) => item.id !== id));
+    } else {
+      alert('Failed to delete bookmark. Please try again.');
+    }
+  };
+
+  // Toggle expand/collapse and fetch content if needed
+  const handleToggleExpand = async (item: any) => {
+    setExpandedChapters((prev) => {
+      if (prev[item.id]) {
+        // Collapse if already expanded
+        const { [item.id]: _, ...rest } = prev;
+        return rest;
+      } else {
+        // Expand and fetch content
+        return { ...prev, [item.id]: { loading: true, verses: [] } };
+      }
+    });
+    if (!expandedChapters[item.id]) {
+      // Fetch verses
+      const res = await fetch(`https://bible-api.com/${encodeURIComponent(item.Book_name)}+${item.chapter_number}`);
+      const data = await res.json();
+      setExpandedChapters((prev) => ({
+        ...prev,
+        [item.id]: { loading: false, verses: data.verses || [] }
+      }));
     }
   };
 
@@ -401,17 +473,13 @@ export default function HomePage() {
                 <button className={`${styles.navBibleOp} ${activeView === 'daily' ? styles.active : ''}`} onClick={handleDailyClick}>
                   <span className={styles.navText}>Daily Reading</span>
                 </button>
+                <button className={`${styles.navBibleOpSavedChapter} ${activeView === 'saveChapter' ? styles.active : ''}`} onClick={handleSavedChapterClick}>
+                  <span className={styles.navText}>Saved Chapters</span>
+                  <div className={styles.navIcon}><SaveChapIcon /></div>
+                </button>
                 <div className={styles.dropdown}>
                   <button className={styles.navBibleOp}>
                     <span className={styles.navText}>Book ▾</span>
-                  </button>
-                  <button
-                    className={styles.bookmarkbutton}
-                    onClick={() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)}
-                  >
-
-                    Bookmark
-
                   </button>
                   <div className={styles.dropdownMenu}>
                     {Object.keys(bibleBooks).map((book) => (
@@ -443,6 +511,9 @@ export default function HomePage() {
                     ))}
                   </div>
                 </div>
+                <button className={styles.bookmarkbutton} onClick={() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)}>
+                    <div className={styles.navIcon}><Bookmark/></div>
+                </button>
               </div>
             </div>
             {/* Verse of the Day */}
@@ -465,6 +536,48 @@ export default function HomePage() {
                   <button className={styles.finishReadingBtn} onClick={() => alert("Congratulations! You finished today's reading!")}>
                     Finish Reading
                   </button>
+                </>
+              )}
+              {activeView === 'saveChapter' && (
+                <>
+                  <h2 className="headingLarge">Saved Chapters</h2>
+                  {loadingSaved ? (
+                    <p>Loading...</p>
+                  ) : savedChapters.length === 0 ? (
+                    <p>No saved chapters found.</p>
+                  ) : (
+                    <div className={styles.savedChaptersContainer}>
+                      {savedChapters.map((item) => (
+                        <div key={item.id} className={styles.savedChapterItem}>
+                          <div className={styles.savedChapterHeader}>
+                            <span className={styles.savedChapterTitle}>
+                              <button onClick={() => handleToggleExpand(item)} className={styles.expandButton} title="Show/Hide Content">
+                                {expandedChapters[item.id] ? '-' : '+'}
+                              </button>
+                              {item.Book_name} | Chapter {item.chapter_number}
+                            </span>
+                            <button onClick={() => handleDeleteBookmark(item.id)} className={styles.deleteButton} title="Delete">
+                              ×
+                            </button>
+                          </div>
+                          {expandedChapters[item.id] && (
+                            expandedChapters[item.id].loading ? (
+                              <div className={styles.savedChapterVerses}>Loading...</div>
+                            ) : (
+                              <div className={styles.savedChapterVerses}>
+                                {expandedChapters[item.id].verses.map((v: any) => (
+                                  <span key={v.verse}><sup>{v.verse}</sup> {v.text} </span>
+                                ))}
+                              </div>
+                            )
+                          )}
+                          {item.note && (
+                            <div className={styles.savedChapterNote}>{item.note}</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </>
               )}
             </div>

@@ -24,6 +24,7 @@ import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
 import { useRouter } from 'next/navigation';
 import CommentSection from './CommentSection';
+import Image from 'next/image';
 
 const SavedIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -62,9 +63,6 @@ export default function HomePage() {
     router.push('/helpPage');
   };
 
-  const logOut = () => {
-    signOut({ callbackUrl: "/loginPage" });
-  }
   const archivedPage = () => {
     router.push('/archivedPage');
   };
@@ -88,8 +86,14 @@ export default function HomePage() {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { data: session } = useSession();
-  const [posts, setPosts] = useState<any[]>([]);
-
+  const [posts, setPosts] = useState<Array<{
+    id: number;
+    topic: string;
+    content: string;
+    image_url?: string;
+    created_at: string;
+    user_id: string;
+  }>>([]);
 
   // Add state to track archived posts for the current user
   const [archivedPostIds, setArchivedPostIds] = useState<Set<number>>(new Set());
@@ -109,7 +113,55 @@ export default function HomePage() {
     fetchArchivedPosts();
   }, [session?.user?.id]);
 
+  const [savedCount, setSavedCount] = useState<number>(0);
+  const [timeLeft, setTimeLeft] = useState<string>('');
 
+  // Calculate time left until end of day
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const endOfDay = new Date(now);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const difference = endOfDay.getTime() - now.getTime();
+      
+      if (difference > 0) {
+        const hours = Math.floor(difference / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        
+        if (hours > 0) {
+          setTimeLeft(`${hours}h ${minutes}m left`);
+        } else {
+          setTimeLeft(`${minutes}m left`);
+        }
+      } else {
+        setTimeLeft('0m left');
+      }
+    };
+
+    // Calculate immediately
+    calculateTimeLeft();
+    
+    // Update every minute
+    const timer = setInterval(calculateTimeLeft, 60000);
+    
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchSavedCount = async () => {
+      if (session?.user?.id) {
+        const { count, error } = await supadata
+          .from('bookmarking')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', session.user.id);
+        if (!error && typeof count === 'number') {
+          setSavedCount(count);
+        }
+      }
+    };
+    fetchSavedCount();
+  }, [session]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -266,12 +318,12 @@ export default function HomePage() {
             {/* Verse of the Day */}
             <div className={styles.verseContainer}>
               <h2 className="headingLarge">VERSE OF THE DAY</h2>
-              <p className="paragraph">"For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life." - John 3:16</p>
+              <p className="paragraph">&ldquo;For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.&rdquo; - John 3:16</p>
             </div>
 
             {/* Card Container */}
             <div className={styles.cardContainer}>
-              <div className={styles.card}  onClick={archivedPage}>
+              <div className={styles.card} tabIndex={0} role="button" onClick={archivedPage}>
                 <div className={styles.cardIcon}>
                   <Archive />
                 </div>
@@ -280,28 +332,40 @@ export default function HomePage() {
                 <p className={styles.cardInfo}>248 entries</p>
               </div>
 
-              <div className={styles.card}>
+              <div className={styles.card} tabIndex={0} role="button"
+                onClick={() => {
+                  localStorage.setItem('biblePageActiveView', 'saveChapter');
+                  router.push('/biblePage');
+                }}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.cardIcon}>
                   <SavedIcon />
                 </div>
                 <h3 className={styles.cardTitle}>Saved</h3>
                 <p className={styles.cardInfo}>Saved Chapters</p>
-                <p className={styles.cardInfo}>12 Chapters</p>
+                <p className={styles.cardInfo}>{savedCount} Chapters</p>
               </div>
 
-              <div className={styles.card}>
+              <div className={styles.card} tabIndex={0} role="button"
+                onClick={() => {
+                  localStorage.setItem('biblePageActiveView', 'daily');
+                  router.push('/biblePage');
+                }}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.cardIcon}>
                   <CalendarIcon />
                 </div>
                 <h3 className={styles.cardTitle}>Daily Readings</h3>
-                <p className={styles.cardInfo}>Today's Quest</p>
-                <p className={styles.cardInfo}>15 min left</p>
+                <p className={styles.cardInfo}>Today&apos;s Quest</p>
+                <p className={styles.cardInfo}>{timeLeft}</p>
               </div>
             </div>
 
 
             <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
-              <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>See what's going on...</h2>
+              <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>See what&apos;s going on...</h2>
               <div style={{
                 backgroundColor: '#1E2B48',
                 padding: '1.75rem',
@@ -355,7 +419,13 @@ export default function HomePage() {
                       </div>
                       <div>{post.content}</div>
                       {post.image_url && (
-                        <img src={post.image_url} alt="Post image" style={{ maxWidth: '100%', marginTop: '1rem' }} />
+                        <Image 
+                          src={post.image_url} 
+                          alt="Post image" 
+                          width={500}
+                          height={300}
+                          style={{ maxWidth: '100%', marginTop: '1rem' }} 
+                        />
                       )}
 
                       <CommentSection postId={post.id} currentUserId={session?.user?.id || ''} />
