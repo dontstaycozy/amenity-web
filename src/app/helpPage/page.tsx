@@ -59,7 +59,7 @@ export default function HelpPage() {
 
     const logOut = () => {
         signOut({ callbackUrl: "/loginPage" });
-      }
+    }
     // Add navigation for Help/About if you want
 
     return (
@@ -105,11 +105,11 @@ export default function HelpPage() {
                                         <span>View Profile</span>
                                     </div>
                                     <div className={styles.dropdownItem}
-                    onClick={() => signOut({ callbackUrl: "/loginPage" })}>
-                    <span><Logout /></span>
+                                        onClick={() => signOut({ callbackUrl: "/loginPage" })}>
+                                        <span><Logout /></span>
 
-                    <span>Log Out</span>
-                  </div>
+                                        <span>Log Out</span>
+                                    </div>
                                     <div className={styles.dropdownItem}>
                                         <span><Sun /></span>
                                         <span>Light Mode</span>
