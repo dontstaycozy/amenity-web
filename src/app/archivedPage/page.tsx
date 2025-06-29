@@ -17,7 +17,7 @@ import {
   Sun,
   LOGO,
   Close,
-    UnArchive
+  UnArchive
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 
@@ -29,13 +29,11 @@ export default function ArchivedPage() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Navigation handlers
   const biblePage = () => router.push('/biblePage');
   const goToHelp = () => router.push('/helpPage');
   const logOut = () => router.push('/loginPage');
   const homePage = () => router.push('/homePage');
 
-  // Profile dropdown outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
@@ -50,18 +48,35 @@ export default function ArchivedPage() {
     const fetchArchivedPosts = async () => {
       if (!session?.user?.id) return;
       setLoading(true);
+
       const { data, error } = await supabase
         .from('archived_posts')
-        .select('*')
+        .select(`
+          id,
+          post_id,
+          created_at,
+          Posts (
+            id,
+            topic,
+            content,
+            image_url,
+            created_at,
+            user_id
+          )
+        `)
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
+
       if (error) {
+        console.error("Error fetching archived posts:", error);
         setArchivedPosts([]);
       } else {
         setArchivedPosts(data || []);
       }
+
       setLoading(false);
     };
+
     fetchArchivedPosts();
   }, [session?.user?.id]);
 
@@ -77,7 +92,6 @@ export default function ArchivedPage() {
 
   return (
     <div className={styles.body}>
-      {/* Header Section */}
       <header className={styles.header}>
         <div className={styles.headerContainer}>
           <div className={styles.headerLeft}>
@@ -106,55 +120,30 @@ export default function ArchivedPage() {
               </span>
               {showProfileMenu && (
                 <div className={styles.profileDropdown}>
-                  <div className={styles.dropdownItem}>
-                    <span><Profile /></span>
-                    <span>View Profile</span>
-                  </div>
-                  <div className={styles.dropdownItem} onClick={logOut}>
-                    <span><Logout /></span>
-                    <span>Log Out</span>
-                  </div>
-                  <div className={styles.dropdownItem}>
-                    <span><Sun /></span>
-                    <span>Light Mode</span>
-                  </div>
+                  <div className={styles.dropdownItem}><span><Profile /></span><span>View Profile</span></div>
+                  <div className={styles.dropdownItem} onClick={logOut}><span><Logout /></span><span>Log Out</span></div>
+                  <div className={styles.dropdownItem}><span><Sun /></span><span>Light Mode</span></div>
                 </div>
               )}
             </div>
           </div>
         </div>
       </header>
-      {/* Main Content Section */}
+
       <main className={styles.main}>
         <div className={styles.mainContainer}>
-          {/* Left Navigation Panel */}
           <div className={styles.mainLeft}>
             <div className={styles.mainLeftUp}>
-              <div className={styles.navItem} onClick={homePage}>
-                <div className={styles.navIcon}><Home /></div>
-                <span className={styles.navText}>Home</span>
-              </div>
-              <div className={styles.navItem}>
-                <div className={styles.navIcon}><Fire /></div>
-                <span className={styles.navText}>Popular</span>
-              </div>
-              <button className={styles.navItem} onClick={biblePage}>
-                <div className={styles.navIcon}><Bible /></div>
-                <span className={styles.navText}>Bible</span>
-              </button>
+              <div className={styles.navItem} onClick={homePage}><div className={styles.navIcon}><Home /></div><span className={styles.navText}>Home</span></div>
+              <div className={styles.navItem}><div className={styles.navIcon}><Fire /></div><span className={styles.navText}>Popular</span></div>
+              <button className={styles.navItem} onClick={biblePage}><div className={styles.navIcon}><Bible /></div><span className={styles.navText}>Bible</span></button>
             </div>
             <div className={styles.mainLeftBottom}>
-              <div className={styles.navItem}>
-                <div className={styles.navIcon}><About /></div>
-                <span className={styles.navText}>About</span>
-              </div>
-              <button className={styles.navItem} onClick={goToHelp}>
-                <div className={styles.navIcon}><Help /></div>
-                <span className={styles.navText}>Help</span>
-              </button>
+              <div className={styles.navItem}><div className={styles.navIcon}><About /></div><span className={styles.navText}>About</span></div>
+              <button className={styles.navItem} onClick={goToHelp}><div className={styles.navIcon}><Help /></div><span className={styles.navText}>Help</span></button>
             </div>
           </div>
-          {/* Middle Content Area - ARCHIVED POSTS */}
+
           <div className={styles.mainMid}>
             <div style={{ marginTop: '3rem', marginBottom: '3rem' }}>
               <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>Your Archived Posts</h2>
@@ -166,7 +155,6 @@ export default function ArchivedPage() {
                 ) : (
                   archivedPosts.map(post => (
                     <div key={post.id} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244', position: 'relative' }}>
-                      {/* Remove from archive button */}
                       <button
                         onClick={() => handleRemove(post.id)}
                         style={{
@@ -184,19 +172,30 @@ export default function ArchivedPage() {
                       >
                         <Close />
                       </button>
-                      <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>{post.title || 'Untitled'}</div>
-                      <div style={{ marginBottom: 12 }}>{post.content}</div>
-                      {post.image_url && (
-                        <img src={post.image_url} alt="Post image" style={{ maxWidth: '100%', marginTop: '1rem', borderRadius: 8 }} />
+
+                      <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>
+                        {post.Posts?.topic || 'Untitled'}
+                      </div>
+                      <div style={{ marginBottom: 12 }}>
+                        {post.Posts?.content || 'No content available.'}
+                      </div>
+                      {post.Posts?.image_url && (
+                        <img
+                          src={post.Posts.image_url}
+                          alt="Post image"
+                          style={{ maxWidth: '100%', marginTop: '1rem', borderRadius: 8 }}
+                        />
                       )}
-                      <div style={{ color: '#aaa', fontSize: 13, marginTop: 10 }}>Archived at: {new Date(post.created_at).toLocaleString()}</div>
+                      <div style={{ color: '#aaa', fontSize: 13, marginTop: 10 }}>
+                        Archived at: {new Date(post.created_at).toLocaleString()}
+                      </div>
                     </div>
                   ))
                 )}
               </div>
             </div>
           </div>
-          {/* Right Section */}
+
           <div className={styles.mainRight}>
             <div className={styles.rightContainer}>
               <h3 className="headingMedium">Streak Plant!</h3>
