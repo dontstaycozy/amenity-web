@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import supadata from '../lib/supabaseclient';
+import { Arrow, Comments } from '@/app/components/svgs';
+import styles from './HomePage.module.css';
 
 interface Comment {
   id: number;
@@ -28,6 +30,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
   const fetchComments = async () => {
     setLoading(true);
@@ -113,53 +116,67 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
 
   return (
     <div style={{ marginTop: '1rem', background: '#18213a', borderRadius: 8, padding: '1rem' }}>
-      <h4 style={{ marginBottom: 8 }}>Comments</h4>
-      {loading && <div>Loading...</div>}
-      {error && <div style={{ color: 'red' }}>{error}</div>}
-      <div>
-        {comments.length === 0 && <div>No comments yet.</div>}
-        {comments.map(comment => (
-          <CommentItem
-            key={comment.id}
-            comment={comment}
-            replies={repliesMap[comment.id] || []}
-            currentUserId={currentUserId}
-            onReplyAdded={fetchComments}
-          />
-        ))}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }} onClick={() => setCommentsOpen((o: boolean) => !o)}>
+        <h4 style={{ marginBottom: 8 }}>Comments</h4>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Comments style={{ width: 22, height: 22 }} />
+          <span style={{ color: '#ffe8a3', fontWeight: 600 }}>{comments.length}</span>
+          <span style={{ display: 'inline-block', transition: 'transform 0.2s', transform: commentsOpen ? 'rotate(180deg)' : 'rotate(0deg)', marginLeft: 8 }}>
+            <Arrow style={{ width: 22, height: 22 }} />
+          </span>
+        </div>
       </div>
-      <form onSubmit={handleSubmit} style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-        <input
-          type="text"
-          value={newComment}
-          onChange={e => setNewComment(e.target.value)}
-          placeholder="Add a comment..."
-          style={{
-            flex: 1,
-            borderRadius: 6,
-            border: '1px solid #333',
-            padding: 8,
-            background: '#1e2b48',
-            color: '#fff',
-          }}
-          disabled={loading}
-        />
-        <button
-          type="submit"
-          style={{
-            background: '#ffe8a3',
-            color: '#22305a',
-            border: 'none',
-            borderRadius: 6,
-            padding: '0 16px',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-          disabled={loading}
-        >
-          Post
-        </button>
-      </form>
+      <div className={`${styles.commentDropdown} ${commentsOpen ? styles.open : ''}`}>
+        {loading && <div>Loading...</div>}
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+        <div>
+          {comments.length === 0 ? (
+            <div>No comments yet.</div>
+          ) : (
+            comments.map(comment => (
+              <CommentItem
+                key={comment.id}
+                comment={comment}
+                replies={repliesMap[comment.id] || []}
+                currentUserId={currentUserId}
+                onReplyAdded={fetchComments}
+              />
+            ))
+          )}
+        </div>
+        <form onSubmit={handleSubmit} style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewComment(e.target.value)}
+            placeholder="Add a comment..."
+            style={{
+              flex: 1,
+              borderRadius: 6,
+              border: '1px solid #333',
+              padding: 8,
+              background: '#1e2b48',
+              color: '#fff',
+            }}
+            disabled={loading}
+          />
+          <button
+            type="submit"
+            style={{
+              background: '#ffe8a3',
+              color: '#22305a',
+              border: 'none',
+              borderRadius: 6,
+              padding: '0 16px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+            disabled={loading}
+          >
+            Post
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
@@ -176,6 +193,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
   const [replyText, setReplyText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [repliesOpen, setRepliesOpen] = useState(false);
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,25 +227,35 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
 
   return (
     <div style={{ marginBottom: 12, padding: 8, background: '#22305a', borderRadius: 6 }}>
-      <div style={{ fontSize: 14, color: '#ffe8a3' }}>
-        <span style={{ marginRight: 8 }}>[User]</span>
-        <span style={{ color: '#aaa', fontSize: 12 }}>{new Date(comment.created_at).toLocaleString()}</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ fontSize: 14, color: '#ffe8a3' }}>
+          <span style={{ marginRight: 8 }}>[User]</span>
+          <span style={{ color: '#aaa', fontSize: 12 }}>{new Date(comment.created_at).toLocaleString()}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => setRepliesOpen((o: boolean) => !o)}>
+          <Comments style={{ width: 18, height: 18 }} />
+          <span style={{ color: '#ffe8a3', fontWeight: 600 }}>{replies.length}</span>
+          <span style={{ display: 'inline-block', transition: 'transform 0.2s', transform: repliesOpen ? 'rotate(180deg)' : 'rotate(0deg)', marginLeft: 6 }}>
+            <Arrow style={{ width: 18, height: 18 }} />
+          </span>
+        </div>
       </div>
       <div style={{ marginTop: 4 }}>{comment.content}</div>
-
-      {/* Replies */}
-      <div style={{ marginLeft: 24, marginTop: 8 }}>
-        {replies.map(reply => (
-          <div key={reply.id} style={{ background: '#2d3a5a', borderRadius: 6, padding: 6, marginBottom: 6 }}>
-            <div style={{ fontSize: 13, color: '#ffe8a3' }}>
-              <span style={{ marginRight: 8 }}>[User]</span>
-              <span style={{ color: '#aaa', fontSize: 11 }}>{new Date(reply.created_at).toLocaleString()}</span>
+      <div className={`${styles.replyDropdown} ${repliesOpen ? styles.open : ''}`}>
+        {replies.length === 0 ? (
+          <div>No replies yet.</div>
+        ) : (
+          replies.map(reply => (
+            <div key={reply.id} style={{ background: '#2d3a5a', borderRadius: 6, padding: 6, marginBottom: 6 }}>
+              <div style={{ fontSize: 13, color: '#ffe8a3' }}>
+                <span style={{ marginRight: 8 }}>[User]</span>
+                <span style={{ color: '#aaa', fontSize: 11 }}>{new Date(reply.created_at).toLocaleString()}</span>
+              </div>
+              <div style={{ marginTop: 2 }}>{reply.content}</div>
             </div>
-            <div style={{ marginTop: 2 }}>{reply.content}</div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
-
       {/* Reply Button and Input */}
       <button
         style={{
@@ -242,13 +270,12 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
       >
         Reply
       </button>
-
       {showReplyInput && (
         <form onSubmit={handleReplySubmit} style={{ marginTop: 6, display: 'flex', gap: 6 }}>
           <input
             type="text"
             value={replyText}
-            onChange={e => setReplyText(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReplyText(e.target.value)}
             placeholder="Write a reply..."
             style={{
               flex: 1,
@@ -277,7 +304,6 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
           </button>
         </form>
       )}
-
       {error && <div style={{ color: 'red', fontSize: 12 }}>{error}</div>}
     </div>
   );

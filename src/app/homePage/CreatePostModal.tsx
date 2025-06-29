@@ -120,59 +120,59 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
     }
   };
 
-    return (
-        <div className={styles.overlay} onClick={onClose}>
-            <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                <div className={styles.header}>
-                    <div className={styles.avatar}></div>
-                    <span className={styles.username}>{username}</span>
-                    <button className={styles.topicBtn}>+ Topic</button>
-                </div>
-                <input
-                    type="text"
-                    placeholder="Topic"
-                    value={topic}
-                    onChange={e => setTopic(e.target.value)}
-                    className={styles.topicInput}
-                />
-                <textarea
-                    className={styles.textarea}
-                    placeholder="Write something..."
-                    value={content}
-                    onChange={e => setContent(e.target.value)}
-                />
-                {/* Image preview */}
-                {imagePreview && (
-                    <div style={{ margin: '1rem', textAlign: 'center' }}>
-                        <img
-                            src={imagePreview}
-                            alt="Preview"
-                            style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 12 }}
-                        />
-                    </div>
-                )}
-                <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    id="image-upload"
-                    onChange={handleImageChange}
-                />
-                <div className={styles.footer}>
-                    <button className={styles.postBtn} onClick={handleSubmit}>Post</button>
-                    <button
-                        className={styles.imageBtn}
-                        onClick={() => {
-                            const input = document.getElementById('image-upload') as HTMLInputElement | null;
-                            if (input) input.click();
-                        }}
-                    >
-                        <span><Image /></span>
-                    </button>
-                </div>
-            </div>
+  return (
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+        <div className={styles.header}>
+          <div className={styles.avatar}></div>
+          <span className={styles.username}>{username}</span>
+          <button className={styles.topicBtn}>+ Topic</button>
         </div>
-    );
+        <input
+          type="text"
+          placeholder="Topic"
+          value={topic}
+          onChange={e => setTopic(e.target.value)}
+          className={styles.topicInput}
+        />
+        <textarea
+          className={styles.textarea}
+          placeholder="Write something..."
+          value={content}
+          onChange={e => setContent(e.target.value)}
+        />
+        {/* Image preview */}
+        {imagePreview && (
+          <div style={{ margin: '1rem', textAlign: 'center' }}>
+            <img
+              src={imagePreview}
+              alt="Preview"
+              style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 12 }}
+            />
+          </div>
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          id="image-upload"
+          onChange={handleImageChange}
+        />
+        <div className={styles.footer}>
+          <button className={styles.postBtn} onClick={handleSubmit}>Post</button>
+          <button
+            className={styles.imageBtn}
+            onClick={() => {
+              const input = document.getElementById('image-upload') as HTMLInputElement | null;
+              if (input) input.click();
+            }}
+          >
+            <span><Image /></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default CreatePostModal;

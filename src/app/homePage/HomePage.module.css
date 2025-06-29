@@ -21,6 +21,7 @@
   border: none;
   outline: none;
 }
+
 /* Header styles */
 .header {
   width: 100%;
@@ -470,6 +471,37 @@
   border-radius: 50%;
   z-index: 3;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Animated dropdown for comments/replies */
+.commentDropdown {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding-top: 0;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s, padding-top 0.2s;
+}
+
+.commentDropdown.open {
+  max-height: 1000px;
+  /* Large enough for most comment lists */
+  opacity: 1;
+  padding-top: 8px;
+}
+
+.replyDropdown {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding-top: 0;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s, padding-top 0.2s;
+}
+
+.replyDropdown.open {
+  max-height: 500px;
+  opacity: 1;
+  padding-top: 8px;
 }
 
 /* Responsive styles */

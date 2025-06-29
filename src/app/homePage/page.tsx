@@ -26,6 +26,7 @@ import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
 import { useRouter } from 'next/navigation';
 import CommentSection from './CommentSection';
+import PostInteractions from './PostInteractions';
 import Image from 'next/image';
 
 function formatDate(dateString: string) {
@@ -416,7 +417,7 @@ export default function HomePage() {
                           style={{ maxWidth: '100%', marginTop: '1rem' }}
                         />
                       )}
-
+                      <PostInteractions postId={post.id} currentUserId={session?.user?.id || ''} />
                       <CommentSection postId={post.id} currentUserId={session?.user?.id || ''} />
                     </div>
                   ))}
