@@ -15,7 +15,8 @@ import {
   Sun,
   SaveChapIcon,
   Bookmark,
-  LOGO
+  LOGO,
+  Plus
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
@@ -539,7 +540,7 @@ export default function HomePage() {
               )}
               {activeView === 'saveChapter' && (
                 <>
-                  <h2 className="headingLarge">Saved Chapters</h2>
+                  <h2 className={styles.headingLarge}>Saved Chapters</h2>
                   {loadingSaved ? (
                     <p>Loading...</p>
                   ) : savedChapters.length === 0 ? (
@@ -548,28 +549,47 @@ export default function HomePage() {
                     <div className={styles.savedChaptersContainer}>
                       {savedChapters.map((item) => (
                         <div key={item.id} className={styles.savedChapterItem}>
-                          <div className={styles.savedChapterHeader}>
+                          <div
+                            className={styles.savedChapterHeader}
+                            onClick={() => handleToggleExpand(item)}
+                            role="button"
+                            tabIndex={0}
+                            style={{ userSelect: 'none' }}
+                          >
                             <span className={styles.savedChapterTitle}>
-                              <button onClick={() => handleToggleExpand(item)} className={styles.expandButton} title="Show/Hide Content">
-                                {expandedChapters[item.id] ? '-' : '+'}
+                              <button
+                                className={styles.expandButton}
+                                title="Show/Hide Content"
+                                style={{
+                                  transition: 'transform 0.2s',
+                                  transform: expandedChapters[item.id] ? 'rotate(45deg)' : 'none',
+                                }}
+                                tabIndex={-1}
+                                aria-hidden="true"
+                              >
+                                <Plus />
                               </button>
                               {item.Book_name} | Chapter {item.chapter_number}
                             </span>
-                            <button onClick={() => handleDeleteBookmark(item.id)} className={styles.deleteButton} title="Delete">
+                            <button onClick={e => { e.stopPropagation(); handleDeleteBookmark(item.id); }} className={styles.deleteButton} title="Delete">
                               ×
                             </button>
                           </div>
-                          {expandedChapters[item.id] && (
-                            expandedChapters[item.id].loading ? (
-                              <div className={styles.savedChapterVerses}>Loading...</div>
-                            ) : (
-                              <div className={styles.savedChapterVerses}>
-                                {expandedChapters[item.id].verses.map((v: any) => (
+                          <div className={
+                            expandedChapters[item.id]
+                              ? `${styles.savedChapterVerses} ${styles.open}`
+                              : styles.savedChapterVerses
+                          }>
+                            {expandedChapters[item.id] && (
+                              expandedChapters[item.id].loading ? (
+                                <div>Loading...</div>
+                              ) : (
+                                expandedChapters[item.id].verses.map((v: any) => (
                                   <span key={v.verse}><sup>{v.verse}</sup> {v.text} </span>
-                                ))}
-                              </div>
-                            )
-                          )}
+                                ))
+                              )
+                            )}
+                          </div>
                           {item.note && (
                             <div className={styles.savedChapterNote}>{item.note}</div>
                           )}
