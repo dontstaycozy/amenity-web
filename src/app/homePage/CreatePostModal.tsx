@@ -126,7 +126,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
         <div className={styles.header}>
           <div className={styles.avatar}></div>
           <span className={styles.username}>{username}</span>
-          <button className={styles.topicBtn}>+ Topic</button>
         </div>
         <input
           type="text"
@@ -147,14 +146,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
             <img
               src={imagePreview}
               alt="Preview"
-              style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 12 }}
+              style={{ maxWidth: '100%', maxHeight: 100, borderRadius: 12 }}
             />
           </div>
         )}
         <input
           type="file"
           accept="image/*"
-          style={{ display: 'none' }}
+          style={{ display: 'none', margin: '1rem' }}
           id="image-upload"
           onChange={handleImageChange}
         />
