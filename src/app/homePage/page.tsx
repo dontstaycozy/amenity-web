@@ -28,6 +28,15 @@ import { useRouter } from 'next/navigation';
 import CommentSection from './CommentSection';
 import PostInteractions from './PostInteractions';
 import Image from 'next/image';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const localTZ = 'Asia/Manila';
 
 function formatDate(dateString: string) {
   const date = new Date(dateString);
@@ -127,6 +136,8 @@ export default function HomePage() {
 
   const [savedCount, setSavedCount] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const [streakDone, setStreakDone] = useState(false);
+
 
   // Calculate time left until end of day
   useEffect(() => {
@@ -190,6 +201,11 @@ export default function HomePage() {
     fetchPosts();
   }, []);
 
+  useEffect(() => {
+  checkstreaks();
+}, [session?.user?.id]);
+
+
   // Add handleDelete function
   const handleDelete = async (postId: number) => {
     const { error } = await supadata
@@ -234,7 +250,7 @@ export default function HomePage() {
         .insert([{
           user_id: session.user.id,
           post_id: postId,
-          title: postToArchive.topic,  // ✅ Insert the title here
+          title: postToArchive.topic,  
           created_at: new Date().toISOString()
         }]);
 
@@ -243,6 +259,28 @@ export default function HomePage() {
       }
     }
   };
+
+  const checkstreaks = async () => {
+  if (!session?.user?.id) return;
+
+  const today = dayjs().tz(localTZ).format('YYYY-MM-DD');
+
+  const { data: streak, error } = await supadata
+    .from('streaks_input')
+    .select('date')
+    .eq('user_id', session.user.id)
+    .single();
+
+  if (error || !streak) {
+    setStreakDone(false);
+    return;
+  }
+
+  const lastActiveDate = dayjs(streak.date).tz(localTZ).format('YYYY-MM-DD');
+  setStreakDone(lastActiveDate === today);
+};
+
+
 
   return (
 
@@ -384,7 +422,9 @@ export default function HomePage() {
                 </div>
                 <h3 className={styles.cardTitle}>Daily Readings</h3>
                 <p className={styles.cardInfo}>Today&apos;s Quest</p>
-                <p className={styles.cardInfo}>{timeLeft}</p>
+                <p className={styles.cardInfo}>
+    {streakDone ? '✅ Done' : timeLeft}
+  </p>
               </div>
             </div>
 

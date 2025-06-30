@@ -23,10 +23,20 @@ import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import BibleDisplay from '../bibleAPI/BibleDisplay';
 import supadata from '../lib/supabaseclient';
+import { UUID } from 'crypto';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+
 
 type BookChapters = {
   [book: string]: number;
 };
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+const localTZ = 'Asia/Manila';
 
 const bibleBooks: Record<string, number> = {
   Genesis: 50,
@@ -368,6 +378,71 @@ export default function HomePage() {
     }
   };
 
+  const handleStreaks = async (userId: string) => {
+  const now = dayjs().tz(localTZ);
+  const today = now.format('YYYY-MM-DD');
+
+  // 1. Fetch the user's streak
+  const { data: streak, error } = await supadata
+    .from('streaks_input')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching streak:', error.message);
+    return;
+  }
+
+  if (!streak) {
+    // 2. No streak yet — insert new
+    const { error: insertError } = await supadata.from('streaks_input').insert({
+      user_id: userId,
+      streaknum: 1,
+      date: now.toISOString(),
+    });
+
+    if (insertError) {
+      console.error('Error inserting streak:', insertError.message);
+    } else {
+      console.log('New streak started for user:', userId);
+    }
+
+    return;
+  }
+
+  const lastActive = dayjs(streak.last_active).tz(localTZ);
+  const lastActiveDate = lastActive.format('YYYY-MM-DD');
+
+  // 3. If already updated today, do nothing
+  if (lastActiveDate === today) {
+    console.log('Streak already updated today.');
+    return;
+  }
+
+  // 4. Determine if streak should continue or reset
+  const isYesterday =
+    lastActive.add(1, 'day').format('YYYY-MM-DD') === today;
+
+  const newCount = isYesterday ? streak.streak_count + 1 : 1;
+
+  // 5. Update streak
+  const { error: updateError } = await supadata
+    .from('streaks_input')
+    .update({
+      streaknum: newCount,
+      date: now.toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (updateError) {
+    console.error('Error updating streak:', updateError.message);
+  } else {
+    console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
+  }
+};
+
+
   return (
     <div className={styles.body}>
       {/* Header Section */}
@@ -533,7 +608,14 @@ export default function HomePage() {
                   {dailyChapters.map(({ book, chapter }) => (
                     <DailyChapter key={book + chapter} book={book} chapter={chapter} />
                   ))}
-                  <button className={styles.finishReadingBtn} onClick={() => alert("Congratulations! You finished today's reading!")}>
+                  <button className={styles.finishReadingBtn} onClick={() => 
+
+                    {
+                       if (session?.user?.id) {
+                      handleStreaks(session.user.id);
+                           }
+                    }
+                  }>
                     Finish Reading
                   </button>
                 </>
