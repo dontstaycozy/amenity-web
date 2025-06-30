@@ -126,7 +126,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
         <div className={styles.header}>
           <div className={styles.avatar}></div>
           <span className={styles.username}>{username}</span>
-          <button className={styles.topicBtn}>+ Topic</button>
         </div>
         <input
           type="text"

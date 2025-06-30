@@ -62,37 +62,6 @@
   margin-right: 0.75rem;
 }
 
-.topicBtn {
-  background: #23305a;
-  color: #ffffff;
-  border: none;
-  border-radius: 16px;
-  padding: 0.3rem 1.1rem;
-  font-size: 1rem;
-  font-weight: 500;
-  margin-left: auto;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.topicBtn:hover {
-  background: #2d3a5a;
-}
-
-.textarea {
-  background: #2B3D65;
-  color: #f5f0e9;
-  border: none;
-  border-radius: 12px;
-  min-height: 200px;
-  font-size: 1.2rem;
-  padding: 1.2rem 1rem;
-  resize: none;
-  outline: none;
-  width: 100%;
-  margin-bottom: 0.5rem;
-}
-
 .footer {
   display: flex;
   justify-content: flex-end;

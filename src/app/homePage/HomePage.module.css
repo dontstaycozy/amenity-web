@@ -473,6 +473,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.headingLargeVerse {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #f5f0e9;
+  margin-bottom: 1rem;
+}
 
 /* Animated dropdown for comments/replies */
 .commentDropdown {

@@ -57,7 +57,28 @@ export default function HomePage() {
   const archivedPage = () => {
     router.push('/archivedPage');
   };
+  const [verseOfTheDay, setVerseOfTheDay] = useState({ text: '', reference: '' });
 
+  useEffect(() => {
+    async function fetchRandomVerse() {
+      try {
+        const res = await fetch('https://labs.bible.org/api/?passage=random&type=json');
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setVerseOfTheDay({
+            text: data[0].text,
+            reference: `${data[0].bookname} ${data[0].chapter}:${data[0].verse}`,
+          });
+        }
+      } catch (err) {
+        setVerseOfTheDay({
+          text: "For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.",
+          reference: "John 3:16"
+        });
+      }
+    }
+    fetchRandomVerse();
+  }, []);
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -321,8 +342,8 @@ export default function HomePage() {
           <div className={styles.mainMid}>
             {/* Verse of the Day */}
             <div className={styles.verseContainer}>
-              <h2 className="headingLarge">VERSE OF THE DAY</h2>
-              <p className="paragraph">&ldquo;For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.&rdquo; - John 3:16</p>
+              <h2 className={styles.headingLargeVerse}>VERSE OF THE DAY</h2>
+              <p className="paragraph">&ldquo;{verseOfTheDay.text}&rdquo; - {verseOfTheDay.reference}</p>
             </div>
 
             {/* Card Container */}
