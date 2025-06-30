@@ -42,22 +42,22 @@ const LandingPage = () => {
       <div className={styles.fadeOverlay}></div>
       <section className={styles.heroSection}>
         <div className={styles.heroContainer}>
-          <Image 
-            src="/images/tree.png" 
-            alt="Amenity Logo" 
-            width={280} 
-            height={280} 
+          <Image
+            src="/images/tree.png"
+            alt="Amenity Logo"
+            width={280}
+            height={280}
             className={styles.heroLogo}
           />
           <h1 className={styles.heroTitle}>Amenity</h1>
           <p className={styles.heroSubtitle}>Your daily companion for spiritual growth</p>
         </div>
       </section>
-      
+
       <section className={styles.featureSection}>
         <div className={styles.featureContainer}>
-          <div 
-            className={`${styles.featureItem} ${styles.featureLeft}`} 
+          <div
+            className={`${styles.featureItem} ${styles.featureLeft}`}
             ref={(el) => { featureRefs.current[0] = el; }}
           >
             <h2 className={`${styles.featureTitle} ${styles.readTitle}`}>Read.</h2>
@@ -65,8 +65,8 @@ const LandingPage = () => {
               Start your day with a verse. Read the bible in peace. Save what resonates with you.
             </p>
           </div>
-          
-          <div 
+
+          <div
             className={`${styles.featureItem} ${styles.featureRight}`}
             ref={(el) => { featureRefs.current[1] = el; }}
           >
@@ -75,8 +75,8 @@ const LandingPage = () => {
               Keep track of your spiritual journey. Remember your reflections. Mark your journey through a little sprout.
             </p>
           </div>
-          
-          <div 
+
+          <div
             className={`${styles.featureItem} ${styles.featureLeft}`}
             ref={(el) => { featureRefs.current[2] = el; }}
           >
@@ -87,7 +87,7 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-      
+
       <section className={styles.ctaSection}>
         <div className={styles.ctaContainer}>
           <Link href="/loginPage" className={styles.ctaButton}>
@@ -95,16 +95,16 @@ const LandingPage = () => {
           </Link>
         </div>
       </section>
-      
+
       <footer className={styles.footer}>
         <div className={styles.footerContainer}>
           <div className={styles.footerLogo}>
             <div className={styles.footerLogoWrapper}>
-              <Image 
-                src="/images/tree.png" 
-                alt="Amenity Logo" 
-                width={30} 
-                height={30} 
+              <Image
+                src="/images/tree.png"
+                alt="Amenity Logo"
+                width={30}
+                height={30}
                 className={styles.footerLogoImg}
               />
               <span className={styles.footerBrandName}>Amenity</span>
@@ -113,7 +113,7 @@ const LandingPage = () => {
               Developers: JZML
             </div>
           </div>
-          
+
           <div className={styles.footerContact}>
             <span className={styles.contactText}>Contact us:</span>
             <span className={styles.emailIcon}>✉️</span>

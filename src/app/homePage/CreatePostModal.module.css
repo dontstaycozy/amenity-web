@@ -3,6 +3,7 @@
     opacity: 0;
     transform: scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -25,7 +26,7 @@
 .modal {
   background: #1E2B48;
   border-radius: 22px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   padding: 3.5rem 3.5rem 2rem 3.5rem;
   min-width: 600px;
   max-width: 95vw;
@@ -33,7 +34,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  animation: popInModal 0.25s cubic-bezier(.4,1.6,.6,1);
+  animation: popInModal 0.25s cubic-bezier(.4, 1.6, .6, 1);
 }
 
 .header {
@@ -73,6 +74,7 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .topicBtn:hover {
   background: #2d3a5a;
 }
@@ -109,6 +111,7 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .postBtn:hover {
   background: #f5f0e9;
 }
@@ -125,6 +128,7 @@
   align-items: center;
   transition: background 0.2s;
 }
+
 .imageBtn:hover {
   background: #2d3a5a;
 }

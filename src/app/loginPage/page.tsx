@@ -10,44 +10,44 @@ import { BsBoxArrowLeft } from 'react-icons/bs';
 import supadata from '../lib/supabaseclient';
 
 
- console.log("type of: ", supadata);
+console.log("type of: ", supadata);
 async function addData(username: string, password: string, email: string): Promise<boolean> {
- const {data,error} = await supadata
- .from('Users_Accounts')
- .insert([
-{
-  username:username,
-  password: password,
-  email: email,
-}
+  const { data, error } = await supadata
+    .from('Users_Accounts')
+    .insert([
+      {
+        username: username,
+        password: password,
+        email: email,
+      }
 
- ])
+    ])
 
- const {error: authError} = await supadata.auth.signUp({
+  const { error: authError } = await supadata.auth.signUp({
     email,
     password,
 
 
- })
+  })
 
- if(authError){
-  console.log("Auth signup failesd: ", authError.message);
-  return false;
- }
+  if (authError) {
+    console.log("Auth signup failesd: ", authError.message);
+    return false;
+  }
 
   if (error) {
     console.log("Sending insert:", {
-  username: username,
-  password: password,
-  email: email,
-});
- console.log("Insert failed (full error):");
-console.dir(error, { depth: null });
-return false;
-  } 
-    console.log('Insert success:', data);
-    return true;
-  
+      username: username,
+      password: password,
+      email: email,
+    });
+    console.log("Insert failed (full error):");
+    console.dir(error, { depth: null });
+    return false;
+  }
+  console.log('Insert success:', data);
+  return true;
+
 }
 
 
@@ -98,14 +98,14 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
       setError("Username and password are required.");
       return;
     }
-    
+
     try {
       const res = await signIn('credentials', {
         redirect: false,
         username: form.username,
         password: form.password,
       });
-      
+
       if (res?.ok) {
         setForm({
           username: '',
@@ -135,7 +135,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
   return (
     <div className={styles.formContainer}>
       <h1 className={styles.loginTitle}>Login</h1>
-      
+
       <form onSubmit={handleSubmit}>
         <div className={styles.inputGroup}>
           <label htmlFor="username">Username</label>
@@ -148,7 +148,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
             placeholder="Username"
           />
         </div>
-        
+
         <div className={styles.inputGroup}>
           <label htmlFor="password">Password</label>
           <div className={styles.passwordInput}>
@@ -160,19 +160,19 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
               onChange={handleChange}
               placeholder="Password"
             />
-            <button 
-              type="button" 
+            <button
+              type="button"
               className={styles.togglePassword}
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? 
-                <FaEyeSlash className={styles.hidePasswordIcon} /> : 
+              {showPassword ?
+                <FaEyeSlash className={styles.hidePasswordIcon} /> :
                 <FaEye className={styles.showPasswordIcon} />
               }
             </button>
           </div>
         </div>
-        
+
         <div className={styles.formOptions}>
           <div className={styles.rememberMe}>
             <input
@@ -184,27 +184,27 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
             />
             <label htmlFor="remember" className={styles.yellowText}>Remember me</label>
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className={`${styles.forgotPassword} ${styles.yellowText}`}
             onClick={(e) => router.push('/forgotpassword')}
           >
             Forgot Password?
           </button>
         </div>
-        
+
         {error && <div className={styles.errorMessage}>{error}</div>}
-        
+
         <div className={styles.googleButtonWrapper}>
-          <button 
-            type="button" 
-            className={styles.googleSignInButton} 
+          <button
+            type="button"
+            className={styles.googleSignInButton}
             onClick={handleGoogleSignIn}
           >
             <FcGoogle className={styles.googleIcon} /> Sign in with Google
           </button>
         </div>
-        
+
         <button type="submit" className={styles.loginButton}>LOGIN</button>
       </form>
     </div>
@@ -229,48 +229,48 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!form.username || !form.email || !form.password || !form.confirmPassword) {
       setError("All fields are required.");
       return;
     }
-    
+
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-    
-   const data_insertion = await addData(form.username, form.password, form.email);
-     
-    
-console.log('Insert result: ', data_insertion);
-    if(data_insertion){
-      setForm({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
 
-   
-    setError("Sign up successful!");
-    
-    }else{
+    const data_insertion = await addData(form.username, form.password, form.email);
+
+
+    console.log('Insert result: ', data_insertion);
+    if (data_insertion) {
       setForm({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      });
+
+
+      setError("Sign up successful!");
+
+    } else {
+      setForm({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      });
       setError("failed to sign up");
     }
- 
+
   };
 
   return (
     <div className={styles.formContainer}>
       <h1 className={styles.signUpTitle}>Sign Up</h1>
-      
+
       <form onSubmit={handleSubmit}>
         <div className={styles.inputGroup}>
           <label htmlFor="signup-username">Username</label>
@@ -283,7 +283,7 @@ console.log('Insert result: ', data_insertion);
             placeholder="Username"
           />
         </div>
-        
+
         <div className={styles.inputGroup}>
           <label htmlFor="email">Email Address</label>
           <input
@@ -295,7 +295,7 @@ console.log('Insert result: ', data_insertion);
             placeholder="Email Address"
           />
         </div>
-        
+
         <div className={styles.passwordRow}>
           <div className={styles.passwordColumn}>
             <label htmlFor="signup-password">Password</label>
@@ -308,19 +308,19 @@ console.log('Insert result: ', data_insertion);
                 onChange={handleChange}
                 placeholder="Password"
               />
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className={styles.togglePassword}
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? 
-                  <FaEyeSlash className={styles.hidePasswordIcon} /> : 
+                {showPassword ?
+                  <FaEyeSlash className={styles.hidePasswordIcon} /> :
                   <FaEye className={styles.showPasswordIcon} />
                 }
               </button>
             </div>
           </div>
-          
+
           <div className={styles.passwordColumn}>
             <label htmlFor="confirmPassword">Confirm Password</label>
             <div className={styles.passwordInput}>
@@ -332,22 +332,22 @@ console.log('Insert result: ', data_insertion);
                 onChange={handleChange}
                 placeholder="Confirm Password"
               />
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className={styles.togglePassword}
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
-                {showConfirmPassword ? 
-                  <FaEyeSlash className={styles.hidePasswordIcon} /> : 
+                {showConfirmPassword ?
+                  <FaEyeSlash className={styles.hidePasswordIcon} /> :
                   <FaEye className={styles.showPasswordIcon} />
                 }
               </button>
             </div>
           </div>
         </div>
-        
+
         {error && <div className={styles.errorMessage}>{error}</div>}
-        
+
         <button type="submit" className={styles.createAccountButton}>CREATE ACCOUNT</button>
       </form>
     </div>
@@ -359,34 +359,34 @@ const AuthPage = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  
+
   // Initialize component state after mount to avoid hydration mismatch
   useEffect(() => {
     setIsClient(true);
   }, []);
-  
+
   const handleBackToLanding = () => {
     router.push('/landingPage');
   };
-  
+
   // Handle switch between login and signup
   const handleSwitchForm = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowLogin(!showLogin);
   };
-  
+
   // Simple loading state while client rendering is ready
   if (!isClient) {
     return <div className={styles.loading}>Loading...</div>;
   }
-  
+
   return (
     <div className={styles.pageContainer}>
       <div className={styles.authContainer}>
         <div className={styles.leftBox}>
           <div className={styles.logoContainer}>
             <div className={styles.logoWrapper}>
-              <Image 
+              <Image
                 src="/images/tree.png"
                 alt="Amenity Logo"
                 width={400}
@@ -397,7 +397,7 @@ const AuthPage = () => {
             </div>
             <h1 className={styles.brandName}>Amenity</h1>
           </div>
-          
+
           <div className={styles.bottomText}>
             {showLogin ? (
               <p className={styles.alreadyAccountText}>Don't have an account? <button className={styles.linkButton} onClick={handleSwitchForm}>Sign Up</button></p>
@@ -406,7 +406,7 @@ const AuthPage = () => {
             )}
           </div>
         </div>
-        
+
         <div className={styles.rightBox}>
           {showLogin ? (
             <LogInForm onSwitch={() => setShowLogin(false)} />
@@ -415,9 +415,9 @@ const AuthPage = () => {
           )}
         </div>
       </div>
-      
-      <button 
-        className={styles.backButton} 
+
+      <button
+        className={styles.backButton}
         onClick={handleBackToLanding}
         aria-label="Back to landing page"
       >

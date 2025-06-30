@@ -185,43 +185,43 @@ export default function HomePage() {
   };
 
   // Archive/unarchive logic
- const handleArchive = async (postId: number) => {
-  if (!session?.user?.id) return;
+  const handleArchive = async (postId: number) => {
+    if (!session?.user?.id) return;
 
-  const postToArchive = posts.find(p => p.id === postId);
-  if (!postToArchive) return;
+    const postToArchive = posts.find(p => p.id === postId);
+    if (!postToArchive) return;
 
-  if (archivedPostIds.has(postId)) {
-    // Unarchive
-    const { error } = await supadata
-      .from('archived_posts')
-      .delete()
-      .eq('user_id', session.user.id)
-      .eq('post_id', postId);
-    if (!error) {
-      setArchivedPostIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(postId);
-        return newSet;
-      });
+    if (archivedPostIds.has(postId)) {
+      // Unarchive
+      const { error } = await supadata
+        .from('archived_posts')
+        .delete()
+        .eq('user_id', session.user.id)
+        .eq('post_id', postId);
+      if (!error) {
+        setArchivedPostIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(postId);
+          return newSet;
+        });
+      }
+    } else {
+      // Archive
+      console.log("user: ", session.user.id);
+      const { error } = await supadata
+        .from('archived_posts')
+        .insert([{
+          user_id: session.user.id,
+          post_id: postId,
+          title: postToArchive.topic,  // ✅ Insert the title here
+          created_at: new Date().toISOString()
+        }]);
+
+      if (!error) {
+        setArchivedPostIds(prev => new Set(prev).add(postId));
+      }
     }
-  } else {
-    // Archive
-    console.log("user: ", session.user.id);
-    const { error } = await supadata
-      .from('archived_posts')
-      .insert([{
-        user_id: session.user.id,
-        post_id: postId,
-        title: postToArchive.topic,  // ✅ Insert the title here
-        created_at: new Date().toISOString()
-      }]);
-
-    if (!error) {
-      setArchivedPostIds(prev => new Set(prev).add(postId));
-    }
-  }
-};
+  };
 
   return (
 
