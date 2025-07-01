@@ -486,9 +486,10 @@ export default function HomePage() {
                         <Image
                           src={post.image_url}
                           alt="Post image"
-                          width={500}
-                          height={300}
-                          style={{ maxWidth: '100%', marginTop: '1rem' }}
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                          style={{ width: '100%', height: 'auto', marginTop: '1rem', borderRadius: '8px' }}
                         />
                       )}
                       <PostInteractions postId={post.id} currentUserId={session?.user?.id || ''} />

@@ -101,3 +101,31 @@
 .imageBtn:hover {
   background: #2d3a5a;
 }
+
+.imagePreviewContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.removeImageBtn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(30, 43, 72, 0.85);
+  border: none;
+  border-radius: 50%;
+  color: #ffe8a3;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
+}
+
+.removeImageBtn:hover {
+  background: #e57373;
+  color: #fff;
+}

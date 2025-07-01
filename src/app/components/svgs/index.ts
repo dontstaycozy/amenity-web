@@ -25,3 +25,4 @@ export { default as Like } from "./Like.svg";
 export { default as Dislike } from "./Dislike.svg";
 export { default as Comments } from "./Comments.svg";
 export { default as Arrow } from "./Arrow.svg";
+export { default as Edit } from "./Edit.svg";

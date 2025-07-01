@@ -117,7 +117,7 @@ const LandingPage = () => {
           <div className={styles.footerContact}>
             <span className={styles.contactText}>Contact us:</span>
             <span className={styles.emailIcon}>✉️</span>
-            <a href="mailto:amenity.web1@gmail.com">amenity.web1@gmail.com</a>
+            <a href="mailto:amenity.web11@gmail.com">amenity.web11@gmail.com</a>
           </div>
         </div>
       </footer>
