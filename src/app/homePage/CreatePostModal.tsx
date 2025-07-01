@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './CreatePostModal.module.css';
-import { Image, Close, Edit } from '@/app/components/svgs';
+import { Image } from '@/app/components/svgs';
 import supadata from '../lib/supabaseclient';
 
 interface CreatePostModalProps {
@@ -142,23 +142,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
         />
         {/* Image preview */}
         {imagePreview && (
-          <div className={styles.imagePreviewContainer}>
+          <div style={{ margin: '1rem', textAlign: 'center' }}>
             <img
               src={imagePreview}
               alt="Preview"
               style={{ maxWidth: '100%', maxHeight: 100, borderRadius: 12 }}
             />
-            <button
-              type="button"
-              className={styles.removeImageBtn}
-              onClick={() => {
-                setImageFile(null);
-                setImagePreview(null);
-              }}
-              aria-label="Remove image"
-            >
-              <Close />
-            </button>
           </div>
         )}
         <input
