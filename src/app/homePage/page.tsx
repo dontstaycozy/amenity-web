@@ -69,6 +69,16 @@ export default function HomePage() {
   const [verseOfTheDay, setVerseOfTheDay] = useState({ text: '', reference: '' });
 
   useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10); // e.g., '2024-06-07'
+    const stored = localStorage.getItem('verseOfTheDay');
+    if (stored) {
+      const { text, reference, date } = JSON.parse(stored);
+      if (date === today) {
+        setVerseOfTheDay({ text, reference });
+        return;
+      }
+    }
+    // If not found or not today, fetch new
     async function fetchRandomVerse() {
       try {
         const res = await fetch('https://labs.bible.org/api/?passage=random&type=json');
@@ -78,6 +88,14 @@ export default function HomePage() {
             text: data[0].text,
             reference: `${data[0].bookname} ${data[0].chapter}:${data[0].verse}`,
           });
+          localStorage.setItem(
+            'verseOfTheDay',
+            JSON.stringify({
+              text: data[0].text,
+              reference: `${data[0].bookname} ${data[0].chapter}:${data[0].verse}`,
+              date: today,
+            })
+          );
         }
       } catch (err) {
         setVerseOfTheDay({
