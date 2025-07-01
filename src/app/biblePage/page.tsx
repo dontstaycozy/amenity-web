@@ -378,9 +378,8 @@ export default function HomePage() {
     }
   };
 
-  const handleStreaks = async (userId: string) => {
-  const now = dayjs().tz(localTZ);
-  const today = now.format('YYYY-MM-DD');
+ const handleStreaks = async (userId: string) => {
+  const today = dayjs().format('YYYY-MM-DD'); // Local date string
 
   // 1. Fetch the user's streak
   const { data: streak, error } = await supadata
@@ -399,7 +398,7 @@ export default function HomePage() {
     const { error: insertError } = await supadata.from('streaks_input').insert({
       user_id: userId,
       streaknum: 1,
-      date: now.toISOString(),
+      date: today,
     });
 
     if (insertError) {
@@ -411,8 +410,7 @@ export default function HomePage() {
     return;
   }
 
-  const lastActive = dayjs(streak.last_active).tz(localTZ);
-  const lastActiveDate = lastActive.format('YYYY-MM-DD');
+  const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
 
   // 3. If already updated today, do nothing
   if (lastActiveDate === today) {
@@ -422,16 +420,16 @@ export default function HomePage() {
 
   // 4. Determine if streak should continue or reset
   const isYesterday =
-    lastActive.add(1, 'day').format('YYYY-MM-DD') === today;
+    dayjs(streak.date).add(1, 'day').format('YYYY-MM-DD') === today;
 
-  const newCount = isYesterday ? streak.streak_count + 1 : 1;
+  const newCount = isYesterday ? streak.streaknum + 1 : 1;
 
   // 5. Update streak
   const { error: updateError } = await supadata
     .from('streaks_input')
     .update({
       streaknum: newCount,
-      date: now.toISOString(),
+      date: today,
     })
     .eq('user_id', userId);
 
@@ -441,6 +439,8 @@ export default function HomePage() {
     console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
   }
 };
+
+
 
 
   return (

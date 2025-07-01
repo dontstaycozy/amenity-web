@@ -263,7 +263,7 @@ export default function HomePage() {
   const checkstreaks = async () => {
   if (!session?.user?.id) return;
 
-  const today = dayjs().tz(localTZ).format('YYYY-MM-DD');
+  const today = dayjs().format('YYYY-MM-DD'); // Local date
 
   const { data: streak, error } = await supadata
     .from('streaks_input')
@@ -276,7 +276,7 @@ export default function HomePage() {
     return;
   }
 
-  const lastActiveDate = dayjs(streak.date).tz(localTZ).format('YYYY-MM-DD');
+  const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD'); // No need for tz()
   setStreakDone(lastActiveDate === today);
 };
 
