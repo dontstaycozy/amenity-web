@@ -24,6 +24,7 @@ import {
 } from '@/app/components/svgs'; // Adjust the import path as necessary
 import { signOut } from 'next-auth/react';
 import CreatePostModal from './CreatePostModal';
+import EditProfileModal from './EditProfileModal';
 import { useRouter } from 'next/navigation';
 import CommentSection from './CommentSection';
 import PostInteractions from './PostInteractions';
@@ -46,6 +47,7 @@ export default function HomePage() {
   const router = useRouter();
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
 
   // Reference to the dropdown container
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -320,7 +322,7 @@ export default function HomePage() {
               {/* Profile Dropdown Menu */}
               {showProfileMenu && (
                 <div className={styles.profileDropdown}>
-                  <div className={styles.dropdownItem}>
+                  <div className={styles.dropdownItem} onClick={() => { setShowEditProfileModal(true); setShowProfileMenu(false); }}>
                     <span><Profile /></span>
                     <span>View Profile</span>
                   </div>
@@ -530,6 +532,13 @@ export default function HomePage() {
           </div>
         </div>
       </main>
+      <EditProfileModal isOpen={showEditProfileModal} onClose={() => setShowEditProfileModal(false)} />
+      {/* Modal for creating a post */}
+      <CreatePostModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        username={session?.user?.name || ""}
+      />
     </div>
   );
 }
