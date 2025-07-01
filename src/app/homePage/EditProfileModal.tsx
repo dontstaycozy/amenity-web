@@ -83,24 +83,29 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose }) 
         if (usernameError) throw usernameError;
       }
       // Password update (uses the new API route)
-      if (newPassword) {
-        const response = await fetch('/api/update-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ newPassword }),
-        });
-        if (!response.ok) {
-          let errorMessage = 'Failed to update password';
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const result = await response.json();
-            errorMessage = result.error || errorMessage;
-          } else {
-            errorMessage = `Server error: Received an unexpected response. Status: ${response.status}`;
-          }
-          throw new Error(errorMessage);
-        }
-      }
+     if (newPassword) {
+  const response = await fetch('/api/updatepass', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      newPassword,
+      userId: session?.user?.id,
+    }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to update password';
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const result = await response.json();
+      errorMessage = result.error || errorMessage;
+    } else {
+      errorMessage = `Server error: Received an unexpected response. Status: ${response.status}`;
+    }
+    throw new Error(errorMessage);
+  }
+}
+
       alert('Profile updated successfully! Please log in again if you changed your credentials.');
       onClose();
     } catch (error: any) {
