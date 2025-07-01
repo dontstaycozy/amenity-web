@@ -87,6 +87,8 @@ export default function HomePage() {
         return;
       }
       
+      console.log('🔐 Attempting to send email to:', user.email);
+      
       // Send email with the new password using the custom API
       const response = await fetch('/api/send-reset-email', {
         method: 'POST',
@@ -100,13 +102,25 @@ export default function HomePage() {
         }),
       });
       
+      console.log('📧 Response status:', response.status);
+      console.log('📧 Response ok:', response.ok);
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Email API error:', errorData);
+        let errorData = {};
+        try {
+          errorData = await response.json();
+          console.error('📧 Email API error data:', errorData);
+        } catch (parseError) {
+          console.error('📧 Failed to parse error response:', parseError);
+          errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+        }
+        
         // Fallback: show password even if email fails
-        const errorMessage = errorData.details || errorData.error || 'Unknown error';
+        const errorMessage = (errorData as any)?.details || (errorData as any)?.error || `HTTP ${response.status}`;
         setResetMessage(`Password updated successfully! New password: ${newPassword} (Email sending failed: ${errorMessage})`);
       } else {
+        const responseData = await response.json().catch(() => ({}));
+        console.log('✅ Email sent successfully:', responseData);
         setResetMessage(`New password sent to ${user.email}. Password: ${newPassword}`);
       }
       
@@ -114,7 +128,7 @@ export default function HomePage() {
       setUsers((prev) => prev.map(u => u.username === user.username ? { ...u, password: newPassword } : u));
       
     } catch (error) {
-      console.error('Password reset error:', error);
+      console.error('❌ Password reset error:', error);
       setResetMessage('An error occurred while resetting the password.');
     }
     
