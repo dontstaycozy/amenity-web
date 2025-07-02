@@ -98,7 +98,7 @@ const FilteredSearchBar: React.FC<FilteredSearchBarProps> = ({
             onClick={onDelete}
             aria-label={`Remove ${filterLabel} filter`}
           >
-            <Close style={{ width: 10, height: 10, color: '#fff'}} />
+            <Close style={{ width: 10, height: 10, color: '#fff' }} />
           </button>
         </span>
       )}

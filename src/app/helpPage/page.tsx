@@ -81,11 +81,11 @@ export default function HelpPage() {
                     </div>
                     <div className={styles.headerMid}>
                         <FilteredSearchBar
-                          filterLabel="About"
-                          placeholder="Search in About"
-                          searchQuery={searchQuery}
-                          setSearchQuery={setSearchQuery}
-                          onDelete={() => router.push('/homePage')}
+                            filterLabel="About"
+                            placeholder="Search in About"
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            onDelete={() => router.push('/homePage')}
                         />
                     </div>
                     <div className={styles.headerRight}>

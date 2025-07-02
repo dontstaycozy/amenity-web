@@ -221,8 +221,8 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-  checkstreaks();
-}, [session?.user?.id]);
+    checkstreaks();
+  }, [session?.user?.id]);
 
 
   // Add handleDelete function
@@ -269,7 +269,7 @@ export default function HomePage() {
         .insert([{
           user_id: session.user.id,
           post_id: postId,
-          title: postToArchive.topic,  
+          title: postToArchive.topic,
           created_at: new Date().toISOString()
         }]);
 
@@ -280,26 +280,26 @@ export default function HomePage() {
   };
 
   const checkstreaks = async () => {
-  if (!session?.user?.id) return;
+    if (!session?.user?.id) return;
 
-  const today = dayjs().format('YYYY-MM-DD'); // Local date
+    const today = dayjs().format('YYYY-MM-DD'); // Local date
 
-  const { data: streak, error } = await supadata
-    .from('streaks_input')
-    .select('date')
-    .eq('user_id', session.user.id)
-    .single();
+    const { data: streak, error } = await supadata
+      .from('streaks_input')
+      .select('date')
+      .eq('user_id', session.user.id)
+      .single();
 
-  if (error || !streak) {
-    setStreakDone(false);
-    return;
-  }
+    if (error || !streak) {
+      setStreakDone(false);
+      return;
+    }
 
-  const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD'); // No need for tz()
-  setStreakDone(lastActiveDate === today);
-};
+    const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD'); // No need for tz()
+    setStreakDone(lastActiveDate === today);
+  };
 
-const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
 
@@ -311,16 +311,16 @@ const [searchQuery, setSearchQuery] = useState('');
             <LOGO style={{ width: 100, height: 100 }} /><h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
           <div className={styles.headerMid}>
-              <FilteredSearchBar
-                filterLabel="Home"
-                placeholder="Search posts"
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                onDelete={() => {
-                  setSearchQuery('');
-                }}
-                showFilterChip={false} // Hide filter chip for Home page
-              />
+            <FilteredSearchBar
+              filterLabel="Home"
+              placeholder="Search posts"
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onDelete={() => {
+                setSearchQuery('');
+              }}
+              showFilterChip={false} // Hide filter chip for Home page
+            />
           </div>
 
           <div className={styles.headerRight}>
@@ -442,8 +442,8 @@ const [searchQuery, setSearchQuery] = useState('');
                 <h3 className={styles.cardTitle}>Daily Readings</h3>
                 <p className={styles.cardInfo}>Today&apos;s Quest</p>
                 <p className={styles.cardInfo}>
-    {streakDone ? '✅ Done' : timeLeft}
-  </p>
+                  {streakDone ? '✅ Done' : timeLeft}
+                </p>
               </div>
             </div>
 
@@ -458,72 +458,72 @@ const [searchQuery, setSearchQuery] = useState('');
 
                 <div>
                   {posts
-                   .filter(post => {
-                     if (!searchQuery) return true;
-                     const q = searchQuery.toLowerCase();
-                     return (
-                       post.topic.toLowerCase().includes(q) ||
-                       post.content.toLowerCase().includes(q)
-                     );
-                   })
-                   .map(post => (
-                    <div key={post.id} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244', position: 'relative' }}>
-                      {/* Archive button, always at top right, left of delete if owner */}
-                      <button
-                        onClick={() => handleArchive(post.id)}
-                        style={{
-                          position: 'absolute',
-                          top: 6,
-                          right: post.user_id === session?.user?.id ? 50 : 10,
-                          cursor: 'pointer',
-                          color: archivedPostIds.has(post.id) ? '#ffe8a3' : '#aaa',
-                          fontSize: '1.5rem',
-                          zIndex: 1
-                        }}
-                        title={archivedPostIds.has(post.id) ? 'Unarchive post' : 'Archive post'}
-                      >
-                        {archivedPostIds.has(post.id) ? <Archive /> : <UnArchive />}
-                      </button>
-
-
-                      {/* Delete button, only for post owner */}
-                      {post.user_id === session?.user?.id && (
+                    .filter(post => {
+                      if (!searchQuery) return true;
+                      const q = searchQuery.toLowerCase();
+                      return (
+                        post.topic.toLowerCase().includes(q) ||
+                        post.content.toLowerCase().includes(q)
+                      );
+                    })
+                    .map(post => (
+                      <div key={post.id} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244', position: 'relative' }}>
+                        {/* Archive button, always at top right, left of delete if owner */}
                         <button
-                          onClick={() => handleDelete(post.id)}
+                          onClick={() => handleArchive(post.id)}
                           style={{
                             position: 'absolute',
-                            top: 10,
-                            right: 10,
-                            background: 'none',
-                            border: 'none',
+                            top: 6,
+                            right: post.user_id === session?.user?.id ? 50 : 10,
                             cursor: 'pointer',
-                            color: 'red',
+                            color: archivedPostIds.has(post.id) ? '#ffe8a3' : '#aaa',
                             fontSize: '1.5rem',
-                            zIndex: 2
+                            zIndex: 1
                           }}
-                          title="Delete post"
+                          title={archivedPostIds.has(post.id) ? 'Unarchive post' : 'Archive post'}
                         >
-                          <Delete />
+                          {archivedPostIds.has(post.id) ? <Archive /> : <UnArchive />}
                         </button>
-                      )}
-                      <div>
-                        <strong>{post.topic}</strong> | {formatDate(post.created_at)}
+
+
+                        {/* Delete button, only for post owner */}
+                        {post.user_id === session?.user?.id && (
+                          <button
+                            onClick={() => handleDelete(post.id)}
+                            style={{
+                              position: 'absolute',
+                              top: 10,
+                              right: 10,
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              color: 'red',
+                              fontSize: '1.5rem',
+                              zIndex: 2
+                            }}
+                            title="Delete post"
+                          >
+                            <Delete />
+                          </button>
+                        )}
+                        <div>
+                          <strong>{post.topic}</strong> | {formatDate(post.created_at)}
+                        </div>
+                        <div>{post.content}</div>
+                        {post.image_url && (
+                          <Image
+                            src={post.image_url}
+                            alt="Post image"
+                            width={0}
+                            height={0}
+                            sizes="100vw"
+                            style={{ width: '100%', height: 'auto', marginTop: '1rem', borderRadius: '8px' }}
+                          />
+                        )}
+                        <PostInteractions postId={post.id} currentUserId={session?.user?.id || ''} />
+                        <CommentSection postId={post.id} currentUserId={session?.user?.id || ''} />
                       </div>
-                      <div>{post.content}</div>
-                      {post.image_url && (
-                        <Image
-                          src={post.image_url}
-                          alt="Post image"
-                          width={0}
-                          height={0}
-                          sizes="100vw"
-                          style={{ width: '100%', height: 'auto', marginTop: '1rem', borderRadius: '8px' }}
-                        />
-                      )}
-                      <PostInteractions postId={post.id} currentUserId={session?.user?.id || ''} />
-                      <CommentSection postId={post.id} currentUserId={session?.user?.id || ''} />
-                    </div>
-                  ))}
+                    ))}
                 </div>
 
               </div>
