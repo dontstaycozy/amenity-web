@@ -14,15 +14,18 @@ import {
     Search,
     Sun,
     LOGO,
+    Delete,
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import FAQItem from './FAQItem';
 import { faqList } from './FAQdata';
 import { signOut } from 'next-auth/react';
+import FilteredSearchBar from '@/app/components/FilteredSearchBar';
 
 export default function HelpPage() {
     const router = useRouter();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Reference to the dropdown container
     const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -48,6 +51,11 @@ export default function HelpPage() {
         };
     }, [profileDropdownRef]);
 
+    // Filter FAQ list based on search query
+    const filteredFaqList = faqList.filter(faq =>
+        faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const homePage = () => {
         router.push('/homePage');
@@ -72,18 +80,13 @@ export default function HelpPage() {
                         <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
                     </div>
                     <div className={styles.headerMid}>
-                        <div className={styles.searchContainer}>
-                            <span className={styles.searchIcon}>
-                                <button className={styles.searchIcon}>
-                                    <Search style={{ cursor: "pointer" }} />
-                                </button>
-                            </span>
-                            <input
-                                type="text"
-                                className={styles.searchInput}
-                                placeholder="Search..."
-                            />
-                        </div>
+                        <FilteredSearchBar
+                          filterLabel="About"
+                          placeholder="Search in About"
+                          searchQuery={searchQuery}
+                          setSearchQuery={setSearchQuery}
+                          onDelete={() => router.push('/homePage')}
+                        />
                     </div>
                     <div className={styles.headerRight}>
                         <span className={styles.headerIcon}><Bell /></span>
@@ -156,7 +159,7 @@ export default function HelpPage() {
                     <div className={styles.mainMid}>
                         <div>
                             <h2 className={FAQstyles.faqTitle}>FAQ</h2>
-                            {faqList.map((faq, idx) => (
+                            {filteredFaqList.map((faq, idx) => (
                                 <FAQItem key={idx} question={faq.question} answer={faq.answer} />
                             ))}
                         </div>

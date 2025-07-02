@@ -31,6 +31,7 @@ import Image from 'next/image';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import FilteredSearchBar from '@/app/components/FilteredSearchBar';
 
 
 dayjs.extend(utc);
@@ -298,7 +299,7 @@ export default function HomePage() {
   setStreakDone(lastActiveDate === today);
 };
 
-
+const [searchQuery, setSearchQuery] = useState('');
 
   return (
 
@@ -310,16 +311,16 @@ export default function HomePage() {
             <LOGO style={{ width: 100, height: 100 }} /><h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
           <div className={styles.headerMid}>
-            <div className={styles.searchContainer}>
-              <span className={styles.searchIcon}>  <button className={styles.searchIcon}>
-                <Search style={{ cursor: "pointer" }} />
-              </button></span>
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Search..."
+              <FilteredSearchBar
+                filterLabel="Home"
+                placeholder="Search posts"
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onDelete={() => {
+                  setSearchQuery('');
+                }}
+                showFilterChip={false} // Hide filter chip for Home page
               />
-            </div>
           </div>
 
           <div className={styles.headerRight}>
@@ -456,7 +457,16 @@ export default function HomePage() {
               }}>
 
                 <div>
-                  {posts.map(post => (
+                  {posts
+                   .filter(post => {
+                     if (!searchQuery) return true;
+                     const q = searchQuery.toLowerCase();
+                     return (
+                       post.topic.toLowerCase().includes(q) ||
+                       post.content.toLowerCase().includes(q)
+                     );
+                   })
+                   .map(post => (
                     <div key={post.id} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244', position: 'relative' }}>
                       {/* Archive button, always at top right, left of delete if owner */}
                       <button
