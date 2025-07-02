@@ -17,26 +17,26 @@ export const options: NextAuthOptions = {
       },
       async authorize(credentials) {
          const { username, password, email, mode } = credentials as any;
-console.log("Received credentials in authorize:", credentials);
-  // 🔁 If user is resetting password
-  if (mode === "resetpassword") {
-    try {
-      const { error } = await supadata.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/resetpassword`,
-      });
+  console.log("Received credentials in authorize:", credentials);
+    // 🔁 If user is resetting password
+    if (mode === "resetpassword") {
+      try {
+        const { error } = await supadata.auth.resetPasswordForEmail(email, {
+          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/resetpassword`,
+        });
 
-      if (error) {
-        console.error("[ResetPassword] Supabase error:", error.message);
-        throw new Error(error.message);
+        if (error) {
+          console.error("[ResetPassword] Supabase error:", error.message);
+          throw new Error(error.message);
+        }
+
+        console.log("[ResetPassword] Email sent");
+        return null; // Don't create a session
+      } catch (err) {
+        console.error("[ResetPassword] Unexpected error:", err);
+        throw new Error("Something went wrong while sending reset email.");
       }
-
-      console.log("[ResetPassword] Email sent");
-      return null; // Don't create a session
-    } catch (err) {
-      console.error("[ResetPassword] Unexpected error:", err);
-      throw new Error("Something went wrong while sending reset email.");
     }
-  }
 
   // 🔐 Regular login flow
   if (!username || !password) {
@@ -47,7 +47,7 @@ console.log("Received credentials in authorize:", credentials);
   try {
     const { data, error } = await supadata
       .from("Users_Accounts")
-      .select("userId, username, password, email")
+      .select("userId, username, password, email, role")
       .eq("username", username)
       .single();
 
@@ -63,10 +63,17 @@ console.log("Received credentials in authorize:", credentials);
       return null;
     }
 
+    // Update last_login timestamp
+    await supadata
+      .from("Users_Accounts")
+      .update({ last_login: new Date().toISOString() })
+      .eq("userId", data.userId);
+
     return {
       id: data.userId,
       name: data.username,
       email: data.email ?? null,
+      role: data.role ?? "user",
     };
   } catch (err) {
     console.error("[Auth] Unexpected error:", err);
@@ -93,13 +100,14 @@ console.log("Received credentials in authorize:", credentials);
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = (user as any).role;
       }
       return token;
     },
     async session({ session, token, user }) {
       if (token?.id) {
         session.user.id = token.id as string;
-       
+        (session.user as any).role = (token as any).role as string;
       }
       return session;
     },

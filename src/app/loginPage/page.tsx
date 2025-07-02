@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from "./index.module.css";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import Image from 'next/image';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
@@ -12,14 +12,15 @@ import supadata from '../lib/supabaseclient';
 
 console.log("type of: ", supadata);
 async function addData(username: string, password: string, email: string): Promise<boolean> {
-  const { data, error } = await supadata
-    .from('Users_Accounts')
-    .insert([
-      {
-        username: username,
-        password: password,
-        email: email,
-      }
+ const {data,error} = await supadata
+ .from('Users_Accounts')
+ .insert([
+{
+  username:username,
+  password: password,
+  email: email,
+  role: "user",
+}
 
     ])
 
@@ -107,13 +108,19 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
       });
 
       if (res?.ok) {
+        // Fetch session to get user role
+        const session = await getSession();
         setForm({
           username: '',
           password: '',
           remember: false,
         });
         setError("");
-        router.push('/homePage');
+        if (session?.user && (session.user as any).role === 'admin') {
+          router.push('/adminPage');
+        } else {
+          router.push('/homePage');
+        }
       } else {
         setForm({
           username: '',
@@ -281,6 +288,7 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
             value={form.username}
             onChange={handleChange}
             placeholder="Username"
+            maxLength={12}
           />
         </div>
 
@@ -307,6 +315,7 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
                 value={form.password}
                 onChange={handleChange}
                 placeholder="Password"
+                maxLength={12}
               />
               <button
                 type="button"
@@ -331,6 +340,7 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
                 value={form.confirmPassword}
                 onChange={handleChange}
                 placeholder="Confirm Password"
+                maxLength={12}
               />
               <button
                 type="button"
