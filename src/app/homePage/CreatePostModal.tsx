@@ -98,12 +98,16 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
       setImagePreview(URL.createObjectURL(file));
     }
   };
-
+const [isSubmitting, setIsSubmitting] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    let imageUrl: string | null = null;
+  if (isSubmitting) return; // Prevent double click
+  setIsSubmitting(true);
 
+  let imageUrl: string | null = null;
+
+  try {
     if (imageFile) {
       imageUrl = await uploadImage(imageFile);
       if (!imageUrl) {
@@ -124,7 +128,13 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
     } else {
       alert('Failed to create post. Try again.');
     }
-  };
+  } catch (error) {
+    console.error('Submission error:', error);
+    alert('An error occurred while posting.');
+  } finally {
+    setIsSubmitting(false); // Reset after everything
+  }
+};
 
   // Handler for crop complete
   const onCropComplete = (_: any, croppedAreaPixels: any) => {
@@ -264,7 +274,13 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
           onChange={handleImageChange}
         />
         <div className={styles.footer}>
-          <button className={styles.postBtn} onClick={handleSubmit}>Post</button>
+       <button
+  className={styles.postBtn}
+  onClick={handleSubmit}
+  disabled={isSubmitting}
+>
+  {isSubmitting ? 'Posting...' : 'Post'}
+</button>
           <button
             className={styles.imageBtn}
             onClick={() => {
