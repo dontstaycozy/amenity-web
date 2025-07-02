@@ -18,6 +18,8 @@ import {
   Close,
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
+import FilteredSearchBar from '@/app/components/FilteredSearchBar';
+
 interface reply {
   id: number;
   content: string;
@@ -59,6 +61,7 @@ export default function ArchivedPage() {
   const [loading, setLoading] = useState(true);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const biblePage = () => router.push('/biblePage');
   const goToHelp = () => router.push('/helpPage');
@@ -140,17 +143,16 @@ export default function ArchivedPage() {
             <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
           <div className={styles.headerMid}>
-            <div className={styles.searchContainer}>
-              <span className={styles.searchIcon}>
-                <button className={styles.searchIcon}>
-                  <Search style={{ cursor: "pointer" }} />
-                </button>
-              </span>
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Search in Archives..."
-              />
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ width: '100%', maxWidth: 600 }}>
+                <FilteredSearchBar
+                  filterLabel="Archives"
+                  placeholder="Search in Archives..."
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  onDelete={() => router.push('/homePage')}
+                />
+              </div>
             </div>
           </div>
           <div className={styles.headerRight}>
@@ -194,102 +196,111 @@ export default function ArchivedPage() {
                 ) : archivedPosts.length === 0 ? (
                   <div>No archived posts yet.</div>
                 ) : (
-                  archivedPosts.map(post => (
-                    <div key={post.id} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244', position: 'relative' }}>
-                      <button
-                        onClick={() => handleRemove(post.id)}
-                        style={{
-                          position: 'absolute',
-                          top: 10,
-                          right: 10,
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#ffe8a3',
-                          fontSize: '1.5rem',
-                          zIndex: 2
-                        }}
-                        title="Remove from archive"
-                      >
-                        <Close />
-                      </button>
+                  archivedPosts
+                    .filter(post => {
+                      if (!searchQuery) return true;
+                      const q = searchQuery.toLowerCase();
+                      return (
+                        post.Posts.topic.toLowerCase().includes(q) ||
+                        post.Posts.content.toLowerCase().includes(q)
+                      );
+                    })
+                    .map(post => (
+                      <div key={post.id} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244', position: 'relative' }}>
+                        <button
+                          onClick={() => handleRemove(post.id)}
+                          style={{
+                            position: 'absolute',
+                            top: 10,
+                            right: 10,
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: '#ffe8a3',
+                            fontSize: '1.5rem',
+                            zIndex: 2
+                          }}
+                          title="Remove from archive"
+                        >
+                          <Close />
+                        </button>
 
-                      <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>
-                        {post.Posts?.topic || 'Untitled'}
+                        <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>
+                          {post.Posts?.topic || 'Untitled'}
+                        </div>
+                        <div style={{ marginBottom: 12 }}>
+                          {post.Posts?.content || 'No content available.'}
+                        </div>
+                        {post.Posts?.image_url && (
+                          <img
+                            src={post.Posts.image_url}
+                            alt="Post image"
+                            style={{ maxWidth: '100%', marginTop: '1rem', borderRadius: 8 }}
+                          />
+                        )}
+                        <div style={{ color: '#aaa', fontSize: 13, marginTop: 10 }}>
+                          Archived at: {new Date(post.created_at).toLocaleString()}
+                        </div>
+
+                        {/* Comments and Replies */}
+                        {post.Posts?.post_comments?.length > 0 && (
+                          <div style={{ marginTop: '1rem', background: '#18213a', borderRadius: 8, padding: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <h4 style={{ marginBottom: 8 }}>Comments</h4>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span style={{ color: '#ffe8a3', fontWeight: 600 }}>
+                                  {post.Posts.post_comments.length} comment{post.Posts.post_comments.length > 1 ? 's' : ''}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div>
+                              {post.Posts.post_comments.map(comment => (
+                                <div key={comment.id} style={{ marginBottom: 12, padding: 8, background: '#22305a', borderRadius: 6 }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <div style={{ fontSize: 14, color: '#ffe8a3' }}>
+                                      <span style={{ marginRight: 8 }}>[User]</span>
+                                      <span style={{ color: '#aaa', fontSize: 12 }}>
+                                        {new Date(comment.created_at).toLocaleString()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div style={{ marginTop: 4 }}>{comment.content}</div>
+
+                                  {/* Replies */}
+                                  <div style={{ marginTop: 8 }}>
+                                    {comment.comment_replies?.length === 0 ? (
+                                      <div style={{ fontSize: 13, color: '#ccc' }}>No replies yet.</div>
+                                    ) : (
+                                      comment.comment_replies.map(reply => (
+                                        <div
+                                          key={reply.id}
+                                          style={{
+                                            background: '#2d3a5a',
+                                            borderRadius: 6,
+                                            padding: 6,
+                                            marginTop: 6,
+                                          }}
+                                        >
+                                          <div style={{ fontSize: 13, color: '#ffe8a3' }}>
+                                            <span style={{ marginRight: 8 }}>[User]</span>
+                                            <span style={{ color: '#aaa', fontSize: 11 }}>
+                                              {new Date(reply.created_at).toLocaleString()}
+                                            </span>
+                                          </div>
+                                          <div style={{ marginTop: 2 }}>{reply.content}</div>
+                                        </div>
+                                      ))
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                       </div>
-                      <div style={{ marginBottom: 12 }}>
-                        {post.Posts?.content || 'No content available.'}
-                      </div>
-                      {post.Posts?.image_url && (
-                        <img
-                          src={post.Posts.image_url}
-                          alt="Post image"
-                          style={{ maxWidth: '100%', marginTop: '1rem', borderRadius: 8 }}
-                        />
-                      )}
-                      <div style={{ color: '#aaa', fontSize: 13, marginTop: 10 }}>
-                        Archived at: {new Date(post.created_at).toLocaleString()}
-                      </div>
-
-                      {/* Comments and Replies */}
-                      {post.Posts?.post_comments?.length > 0 && (
-  <div style={{ marginTop: '1rem', background: '#18213a', borderRadius: 8, padding: '1rem' }}>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <h4 style={{ marginBottom: 8 }}>Comments</h4>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ color: '#ffe8a3', fontWeight: 600 }}>
-          {post.Posts.post_comments.length} comment{post.Posts.post_comments.length > 1 ? 's' : ''}
-        </span>
-      </div>
-    </div>
-
-    <div>
-      {post.Posts.post_comments.map(comment => (
-        <div key={comment.id} style={{ marginBottom: 12, padding: 8, background: '#22305a', borderRadius: 6 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ fontSize: 14, color: '#ffe8a3' }}>
-              <span style={{ marginRight: 8 }}>[User]</span>
-              <span style={{ color: '#aaa', fontSize: 12 }}>
-                {new Date(comment.created_at).toLocaleString()}
-              </span>
-            </div>
-          </div>
-          <div style={{ marginTop: 4 }}>{comment.content}</div>
-
-          {/* Replies */}
-          <div style={{ marginTop: 8 }}>
-            {comment.comment_replies?.length === 0 ? (
-              <div style={{ fontSize: 13, color: '#ccc' }}>No replies yet.</div>
-            ) : (
-              comment.comment_replies.map(reply => (
-                <div
-                  key={reply.id}
-                  style={{
-                    background: '#2d3a5a',
-                    borderRadius: 6,
-                    padding: 6,
-                    marginTop: 6,
-                  }}
-                >
-                  <div style={{ fontSize: 13, color: '#ffe8a3' }}>
-                    <span style={{ marginRight: 8 }}>[User]</span>
-                    <span style={{ color: '#aaa', fontSize: 11 }}>
-                      {new Date(reply.created_at).toLocaleString()}
-                    </span>
-                  </div>
-                  <div style={{ marginTop: 2 }}>{reply.content}</div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
-
-                    </div>
-                  ))
+                    ))
                 )}
               </div>
             </div>
