@@ -4,7 +4,6 @@ import styles from '../homePage/HomePage.module.css';
 import { useSession } from 'next-auth/react';
 import supabase from '../lib/supabaseclient';
 import {
-  Archive,
   About,
   Bell,
   Bible,
@@ -17,14 +16,46 @@ import {
   Sun,
   LOGO,
   Close,
-  UnArchive
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
+interface reply {
+  id: number;
+  content: string;
+  created_at: string;
+  user_id: string;
+}
+
+interface comment {
+  id: number;
+  content: string;
+  created_at: string;
+  user_id: string;
+  comment_replies: reply[];
+}
+
+interface PostDetails {
+  id: number;
+  topic: string;
+  content: string;
+  image_url: string;
+  created_at: string;
+  user_id: string;
+  post_comments: comment[];
+}
+
+interface ArchivedPost {
+  id: number;
+  post_id: number;
+  created_at: string;
+  Posts: PostDetails;
+}
+
 
 export default function ArchivedPage() {
+
   const router = useRouter();
   const { data: session } = useSession();
-  const [archivedPosts, setArchivedPosts] = useState<any[]>([]);
+  const [archivedPosts, setArchivedPosts] = useState<ArchivedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -33,8 +64,9 @@ export default function ArchivedPage() {
   const goToHelp = () => router.push('/helpPage');
   const logOut = () => router.push('/loginPage');
   const homePage = () => router.push('/homePage');
-
+  const userId = session?.user.id;
   useEffect(() => {
+      if (!userId) return;
     function handleClickOutside(event: MouseEvent) {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
@@ -42,13 +74,12 @@ export default function ArchivedPage() {
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [profileDropdownRef]);
+  }, [userId]);
 
   useEffect(() => {
     const fetchArchivedPosts = async () => {
       if (!session?.user?.id) return;
       setLoading(true);
-
       const { data, error } = await supabase
         .from('archived_posts')
         .select(`
@@ -61,7 +92,19 @@ export default function ArchivedPage() {
             content,
             image_url,
             created_at,
-            user_id
+            user_id,
+            post_comments (
+              id,
+              content,
+              created_at,
+              user_id,
+              comment_replies (
+                id,
+                content,
+                created_at,
+                user_id
+              )
+            )
           )
         `)
         .eq('user_id', session.user.id)
@@ -71,7 +114,8 @@ export default function ArchivedPage() {
         console.error("Error fetching archived posts:", error);
         setArchivedPosts([]);
       } else {
-        setArchivedPosts(data || []);
+        setArchivedPosts(data as unknown as ArchivedPost[]);
+
       }
 
       setLoading(false);
@@ -81,10 +125,7 @@ export default function ArchivedPage() {
   }, [session?.user?.id]);
 
   const handleRemove = async (id: number) => {
-    const { error } = await supabase
-      .from('archived_posts')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from('archived_posts').delete().eq('id', id);
     if (!error) {
       setArchivedPosts(posts => posts.filter(post => post.id !== id));
     }
@@ -189,6 +230,64 @@ export default function ArchivedPage() {
                       <div style={{ color: '#aaa', fontSize: 13, marginTop: 10 }}>
                         Archived at: {new Date(post.created_at).toLocaleString()}
                       </div>
+
+                      {/* Comments and Replies */}
+                      {post.Posts?.post_comments?.length > 0 && (
+  <div style={{ marginTop: '1rem', background: '#18213a', borderRadius: 8, padding: '1rem' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <h4 style={{ marginBottom: 8 }}>Comments</h4>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ color: '#ffe8a3', fontWeight: 600 }}>
+          {post.Posts.post_comments.length} comment{post.Posts.post_comments.length > 1 ? 's' : ''}
+        </span>
+      </div>
+    </div>
+
+    <div>
+      {post.Posts.post_comments.map(comment => (
+        <div key={comment.id} style={{ marginBottom: 12, padding: 8, background: '#22305a', borderRadius: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: 14, color: '#ffe8a3' }}>
+              <span style={{ marginRight: 8 }}>[User]</span>
+              <span style={{ color: '#aaa', fontSize: 12 }}>
+                {new Date(comment.created_at).toLocaleString()}
+              </span>
+            </div>
+          </div>
+          <div style={{ marginTop: 4 }}>{comment.content}</div>
+
+          {/* Replies */}
+          <div style={{ marginTop: 8 }}>
+            {comment.comment_replies?.length === 0 ? (
+              <div style={{ fontSize: 13, color: '#ccc' }}>No replies yet.</div>
+            ) : (
+              comment.comment_replies.map(reply => (
+                <div
+                  key={reply.id}
+                  style={{
+                    background: '#2d3a5a',
+                    borderRadius: 6,
+                    padding: 6,
+                    marginTop: 6,
+                  }}
+                >
+                  <div style={{ fontSize: 13, color: '#ffe8a3' }}>
+                    <span style={{ marginRight: 8 }}>[User]</span>
+                    <span style={{ color: '#aaa', fontSize: 11 }}>
+                      {new Date(reply.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  <div style={{ marginTop: 2 }}>{reply.content}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
                     </div>
                   ))
                 )}
