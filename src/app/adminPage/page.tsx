@@ -61,6 +61,7 @@ export default function HomePage() {
 
   const userAccounts = async() => {
     setShowUserTable(true);
+    setShowPostsTable(false);
     setLoadingUsers(true);
     const {data, error } = await supadata
         .from('Users_Accounts')
@@ -182,6 +183,7 @@ export default function HomePage() {
     if (!error) {
       setPosts(posts => posts.filter(post => post.id !== postId));
     } else {
+      console.error('Supabase delete error:', error);
       alert('Failed to delete post!');
     }
     setDeletingPostId(null);
@@ -220,7 +222,7 @@ export default function HomePage() {
   }, [profileDropdownRef]);
 
   // Edit Post Modal component
-  function EditPostModal({ isOpen, onClose, post, onSave }: { isOpen: boolean, onClose: () => void, post: any, onSave: (updated: any) => void }) {
+  function EditPostModal({ isOpen, onClose, post, onSave }: { isOpen: boolean, onClose: () => void, post: any, onSave: () => void }) {
     const [topic, setTopic] = useState(post?.topic || '');
     const [content, setContent] = useState(post?.content || '');
     const [imagePreview, setImagePreview] = useState<string | null>(post?.image_url || null);
@@ -255,7 +257,7 @@ export default function HomePage() {
       }
       const { error } = await supadata.from('Posts').update({ topic, content, image_url: imageUrl, updated_at: new Date().toISOString() }).eq('id', post.id);
       if (!error) {
-        onSave({ ...post, topic, content, image_url: imageUrl });
+        onSave();
         onClose();
       } else {
         console.error('Failed to update post!', error);
@@ -493,7 +495,7 @@ export default function HomePage() {
                                     setEditingPost(post);
                                     setEditModalOpen(true);
                                   }}
-                                  style={{ minWidth: 60 }}
+                                  style={{ color: 'white', background: '#e57373', border: 'none', borderRadius: 4, padding: '2px 8px', minWidth: 60, cursor: 'pointer' }}
                                 >
                                   Edit
                                 </button>
@@ -542,7 +544,7 @@ export default function HomePage() {
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         post={editingPost}
-        onSave={updated => setPosts(posts => posts.map(p => p.id === updated.id ? updated : p))}
+        onSave={() => handleShowPosts()}
       />
     </div>
   );

@@ -5,8 +5,8 @@ import nodemailer from 'nodemailer';
 const emailConfig = {
   service: 'gmail',
   auth: {
-    user: process.env.SMTP_USER || 'dayonotmaryclaire@gmail.com',
-    pass: process.env.SMTP_PASS || 'osux dyso ivkd bexq',
+    user: process.env.SMTP_USER || 'amenity.web11@gmail.com',
+    pass: process.env.SMTP_PASS || 'mcyo izuy hjrr tlbq',
   },
   // Add additional options for better compatibility
   secure: false,
