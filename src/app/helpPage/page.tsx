@@ -81,8 +81,8 @@ export default function HelpPage() {
                     </div>
                     <div className={styles.headerMid}>
                         <FilteredSearchBar
-                            filterLabel="About"
-                            placeholder="Search in About"
+                            filterLabel="FAQ"
+                            placeholder="Search in Help..."
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
                             onDelete={() => router.push('/homePage')}
