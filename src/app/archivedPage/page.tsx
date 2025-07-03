@@ -143,8 +143,6 @@ export default function ArchivedPage() {
             <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
           <div className={styles.headerMid}>
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <div style={{ width: '100%', maxWidth: 600 }}>
                 <FilteredSearchBar
                   filterLabel="Archives"
                   placeholder="Search in Archives..."
@@ -152,8 +150,6 @@ export default function ArchivedPage() {
                   setSearchQuery={setSearchQuery}
                   onDelete={() => router.push('/homePage')}
                 />
-              </div>
-            </div>
           </div>
           <div className={styles.headerRight}>
             <span className={styles.headerIcon}><Bell /></span>

@@ -27,6 +27,7 @@ import { UUID } from 'crypto';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import FilteredSearchBar from '@/app/components/FilteredSearchBar';
 
 
 
@@ -264,6 +265,7 @@ export default function HomePage() {
   const [savedChapters, setSavedChapters] = useState<any[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(false);
   const [expandedChapters, setExpandedChapters] = useState<{ [id: number]: { loading: boolean, verses: any[] } }>({});
+  const [searchSavedChapters, setSearchSavedChapters] = useState('');
 
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
@@ -454,14 +456,16 @@ export default function HomePage() {
 
           <div className={styles.headerMid}>
             <div className={styles.searchContainer}>
-              <span className={styles.searchIcon}>  <button className={styles.searchIcon}>
-                <Search style={{ cursor: "pointer" }} />
-              </button></span>
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Search..."
-              />
+              {activeView === 'saveChapter' && (
+                <FilteredSearchBar
+                  filterLabel="Saved Chapters"
+                  placeholder="Search in Saved Chapters..."
+                  searchQuery={searchSavedChapters}
+                  setSearchQuery={setSearchSavedChapters}
+                  onDelete={() => setSearchSavedChapters('')}
+                  showFilterChip={true}
+                />
+              )}
             </div>
           </div>
 
@@ -586,9 +590,11 @@ export default function HomePage() {
                     ))}
                   </div>
                 </div>
-                <button className={styles.bookmarkbutton} onClick={() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)}>
+                {activeView !== 'daily' && (
+                  <button className={styles.bookmarkbutton} onClick={() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)}>
                     <div className={styles.navIcon}><Bookmark/></div>
-                </button>
+                  </button>
+                )}
               </div>
             </div>
             {/* Verse of the Day */}
@@ -629,54 +635,63 @@ export default function HomePage() {
                     <p>No saved chapters found.</p>
                   ) : (
                     <div className={styles.savedChaptersContainer}>
-                      {savedChapters.map((item) => (
-                        <div key={item.id} className={styles.savedChapterItem}>
-                          <div
-                            className={styles.savedChapterHeader}
-                            onClick={() => handleToggleExpand(item)}
-                            role="button"
-                            tabIndex={0}
-                            style={{ userSelect: 'none' }}
-                          >
-                            <span className={styles.savedChapterTitle}>
-                              <button
-                                className={styles.expandButton}
-                                title="Show/Hide Content"
-                                style={{
-                                  transition: 'transform 0.2s',
-                                  transform: expandedChapters[item.id] ? 'rotate(45deg)' : 'none',
-                                }}
-                                tabIndex={-1}
-                                aria-hidden="true"
-                              >
-                                <Plus />
+                      {savedChapters
+                        .filter((item) => {
+                          if (!searchSavedChapters) return true;
+                          const q = searchSavedChapters.toLowerCase();
+                          return (
+                            (item.Book_name && item.Book_name.toLowerCase().includes(q)) ||
+                            (item.note && item.note.toLowerCase().includes(q))
+                          );
+                        })
+                        .map((item) => (
+                          <div key={item.id} className={styles.savedChapterItem}>
+                            <div
+                              className={styles.savedChapterHeader}
+                              onClick={() => handleToggleExpand(item)}
+                              role="button"
+                              tabIndex={0}
+                              style={{ userSelect: 'none' }}
+                            >
+                              <span className={styles.savedChapterTitle}>
+                                <button
+                                  className={styles.expandButton}
+                                  title="Show/Hide Content"
+                                  style={{
+                                    transition: 'transform 0.2s',
+                                    transform: expandedChapters[item.id] ? 'rotate(45deg)' : 'none',
+                                  }}
+                                  tabIndex={-1}
+                                  aria-hidden="true"
+                                >
+                                  <Plus />
+                                </button>
+                                {item.Book_name} | Chapter {item.chapter_number}
+                              </span>
+                              <button onClick={e => { e.stopPropagation(); handleDeleteBookmark(item.id); }} className={styles.deleteButton} title="Delete">
+                                ×
                               </button>
-                              {item.Book_name} | Chapter {item.chapter_number}
-                            </span>
-                            <button onClick={e => { e.stopPropagation(); handleDeleteBookmark(item.id); }} className={styles.deleteButton} title="Delete">
-                              ×
-                            </button>
-                          </div>
-                          <div className={
-                            expandedChapters[item.id]
-                              ? `${styles.savedChapterVerses} ${styles.open}`
-                              : styles.savedChapterVerses
-                          }>
-                            {expandedChapters[item.id] && (
-                              expandedChapters[item.id].loading ? (
-                                <div>Loading...</div>
-                              ) : (
-                                expandedChapters[item.id].verses.map((v: any) => (
-                                  <span key={v.verse}><sup>{v.verse}</sup> {v.text} </span>
-                                ))
-                              )
+                            </div>
+                            <div className={
+                              expandedChapters[item.id]
+                                ? `${styles.savedChapterVerses} ${styles.open}`
+                                : styles.savedChapterVerses
+                            }>
+                              {expandedChapters[item.id] && (
+                                expandedChapters[item.id].loading ? (
+                                  <div>Loading...</div>
+                                ) : (
+                                  expandedChapters[item.id].verses.map((v: any) => (
+                                    <span key={v.verse}><sup>{v.verse}</sup> {v.text} </span>
+                                  ))
+                                )
+                              )}
+                            </div>
+                            {item.note && (
+                              <div className={styles.savedChapterNote}>{item.note}</div>
                             )}
                           </div>
-                          {item.note && (
-                            <div className={styles.savedChapterNote}>{item.note}</div>
-                          )}
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   )}
                 </>
