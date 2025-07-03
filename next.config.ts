@@ -3,7 +3,13 @@ import type { Configuration } from "webpack";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+    ],
     unoptimized: true,
   },
   webpack: (config: Configuration) => {
