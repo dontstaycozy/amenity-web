@@ -292,8 +292,13 @@ export default function HomePage() {
     router.push('/homePage');
   }
 
-  const handleLogOut = () => {
-    signOut({ callbackUrl: '/loginPage' });
+  const handleLogOut = async () => {
+    try {
+      await signOut({ callbackUrl: '/loginPage' });
+    } catch (error) {
+      console.error('Logout error:', error);
+      router.push('/loginPage');
+    }
   };
 
   const goToHelp = () => {
@@ -486,7 +491,7 @@ export default function HomePage() {
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}
-                    onClick={() => signOut({ callbackUrl: "/loginPage" })}>
+                  onClick={handleLogOut}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>

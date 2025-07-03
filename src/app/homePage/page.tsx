@@ -240,6 +240,16 @@ export default function HomePage() {
     }
   };
 
+  const handleLogOut = async () => {
+    try {
+      await signOut({ callbackUrl: '/loginPage' });
+    } catch (error) {
+      console.error('Logout error:', error);
+      router.push('/loginPage');
+    }
+  };
+
+
   // Archive/unarchive logic
   const handleArchive = async (postId: number) => {
     if (!session?.user?.id) return;
@@ -344,7 +354,7 @@ export default function HomePage() {
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}
-                    onClick={() => signOut({ callbackUrl: "/loginPage" })}>
+                    onClick={handleLogOut}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>
