@@ -96,20 +96,6 @@ export default function AboutPage() {
             <LOGO style={{ width: 100, height: 100 }} />
             <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
-          <div className={styles.headerMid}>
-            <div className={styles.searchContainer}>
-              <span className={styles.searchIcon}>
-                <button className={styles.searchIcon}>
-                  <Search style={{ cursor: "pointer" }} />
-                </button>
-              </span>
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Search..."
-              />
-            </div>
-          </div>
           
           <div className={styles.headerRight}>
             {/* Notification Icon */}
