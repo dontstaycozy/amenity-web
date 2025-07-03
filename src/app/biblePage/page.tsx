@@ -492,7 +492,6 @@ export default function HomePage() {
                   </div>
                   <div className={styles.dropdownItem}
                   onClick={handleLogOut}>
-                    onClick={() => signOut({ callbackUrl: "/loginPage" })}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>
