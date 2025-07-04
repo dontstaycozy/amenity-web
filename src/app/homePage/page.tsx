@@ -311,6 +311,22 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Add state for mobile sidebar popouts
+  const [openSide, setOpenSide] = useState<'left' | 'right' | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleOpenSide = (side: 'left' | 'right') => {
+    setOpenSide(prev => (prev === side ? null : side));
+  };
+  const handleCloseOverlay = () => setOpenSide(null);
+
   return (
 
     <div className={styles.body}>
@@ -373,38 +389,57 @@ export default function HomePage() {
       {/* Main Content Section */}
       <main className={styles.main}>
         <div className={styles.mainContainer}>
+          {/* Mobile popout buttons */}
+          {isMobile && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+              <button onClick={() => handleOpenSide('left')} style={{ zIndex: 1001 }}>
+                {openSide === 'left' ? 'Close Menu' : 'Menu'}
+              </button>
+              <button onClick={() => handleOpenSide('right')} style={{ zIndex: 1001 }}>
+                {openSide === 'right' ? 'Close Streak' : 'Streak'}
+              </button>
+            </div>
+          )}
           {/* Left Navigation Panel */}
-          <div className={styles.mainLeft}>
-            <div className={styles.mainLeftUp}>
-              <div className={styles.navItem}>
-                <div className={styles.navIcon}><Home /></div>
-                <span className={styles.navText}>Home</span>
+          {(!isMobile || openSide === 'left') && (
+            <div
+              className={styles.mainLeft + (isMobile && openSide === 'left' ? ' ' + styles.mobileSidebar : '')}
+              style={isMobile ? { position: 'fixed', top: 0, left: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '2px 0 8px rgba(0,0,0,0.2)' } : {}}
+            >
+              <div className={styles.mainLeftUp}>
+                <div className={styles.navItem}>
+                  <div className={styles.navIcon}><Home /></div>
+                  <span className={styles.navText}>Home</span>
+                </div>
+
+                <div className={styles.navItem}>
+                  <div className={styles.navIcon}><Fire /></div>
+                  <span className={styles.navText}>Popular</span>
+                </div>
+
+                <button className={styles.navItem} onClick={biblePage}>
+                  <div className={styles.navIcon}><Bible /></div>
+                  <span className={styles.navText}>Bible</span>
+                </button>
               </div>
 
-              <div className={styles.navItem}>
-                <div className={styles.navIcon}><Fire /></div>
-                <span className={styles.navText}>Popular</span>
+              <div className={styles.mainLeftBottom}>
+                <button className={styles.navItem} onClick={() => router.push('/aboutPage')}>
+                  <div className={styles.navIcon}><About /></div>
+                  <span className={styles.navText}>About</span>
+                </button>
+
+                <button className={styles.navItem} onClick={goToHelp}>
+                  <div className={styles.navIcon}><Help /></div>
+                  <span className={styles.navText}>Help</span>
+                </button>
               </div>
-
-              <button className={styles.navItem} onClick={biblePage}>
-                <div className={styles.navIcon}><Bible /></div>
-                <span className={styles.navText}>Bible</span>
-              </button>
             </div>
-
-            <div className={styles.mainLeftBottom}>
-              <button className={styles.navItem} onClick={() => router.push('/aboutPage')}>
-                <div className={styles.navIcon}><About /></div>
-                <span className={styles.navText}>About</span>
-              </button>
-
-              <button className={styles.navItem} onClick={goToHelp}>
-                <div className={styles.navIcon}><Help /></div>
-                <span className={styles.navText}>Help</span>
-              </button>
-            </div>
-          </div>
-
+          )}
+          {/* Overlay for mobile popout */}
+          {isMobile && openSide && (
+            <div onClick={handleCloseOverlay} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 999 }} />
+          )}
           {/* Middle Content Area - Now Scrollable */}
           <div className={styles.mainMid}>
             {/* Verse of the Day */}
@@ -555,18 +590,23 @@ export default function HomePage() {
           </div>
 
           {/* Right Section */}
-          <div className={styles.mainRight}>
-            <div className={styles.rightContainer}>
-              <h3 className="headingMedium">Streak Plant!</h3>
+          {(!isMobile || openSide === 'right') && (
+            <div
+              className={styles.mainRight + (isMobile && openSide === 'right' ? ' ' + styles.mobileSidebar : '')}
+              style={isMobile ? { position: 'fixed', top: 0, right: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '-2px 0 8px rgba(0,0,0,0.2)' } : {}}
+            >
+              <div className={styles.rightContainer}>
+                <h3 className="headingMedium">Streak Plant!</h3>
 
-              {/* Glass Bell Component */}
-              <div className={styles.glassBellContainer}>
-                <div className={styles.glassBell}></div>
-                <div className={styles.bellShadow}></div>
-                <div className={styles.bellBase}></div>
+                {/* Glass Bell Component */}
+                <div className={styles.glassBellContainer}>
+                  <div className={styles.glassBell}></div>
+                  <div className={styles.bellShadow}></div>
+                  <div className={styles.bellBase}></div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
     </div>
