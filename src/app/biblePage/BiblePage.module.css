@@ -315,6 +315,38 @@
   overflow-y: auto;
 }
 
+/* Responsive verse container styles */
+.verseContainer {
+  background-color: #1E2B48;
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+  margin: 2rem auto 3rem auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  max-width: 800px;
+  width: 100%;
+  min-height: 350px;
+  /* Prevents stretching wider than 800px */
+}
+
+@media (max-width: 900px) {
+  .verseContainer {
+    max-width: 95vw;
+    padding: 2rem 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .verseContainer {
+    padding: 1.2rem 0.5rem;
+    min-height: 200px;
+  }
+}
+
 .verseTitle {
   font-size: 2rem;
   font-weight: bold;
@@ -506,6 +538,78 @@
   justify-content: center;
   box-sizing: border-box;
   max-width: calc(20% - 2rem);
+}
+
+/* NavBar container styles */
+.navbarContainer {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto 2rem auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(30, 43, 72, 0.95);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.navbarButtons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  align-items: center;
+}
+
+.navbarButton, .navbarDropdown, .bookmarkIconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  background: #1E2B48;
+  color: #fff;
+  border: 2px solid #3a4d6b;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  min-width: 120px;
+  min-height: 2.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+
+.navbarButton:hover, .navbarDropdown:hover, .bookmarkIconBtn:hover {
+  background: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
+}
+
+.navbarDropdown {
+  position: relative;
+  font-weight: 500;
+  background: #1E2B48;
+  border: 2px solid #3a4d6b;
+}
+
+.bookmarkIconBtn {
+  background: #0B1532;
+  border: none;
+  min-width: 48px;
+  min-height: 2.5rem;
+  padding: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.25rem; /* Reduce space between Book and bookmark button */
+  margin-right: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+
+/* Remove margin-left from .bookmarkbutton if present */
+.bookmarkbutton {
+  margin-left: 0 !important;
 }
 
 /* Responsive styles */
@@ -707,7 +811,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
   white-space: nowrap;
-  margin-left: 10rem;
+  margin-left: 0.25rem; /* Reduce space between Book and bookmark button */
   border: none;
   border-radius: 6px;
 }
@@ -805,4 +909,13 @@
   color: #bfc9e0;
   font-size: 0.95rem;
   word-break: break-word;
+}
+
+@media (min-width: 1275px) and (max-width: 1285px) {
+  .BiblePage_bellBase__1jSBz {
+    bottom: 0.5rem !important;
+  }
+  .BiblePage_glassBell__Hrh7f {
+    height: 19rem !important;
+  }
 }
