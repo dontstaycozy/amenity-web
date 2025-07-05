@@ -16,12 +16,16 @@ import {
   SaveChapIcon,
   Bookmark,
   LOGO,
-  Plus
+  Plus,
+  Like,
+  Delete
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import BibleDisplay from '../bibleAPI/BibleDisplay';
+import NotificationItem from '../components/NotificationItem';
+import { useNotifications } from '../hooks/useNotifications';
 import supadata from '../lib/supabaseclient';
 import { UUID } from 'crypto';
 import dayjs from 'dayjs';
@@ -238,14 +242,27 @@ async function addbookmark(book: string, Chapter: number, userid: string): Promi
 export default function HomePage() {
   const { data: session } = useSession();
   const router = useRouter();
+  
+  // Notification hook
+  const { 
+    notifications, 
+    unreadCount, 
+    bibleTimeLeft, 
+    markAsRead, 
+    markAllAsRead 
+  } = useNotifications();
+  
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  // State for notification dropdown
+  const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const [hoveredBook, setHoveredBook] = useState<string | null>(null);
   const [selectedBook, setSelectedBook] = useState("Genesis");
   const [selectedChapter, setSelectedChapter] = useState<number>(1);
 
-  // Reference to the dropdown container
+  // Reference to the dropdown containers
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const notificationDropdownRef = useRef<HTMLDivElement>(null);
 
   const [activeView, setActiveView] = useState<'bible' | 'daily' | 'book' | 'saveChapter'>(() => {
     if (typeof window !== 'undefined') {
@@ -270,6 +287,13 @@ export default function HomePage() {
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
+    setShowNotificationMenu(false); // Close notification menu when opening profile
+  };
+
+  // Toggle notification dropdown
+  const toggleNotificationMenu = () => {
+    setShowNotificationMenu(!showNotificationMenu);
+    setShowProfileMenu(false); // Close profile menu when opening notifications
   };
 
   const handleBibleClick = () => {
@@ -313,6 +337,9 @@ export default function HomePage() {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
       }
+      if (notificationDropdownRef.current && !notificationDropdownRef.current.contains(event.target as Node)) {
+        setShowNotificationMenu(false);
+      }
     }
 
     // Add event listener
@@ -322,7 +349,7 @@ export default function HomePage() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [profileDropdownRef]);
+  }, [profileDropdownRef, notificationDropdownRef]);
   const handleBookmark = async (book: string, chapter: number, username: string) => {
     const success = await addbookmark(book, chapter, username)
     if (success) {
@@ -475,8 +502,82 @@ export default function HomePage() {
           </div>
 
           <div className={styles.headerRight}>
-            {/* Notification Icon */}
-            <span className={styles.headerIcon}><Bell /> </span>
+            {/* Notification Icon with Dropdown */}
+            <div className={styles.notificationContainer} ref={notificationDropdownRef}>
+              <span
+                className={styles.headerIcon}
+                onClick={toggleNotificationMenu}
+              >
+                <Bell />
+                {unreadCount > 0 && (
+                  <div className={styles.notificationBadge}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </div>
+                )}
+              </span>
+
+              {/* Notification Dropdown Menu */}
+              {showNotificationMenu && (
+                <div className={styles.notificationDropdown}>
+                  {/* Header */}
+                  <div style={{
+                    padding: '1rem 1.25rem',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <h3 style={{ 
+                      color: '#f5f0e9', 
+                      fontSize: '1rem', 
+                      fontWeight: '600',
+                      margin: 0
+                    }}>
+                      Notifications
+                    </h3>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAllAsRead();
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ffe8a3',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Notifications List */}
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    {notifications.length === 0 ? (
+                      <div style={{
+                        padding: '2rem 1.25rem',
+                        textAlign: 'center',
+                        color: '#8b9cb3'
+                      }}>
+                        No notifications
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <NotificationItem
+                          key={notification.id}
+                          notification={notification}
+                          onMarkAsRead={markAsRead}
+                        />
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>

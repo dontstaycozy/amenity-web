@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.2",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
     "dayjs": "^1.11.13",
     "firebase": "^11.9.1",
     "firebase-admin": "^13.4.0",
@@ -35,6 +37,7 @@
     "@types/react-dom": "^19.1.6",
     "@types/react-easy-crop": "^1.16.0",
     "@types/react-modal": "^3.16.3",
+    "@types/webpack": "^5.28.5",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "tailwindcss": "^4",
