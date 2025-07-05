@@ -130,7 +130,6 @@ const CalendarIcon = () => (
 );
 
 
-
 // Helper: Deterministic random number generator (seeded)
 function mulberry32(a: number): () => number {
   return function () {
@@ -306,6 +305,14 @@ export default function HomePage() {
   const goToHelp = () => {
     router.push('/helpPage');
   };
+
+  
+
+const Popularpage = () => {
+
+    router.push('PopularPage');
+
+  }
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -523,7 +530,7 @@ export default function HomePage() {
                 <span className={styles.navText}>Home</span>
               </button>
 
-              <div className={styles.navItem}>
+              <div className={styles.navItem} onClick={Popularpage}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
@@ -535,10 +542,10 @@ export default function HomePage() {
             </div>
 
             <div className={styles.mainLeftBottom}>
-              <div className={styles.navItem}>
+              <button className={styles.navItem} onClick={() => router.push('/aboutPage')}>
                 <div className={styles.navIcon}><About /></div>
                 <span className={styles.navText}>About</span>
-              </div>
+              </button>
 
               <button className={styles.navItem} onClick={goToHelp}>
                 <div className={styles.navIcon}><Help /></div>

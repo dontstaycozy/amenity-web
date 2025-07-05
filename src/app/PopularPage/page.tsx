@@ -346,7 +346,10 @@ export default function PopularPage() {
               <button className={styles.navItem} onClick={biblePage}><div className={styles.navIcon}><Bible /></div><span className={styles.navText}>Bible</span></button>
             </div>
             <div className={styles.mainLeftBottom}>
-              <div className={styles.navItem}><div className={styles.navIcon}><About /></div><span className={styles.navText}>About</span></div>
+              <button className={styles.navItem} onClick={() => router.push('/aboutPage')}>
+                <div className={styles.navIcon}><About /></div>
+                <span className={styles.navText}>About</span>
+              </button>
               <button className={styles.navItem} onClick={goToHelp}><div className={styles.navIcon}><Help /></div><span className={styles.navText}>Help</span></button>
             </div>
           </div>

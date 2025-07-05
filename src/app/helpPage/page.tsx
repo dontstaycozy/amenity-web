@@ -144,10 +144,10 @@ export default function HelpPage() {
                             </button>
                         </div>
                         <div className={styles.mainLeftBottom}>
-                            <div className={styles.navItem}>
+                            <button className={styles.navItem} onClick={() => router.push('/aboutPage')}>
                                 <div className={styles.navIcon}><About /></div>
                                 <span className={styles.navText}>About</span>
-                            </div>
+                            </button>
                             <div className={styles.navItem}>
                                 <div className={styles.navIcon}><Help /></div>
                                 <span className={styles.navText}>Help</span>
