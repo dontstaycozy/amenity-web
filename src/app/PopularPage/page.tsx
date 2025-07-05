@@ -1,10 +1,11 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import styles from '../homePage/HomePage.module.css';
+import popularStyles from './PopularPage.module.css';
 import { useSession } from 'next-auth/react';
 import supabase from '../lib/supabaseclient';
 import {
-  About, Bell, Bible, Fire, Help, Home, Logout, Profile, Sun, LOGO,
+  About, Bell, Bible, Fire, Help, Home, Logout, Profile, Sun, LOGO, Like, Arrow, Comments,
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
@@ -38,6 +39,171 @@ interface Post {
   totalEngagement?: number;
 }
 
+type ViewMode = 'trending' | 'liked';
+
+// CollapsibleText component for long content
+interface CollapsibleTextProps {
+  text: string;
+  maxLength?: number;
+}
+
+const CollapsibleText: React.FC<CollapsibleTextProps> = ({ text, maxLength = 150 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  if (text.length <= maxLength) {
+    return <div>{text}</div>;
+  }
+
+  return (
+    <div>
+      {isExpanded ? (
+        <div>
+          {text}
+          <button
+            onClick={() => setIsExpanded(false)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#ffe8a3',
+              cursor: 'pointer',
+              fontSize: '12px',
+              marginLeft: '8px',
+              textDecoration: 'underline',
+            }}
+          >
+            Show less
+          </button>
+        </div>
+      ) : (
+        <div>
+          {text.substring(0, maxLength)}...
+          <button
+            onClick={() => setIsExpanded(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#ffe8a3',
+              cursor: 'pointer',
+              fontSize: '12px',
+              marginLeft: '8px',
+              textDecoration: 'underline',
+            }}
+          >
+            Show more
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// CollapsibleCommentsSection component
+interface CollapsibleCommentsSectionProps {
+  comments: comment[];
+}
+
+const CollapsibleCommentsSection: React.FC<CollapsibleCommentsSectionProps> = ({ comments }) => {
+  const [commentsOpen, setCommentsOpen] = useState(false);
+
+  return (
+    <div className={popularStyles.commentsSection}>
+      <div 
+        style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          cursor: 'pointer',
+          marginBottom: 8
+        }}
+        onClick={() => setCommentsOpen(!commentsOpen)}
+      >
+        <h4 style={{ marginBottom: 0 }}>Comments</h4>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Comments style={{ width: 22, height: 22 }} />
+          <span style={{ color: '#ffe8a3', fontWeight: 600 }}>{comments.length}</span>
+          <span style={{ 
+            display: 'inline-block', 
+            transition: 'transform 0.2s', 
+            transform: commentsOpen ? 'rotate(180deg)' : 'rotate(0deg)', 
+            marginLeft: 8 
+          }}>
+            <Arrow style={{ width: 22, height: 22 }} />
+          </span>
+        </div>
+      </div>
+      <div className={`${popularStyles.commentDropdown} ${commentsOpen ? popularStyles.open : ''}`}>
+        {comments.map(comment => (
+          <CollapsibleComment key={comment.id} comment={comment} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// CollapsibleComment component
+interface CollapsibleCommentProps {
+  comment: comment;
+}
+
+const CollapsibleComment: React.FC<CollapsibleCommentProps> = ({ comment }) => {
+  const [repliesOpen, setRepliesOpen] = useState(false);
+
+  return (
+    <div className={popularStyles.commentItem}>
+      <div className={popularStyles.userInfo}>
+        <span style={{ marginRight: 8 }}>[User]</span>
+        <span style={{ color: '#aaa', fontSize: 12 }}>
+          {new Date(comment.created_at).toLocaleString()}
+        </span>
+      </div>
+      <div className={popularStyles.commentContent}>
+        <CollapsibleText text={comment.content} maxLength={150} />
+      </div>
+
+      {comment.comment_replies && comment.comment_replies.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <div 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 8, 
+              cursor: 'pointer',
+              marginBottom: 8
+            }} 
+            onClick={() => setRepliesOpen(!repliesOpen)}
+          >
+            <Comments style={{ width: 18, height: 18 }} />
+            <span style={{ color: '#ffe8a3', fontWeight: 600 }}>{comment.comment_replies.length}</span>
+            <span style={{ 
+              display: 'inline-block', 
+              transition: 'transform 0.2s', 
+              transform: repliesOpen ? 'rotate(180deg)' : 'rotate(0deg)', 
+              marginLeft: 6 
+            }}>
+              <Arrow style={{ width: 18, height: 18 }} />
+            </span>
+          </div>
+          <div className={`${popularStyles.replyDropdown} ${repliesOpen ? popularStyles.open : ''}`}>
+            {comment.comment_replies.map(reply => (
+              <div key={reply.id} className={popularStyles.replyItem}>
+                <div className={popularStyles.userInfo}>
+                  <span style={{ marginRight: 8 }}>[User]</span>
+                  <span style={{ color: '#aaa', fontSize: 11 }}>
+                    {new Date(reply.created_at).toLocaleString()}
+                  </span>
+                </div>
+                <div className={popularStyles.commentContent}>
+                  <CollapsibleText text={reply.content} maxLength={100} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function PopularPage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -45,6 +211,7 @@ export default function PopularPage() {
   const [trendingPosts, setTrendingPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('trending');
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -225,11 +392,11 @@ export default function PopularPage() {
   const renderPosts = (posts: Post[], title: string, key: string) => (
     <div style={{ marginBottom: '3rem' }}>
       <h2 className="headingMedium" style={{ marginBottom: '1.5rem' }}>{title}</h2>
-      <div style={{ backgroundColor: '#1E2B48', padding: '1.75rem', borderRadius: '12px' }}>
+      <div className={popularStyles.postsContainer}>
         {loading ? (
-          <div>Loading...</div>
+          <div className={popularStyles.loadingText}>Loading...</div>
         ) : posts.length === 0 ? (
-          <div>No posts to display.</div>
+          <div className={popularStyles.noPostsText}>No posts to display.</div>
         ) : (
           posts
             .filter(post => {
@@ -240,66 +407,54 @@ export default function PopularPage() {
               );
             })
             .map(post => (
-              <div key={`${key}-${post.id}`} style={{ border: '1px solid #333', margin: '1rem 0', padding: '1rem', borderRadius: '12px', background: '#112244' }}>
-                <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>
+              <div key={`${key}-${post.id}`} className={popularStyles.postCard}>
+                <div className={popularStyles.postTitle}>
                   {post.topic}
                 </div>
-                <div style={{ marginBottom: 12 }}>
-                  {post.content}
+                <div className={popularStyles.postContent}>
+                  <CollapsibleText text={post.content} maxLength={200} />
                 </div>
                 {post.image_url && (
-                  <img src={post.image_url} alt="Post" style={{ maxWidth: '100%', marginTop: '1rem', borderRadius: 8 }} />
+                  <img src={post.image_url} alt="Post" className={popularStyles.postImage} />
                 )}
-                <div style={{ color: '#ffe8a3', fontSize: 14, marginTop: 10 }}>
-                  Likes: {post.post_interactions.likes}
+                <div className={popularStyles.postStats}>
+                  <span>Likes: {post.post_interactions.likes}</span>
+                  {post.totalEngagement !== undefined && (
+                    <span className={popularStyles.engagementScore}>
+                      Engagement Score: {post.totalEngagement}
+                    </span>
+                  )}
                 </div>
-                {post.totalEngagement !== undefined && (
-                  <div style={{ color: '#7fffd4', fontSize: 14 }}>
-                    Engagement Score: {post.totalEngagement}
-                  </div>
-                )}
-                <div style={{ color: '#aaa', fontSize: 13, marginTop: 4 }}>
+                <div className={popularStyles.postDate}>
                   Created at: {new Date(post.created_at).toLocaleString()}
                 </div>
 
-                {post.post_comments?.length > 0 && (
-                  <div style={{ marginTop: '1rem', background: '#18213a', borderRadius: 8, padding: '1rem' }}>
-                    <h4 style={{ marginBottom: 8 }}>Comments</h4>
-                    {post.post_comments.map(comment => (
-                      <div key={comment.id} style={{ marginBottom: 12, padding: 8, background: '#22305a', borderRadius: 6 }}>
-                        <div style={{ fontSize: 14, color: '#ffe8a3' }}>
-                          <span style={{ marginRight: 8 }}>[User]</span>
-                          <span style={{ color: '#aaa', fontSize: 12 }}>
-                            {new Date(comment.created_at).toLocaleString()}
-                          </span>
-                        </div>
-                        <div style={{ marginTop: 4 }}>{comment.content}</div>
-
-                        <div style={{ marginTop: 8 }}>
-                          {comment.comment_replies?.length === 0 ? (
-                            <div style={{ fontSize: 13, color: '#ccc' }}>No replies yet.</div>
-                          ) : (
-                            comment.comment_replies.map(reply => (
-                              <div key={reply.id} style={{ background: '#2d3a5a', borderRadius: 6, padding: 6, marginTop: 6 }}>
-                                <div style={{ fontSize: 13, color: '#ffe8a3' }}>
-                                  <span style={{ marginRight: 8 }}>[User]</span>
-                                  <span style={{ color: '#aaa', fontSize: 11 }}>
-                                    {new Date(reply.created_at).toLocaleString()}
-                                  </span>
-                                </div>
-                                <div style={{ marginTop: 2 }}>{reply.content}</div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                                {post.post_comments && post.post_comments.length > 0 && (
+                  <CollapsibleCommentsSection comments={post.post_comments} />
                 )}
               </div>
             ))
         )}
       </div>
+    </div>
+  );
+
+  const renderToggleButtons = () => (
+    <div className={popularStyles.toggleContainer}>
+      <button
+        onClick={() => setViewMode('trending')}
+        className={`${popularStyles.toggleButton} ${viewMode === 'trending' ? popularStyles.toggleButtonActive : popularStyles.toggleButtonInactive}`}
+      >
+        <Fire style={{ width: 20, height: 20 }} />
+        Trending
+      </button>
+      <button
+        onClick={() => setViewMode('liked')}
+        className={`${popularStyles.toggleButton} ${viewMode === 'liked' ? popularStyles.toggleButtonActive : popularStyles.toggleButtonInactive}`}
+      >
+        <Like style={{ width: 20, height: 20 }} />
+        Most Liked
+      </button>
     </div>
   );
 
@@ -311,16 +466,9 @@ export default function PopularPage() {
             <LOGO style={{ width: 100, height: 100 }} />
             <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
-          <div className={styles.headerMid}>
-            <FilteredSearchBar
-              filterLabel="Popular"
-              placeholder="Search Posts..."
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onDelete={() => setSearchQuery('')}
-            />
-          </div>
           <div className={styles.headerRight}>
+            {/* Notification Icon */}
+            <span className={styles.headerIcon}><Bell /> </span>
             <div className={styles.profileContainer} ref={profileDropdownRef}>
               <span className={styles.headerIcon} onClick={() => setShowProfileMenu(!showProfileMenu)}>
                 <Profile />
@@ -355,8 +503,9 @@ export default function PopularPage() {
           </div>
 
           <div className={styles.mainMid}>
-            {renderPosts(trendingPosts, 'Top 10 Trending Posts', 'trending')}
-            {renderPosts(popularPosts, 'Top 10 Most Liked Posts', 'liked')}
+            {renderToggleButtons()}
+            {viewMode === 'trending' && renderPosts(trendingPosts, 'Top 10 Trending Posts', 'trending')}
+            {viewMode === 'liked' && renderPosts(popularPosts, 'Top 10 Most Liked Posts', 'liked')}
           </div>
 
           <div className={styles.mainRight}>
