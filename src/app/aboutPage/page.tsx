@@ -144,7 +144,7 @@ export default function AboutPage() {
                 <span className={styles.navText}>Home</span>
               </div>
               
-              <div className={styles.navItem}>
+              <div className={styles.navItem} onClick={() => router.push('/PopularPage')}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>

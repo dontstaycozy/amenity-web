@@ -134,7 +134,7 @@ export default function HelpPage() {
                                 <div className={styles.navIcon}><Home /></div>
                                 <span className={styles.navText}>Home</span>
                             </button>
-                            <div className={styles.navItem}>
+                            <div className={styles.navItem} onClick={() => router.push('/PopularPage')}>
                                 <div className={styles.navIcon}><Fire /></div>
                                 <span className={styles.navText}>Popular</span>
                             </div>
