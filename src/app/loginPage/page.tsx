@@ -136,7 +136,7 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
   };
 
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/Homepage' });
+    signIn('google', { callbackUrl: '/homePage' });
   };
 
   return (

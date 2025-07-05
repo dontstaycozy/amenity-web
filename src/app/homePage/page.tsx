@@ -39,6 +39,8 @@ dayjs.extend(timezone);
 
 const localTZ = 'Asia/Manila';
 
+
+
 function formatDate(dateString: string) {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
@@ -140,6 +142,8 @@ export default function HomePage() {
     created_at: string;
     user_id: string;
   }>>([]);
+
+  console.log("User: ", session?.user.name + "Email:", session?.user.email);
 
   // Add state to track archived posts for the current user
   const [archivedPostIds, setArchivedPostIds] = useState<Set<number>>(new Set());
