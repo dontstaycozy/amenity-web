@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import supadata from '../lib/supabaseclient';
-import { Arrow, Comments } from '@/app/components/svgs';
+import { Arrow, Comments, Delete } from '@/app/components/svgs';
 import styles from './HomePage.module.css';
 
 interface Comment {
@@ -23,6 +23,62 @@ interface CommentSectionProps {
   postId: number;
   currentUserId: string;
 }
+
+// CollapsibleText component for long content
+interface CollapsibleTextProps {
+  text: string;
+  maxLength?: number;
+}
+
+const CollapsibleText: React.FC<CollapsibleTextProps> = ({ text, maxLength = 150 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  if (text.length <= maxLength) {
+    return <div>{text}</div>;
+  }
+
+  return (
+    <div>
+      {isExpanded ? (
+        <div>
+          {text}
+          <button
+            onClick={() => setIsExpanded(false)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#ffe8a3',
+              cursor: 'pointer',
+              fontSize: '12px',
+              marginLeft: '8px',
+              textDecoration: 'underline',
+            }}
+          >
+            Show less
+          </button>
+        </div>
+      ) : (
+        <div>
+          {text.substring(0, maxLength)}...
+          <button
+            onClick={() => setIsExpanded(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#ffe8a3',
+              cursor: 'pointer',
+              fontSize: '12px',
+              marginLeft: '8px',
+              textDecoration: 'underline',
+            }}
+          >
+            Show more
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -140,6 +196,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
                 replies={repliesMap[comment.id] || []}
                 currentUserId={currentUserId}
                 onReplyAdded={fetchComments}
+                onCommentDeleted={fetchComments}
               />
             ))
           )}
@@ -186,9 +243,10 @@ interface CommentItemProps {
   replies: Reply[];
   currentUserId: string;
   onReplyAdded: () => void;
+  onCommentDeleted: () => void;
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUserId, onReplyAdded }) => {
+const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUserId, onReplyAdded, onCommentDeleted }) => {
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -225,6 +283,56 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
     }
   };
 
+  const handleDeleteComment = async () => {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // First delete all replies to this comment
+      const { error: repliesError } = await supadata
+        .from('comment_replies')
+        .delete()
+        .eq('comment_id', comment.id);
+
+      if (repliesError) throw repliesError;
+
+      // Then delete the comment
+      const { error: commentError } = await supadata
+        .from('post_comments')
+        .delete()
+        .eq('id', comment.id);
+
+      if (commentError) throw commentError;
+
+      onCommentDeleted();
+    } catch (err) {
+      console.error('Delete comment failed:', err);
+      setError('Failed to delete comment');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteReply = async (replyId: number) => {
+    if (!confirm('Are you sure you want to delete this reply?')) return;
+
+    try {
+      const { error } = await supadata
+        .from('comment_replies')
+        .delete()
+        .eq('id', replyId);
+
+      if (error) throw error;
+
+      onReplyAdded();
+    } catch (err) {
+      console.error('Delete reply failed:', err);
+      setError('Failed to delete reply');
+    }
+  };
+
   return (
     <div style={{ marginBottom: 12, padding: 8, background: '#22305a', borderRadius: 6 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -232,26 +340,71 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
           <span style={{ marginRight: 8 }}>[User]</span>
           <span style={{ color: '#aaa', fontSize: 12 }}>{new Date(comment.created_at).toLocaleString()}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => setRepliesOpen((o: boolean) => !o)}>
-          <Comments style={{ width: 18, height: 18 }} />
-          <span style={{ color: '#ffe8a3', fontWeight: 600 }}>{replies.length}</span>
-          <span style={{ display: 'inline-block', transition: 'transform 0.2s', transform: repliesOpen ? 'rotate(180deg)' : 'rotate(0deg)', marginLeft: 6 }}>
-            <Arrow style={{ width: 18, height: 18 }} />
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => setRepliesOpen((o: boolean) => !o)}>
+            <Comments style={{ width: 18, height: 18 }} />
+            <span style={{ color: '#ffe8a3', fontWeight: 600 }}>{replies.length}</span>
+            <span style={{ display: 'inline-block', transition: 'transform 0.2s', transform: repliesOpen ? 'rotate(180deg)' : 'rotate(0deg)', marginLeft: 6 }}>
+              <Arrow style={{ width: 18, height: 18 }} />
+            </span>
+          </div>
+          {comment.user_id === currentUserId && (
+            <button
+              onClick={handleDeleteComment}
+              disabled={loading}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#ff6b6b',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+              title="Delete comment"
+            >
+              <Delete style={{ width: 16, height: 16 }} />
+            </button>
+          )}
         </div>
       </div>
-      <div style={{ marginTop: 4 }}>{comment.content}</div>
+      <div style={{ marginTop: 4 }}>
+        <CollapsibleText text={comment.content} maxLength={150} />
+      </div>
       <div className={`${styles.replyDropdown} ${repliesOpen ? styles.open : ''}`}>
         {replies.length === 0 ? (
           <div>No replies yet.</div>
         ) : (
           replies.map(reply => (
             <div key={reply.id} style={{ background: '#2d3a5a', borderRadius: 6, padding: 6, marginBottom: 6 }}>
-              <div style={{ fontSize: 13, color: '#ffe8a3' }}>
-                <span style={{ marginRight: 8 }}>[User]</span>
-                <span style={{ color: '#aaa', fontSize: 11 }}>{new Date(reply.created_at).toLocaleString()}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: 13, color: '#ffe8a3' }}>
+                  <span style={{ marginRight: 8 }}>[User]</span>
+                  <span style={{ color: '#aaa', fontSize: 11 }}>{new Date(reply.created_at).toLocaleString()}</span>
+                </div>
+                {reply.user_id === currentUserId && (
+                  <button
+                    onClick={() => handleDeleteReply(reply.id)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#ff6b6b',
+                      cursor: 'pointer',
+                      padding: '2px',
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                    title="Delete reply"
+                  >
+                    <Delete style={{ width: 14, height: 14 }} />
+                  </button>
+                )}
               </div>
-              <div style={{ marginTop: 2 }}>{reply.content}</div>
+              <div style={{ marginTop: 2 }}>
+                <CollapsibleText text={reply.content} maxLength={100} />
+              </div>
             </div>
           ))
         )}
