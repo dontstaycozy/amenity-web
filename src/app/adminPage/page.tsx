@@ -21,6 +21,17 @@ import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import supadata from '../lib/supabaseclient';
 import CreatePostModalStyles from '../homePage/CreatePostModal.module.css';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // Helper to generate a random password
 function generatePassword(length = 10) {
@@ -39,20 +50,41 @@ export default function HomePage() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showUserTable, setShowUserTable] = useState(false);
   const [showPostsTable, setShowPostsTable] = useState(false);
+  const [showStreaksTable, setShowStreaksTable] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [showLoginStats, setShowLoginStats] = useState(false);
+  const [showRegistrationStats, setShowRegistrationStats] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
+  const [streaks, setStreaks] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(false);
+  const [loadingStreaks, setLoadingStreaks] = useState(false);
+  const [loadingStats, setLoadingStats] = useState(false);
   const [resettingUser, setResettingUser] = useState<string | null>(null);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
   const [suspendingUser, setSuspendingUser] = useState<string | null>(null);
   const [flaggingPostId, setFlaggingPostId] = useState<number | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<number | null>(null);
+  const [resettingStreak, setResettingStreak] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<any | null>(null);
+  const [loginStats, setLoginStats] = useState<{ [date: string]: number }>({});
+  const [registrationStats, setRegistrationStats] = useState<{ [date: string]: number }>({});
+  const [userMap, setUserMap] = useState<{ [userId: string]: string }>({});
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [profileMessage, setProfileMessage] = useState('');
+  const [profileEmail, setProfileEmail] = useState('');
+  const [notifications, setNotifications] = useState<string[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'suspended'>('all');
+  const [postFlagFilter, setPostFlagFilter] = useState<'all' | 'flagged'>('all');
 
   // Reference to the dropdown container
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const bellRef = useRef<HTMLSpanElement>(null);
 
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
@@ -62,6 +94,10 @@ export default function HomePage() {
   const userAccounts = async() => {
     setShowUserTable(true);
     setShowPostsTable(false);
+    setShowStreaksTable(false);
+    setShowStatistics(false);
+    setShowLoginStats(false);
+    setShowRegistrationStats(false);
     setLoadingUsers(true);
     const {data, error } = await supadata
         .from('Users_Accounts')
@@ -93,6 +129,10 @@ export default function HomePage() {
       
       if (updateError) {
         setResetMessage('Failed to update password in database.');
+        setNotifications(prev => [
+          `Failed to update password for ${user.username}.`,
+          ...prev
+        ]);
         return;
       }
       
@@ -127,10 +167,18 @@ export default function HomePage() {
         // Fallback: show password even if email fails
         const errorMessage = (errorData as any)?.details || (errorData as any)?.error || `HTTP ${response.status}`;
         setResetMessage(`Password updated successfully! New password: ${newPassword} (Email sending failed: ${errorMessage})`);
+        setNotifications(prev => [
+          `Password updated for ${user.username}, but email failed.`,
+          ...prev
+        ]);
       } else {
         const responseData = await response.json().catch(() => ({}));
         console.log('✅ Email sent successfully:', responseData);
         setResetMessage(`New password sent to ${user.email}. Password: ${newPassword}`);
+        setNotifications(prev => [
+          `Password reset for ${user.username} and emailed to ${user.email}.`,
+          ...prev
+        ]);
       }
       
       // Update the local state to reflect the new password
@@ -139,6 +187,10 @@ export default function HomePage() {
     } catch (error) {
       console.error('❌ Password reset error:', error);
       setResetMessage('An error occurred while resetting the password.');
+      setNotifications(prev => [
+        `Error occurred while resetting password for ${user.username}.`,
+        ...prev
+      ]);
     }
     
     setResettingUser(null);
@@ -162,15 +214,124 @@ export default function HomePage() {
   const handleShowPosts = async () => {
     setShowUserTable(false);
     setShowPostsTable(true);
+    setShowStreaksTable(false);
+    setShowStatistics(false);
+    setShowLoginStats(false);
+    setShowRegistrationStats(false);
     setLoadingPosts(true);
-    const { data, error } = await supadata
+    // Fetch posts
+    const { data: postsData, error: postsError } = await supadata
       .from('Posts')
       .select('*')
       .order('created_at', { ascending: false });
-    if (!error && data) {
-      setPosts(data);
+    // Fetch users for mapping userId to username
+    const { data: usersData, error: usersError } = await supadata
+      .from('Users_Accounts')
+      .select('userId, username');
+    if (!postsError && postsData) {
+      setPosts(postsData);
+    }
+    if (!usersError && usersData) {
+      const map: { [userId: string]: string } = {};
+      usersData.forEach((user: any) => {
+        map[user.userId] = user.username;
+      });
+      setUserMap(map);
     }
     setLoadingPosts(false);
+  };
+
+  // Handler to show streaks
+  const handleShowStreaks = async () => {
+    setShowUserTable(false);
+    setShowPostsTable(false);
+    setShowStreaksTable(true);
+    setShowStatistics(false);
+    setShowLoginStats(false);
+    setShowRegistrationStats(false);
+    setLoadingStreaks(true);
+    
+    try {
+      // Fetch all streaks
+      const { data: streaksData, error: streaksError } = await supadata
+        .from('streaks_input')
+        .select('*')
+        .order('streaknum', { ascending: false });
+      if (streaksError) {
+        console.error('Error fetching streaks:', streaksError);
+        setLoadingStreaks(false);
+        return;
+      }
+      // Fetch all users
+      const { data: usersData, error: usersError } = await supadata
+        .from('Users_Accounts')
+        .select('userId, username, email');
+      if (usersError) {
+        console.error('Error fetching users:', usersError);
+        setLoadingStreaks(false);
+        return;
+      }
+      // Map users by userId
+      const userMap = new Map();
+      (usersData || []).forEach(user => {
+        userMap.set(user.userId, user);
+      });
+      // Attach user info to each streak (match user_id to user.userId)
+      const streaksWithUsers = (streaksData || []).map(streak => ({
+        ...streak,
+        user: userMap.get(streak.user_id) || null
+      }));
+      setStreaks(streaksWithUsers);
+    } catch (error) {
+      console.error('Error fetching streaks with users:', error);
+    }
+    setLoadingStreaks(false);
+  };
+
+  // Handler to reset a user's streak
+  const handleResetStreak = async (userId: string) => {
+    // Find the user info for confirmation
+    const streak = streaks.find(s => s.user_id === userId);
+    const username = streak?.user?.username || userId;
+    
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to reset the streak for user "${username}"?\n\nThis will set their streak to 0 days.`
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+    
+    setResettingStreak(userId);
+    
+    try {
+      const { error } = await supadata
+        .from('streaks_input')
+        .update({
+          streaknum: 0,
+          date: new Date().toISOString()
+        })
+        .eq('user_id', userId);
+      
+      if (!error) {
+        // Update local state
+        setStreaks((prev) => prev.map(streak => 
+          streak.user_id === userId 
+            ? { ...streak, streaknum: 0, date: new Date().toISOString() }
+            : streak
+        ));
+        alert(`Streak reset successfully for ${username}!`);
+      } else {
+        console.error('Error resetting streak:', error);
+        alert('Failed to reset streak. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error resetting streak:', error);
+      alert('An error occurred while resetting the streak.');
+    }
+    
+    setResettingStreak(null);
   };
 
   // Handler to delete a post
@@ -204,6 +365,80 @@ export default function HomePage() {
     setFlaggingPostId(null);
   };
 
+  // Handler to show login statistics
+  const handleShowLoginStats = async () => {
+    setShowUserTable(false);
+    setShowPostsTable(false);
+    setShowStreaksTable(false);
+    setShowStatistics(false);
+    setShowRegistrationStats(false);
+    setShowLoginStats(true);
+    setLoadingStats(true);
+    
+    try {
+      const { data, error } = await supadata
+        .from('Users_Accounts')
+        .select('last_login');
+      
+      if (error) {
+        setLoginStats({});
+        setLoadingStats(false);
+        return;
+      }
+      
+      const loginData: { [date: string]: number } = {};
+      (data || []).forEach((user: any) => {
+        if (user.last_login) {
+          const loginDate = new Date(user.last_login).toISOString().slice(0, 10);
+          loginData[loginDate] = (loginData[loginDate] || 0) + 1;
+        }
+      });
+      
+      setLoginStats(loginData);
+    } catch (error) {
+      console.error('Error fetching login statistics:', error);
+    }
+    
+    setLoadingStats(false);
+  };
+
+  // Handler to show registration statistics
+  const handleShowRegistrationStats = async () => {
+    setShowUserTable(false);
+    setShowPostsTable(false);
+    setShowStreaksTable(false);
+    setShowStatistics(false);
+    setShowLoginStats(false);
+    setShowRegistrationStats(true);
+    setLoadingStats(true);
+    
+    try {
+      const { data, error } = await supadata
+        .from('Users_Accounts')
+        .select('created_at');
+      
+      if (error) {
+        setRegistrationStats({});
+        setLoadingStats(false);
+        return;
+      }
+      
+      const registrationData: { [date: string]: number } = {};
+      (data || []).forEach((user: any) => {
+        if (user.created_at) {
+          const regDate = new Date(user.created_at).toISOString().slice(0, 10);
+          registrationData[regDate] = (registrationData[regDate] || 0) + 1;
+        }
+      });
+      
+      setRegistrationStats(registrationData);
+    } catch (error) {
+      console.error('Error fetching registration statistics:', error);
+    }
+    
+    setLoadingStats(false);
+  };
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -220,6 +455,18 @@ export default function HomePage() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [profileDropdownRef]);
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    if (!showNotifications) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (bellRef.current && !bellRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showNotifications]);
 
   // Edit Post Modal component
   function EditPostModal({ isOpen, onClose, post, onSave }: { isOpen: boolean, onClose: () => void, post: any, onSave: () => void }) {
@@ -314,6 +561,55 @@ export default function HomePage() {
     );
   }
 
+  // Handler for profile modal open
+  const handleOpenProfileModal = async () => {
+    setShowProfileModal(true);
+    setNewPassword('');
+    setConfirmPassword('');
+    setProfileMessage('');
+    setShowProfileMenu(false);
+    setProfileEmail('');
+    if (session?.user?.id) {
+      const { data, error } = await supadata
+        .from('Users_Accounts')
+        .select('email')
+        .eq('userId', session.user.id)
+        .single();
+      if (!error && data?.email) setProfileEmail(data.email);
+    }
+  };
+
+  // Handler for profile modal close
+  const handleCloseProfileModal = () => {
+    setShowProfileModal(false);
+    setNewPassword('');
+    setConfirmPassword('');
+    setProfileMessage('');
+  };
+
+  // Handler for password update
+  const handleUpdatePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      setProfileMessage('Please fill in both fields.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setProfileMessage('Passwords do not match.');
+      return;
+    }
+    const { error } = await supadata
+      .from('Users_Accounts')
+      .update({ password: newPassword })
+      .eq('role', 'admin');
+    if (error) {
+      console.error('Supabase error:', error);
+      setProfileMessage('Failed to update password.');
+    } else {
+      setProfileMessage('Password updated successfully!');
+      setTimeout(() => handleCloseProfileModal(), 1200);
+    }
+  };
+
   return (
     <div className={styles.body}>
       {/* Header Section */}
@@ -324,21 +620,130 @@ export default function HomePage() {
           </div>
 
           <div className={styles.headerMid}>
-            <div className={styles.searchContainer}>
-              <span className={styles.searchIcon}>  <button className={styles.searchIcon}>
-                <Search style={{ cursor: "pointer" }} />
-              </button></span>
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Search..."
-              />
-            </div>
+            {showUserTable && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <label style={{ color: 'white', fontSize: '14px' }}>Filter Users:</label>
+                <select
+                  value={userStatusFilter}
+                  onChange={e => setUserStatusFilter(e.target.value as any)}
+                  style={{ 
+                    padding: '6px 12px', 
+                    borderRadius: 6, 
+                    border: '1px solid #4f658c',
+                    background: '#1E2B48',
+                    color: 'white',
+                    fontSize: '14px'
+                  }}
+                >
+                  <option value="all">All Users</option>
+                  <option value="active">Active Only</option>
+                  <option value="suspended">Suspended Only</option>
+                </select>
+              </div>
+            )}
+            {showPostsTable && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <label style={{ color: 'white', fontSize: '14px' }}>Filter Posts:</label>
+                <select
+                  value={postFlagFilter}
+                  onChange={e => setPostFlagFilter(e.target.value as any)}
+                  style={{ 
+                    padding: '6px 12px', 
+                    borderRadius: 6, 
+                    border: '1px solid #4f658c',
+                    background: '#1E2B48',
+                    color: 'white',
+                    fontSize: '14px'
+                  }}
+                >
+                  <option value="all">All Posts</option>
+                  <option value="flagged">Flagged Only</option>
+                </select>
+              </div>
+            )}
           </div>
 
           <div className={styles.headerRight}>
             {/* Notification Icon */}
-            <span className={styles.headerIcon}><Bell /> </span>
+            <span
+              className={styles.headerIcon}
+              ref={bellRef}
+              onClick={() => setShowNotifications(v => !v)}
+              style={{ position: 'relative', cursor: 'pointer' }}
+            >
+              <Bell />
+              {notifications.length > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    background: '#e57373',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: 12,
+                    height: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 9,
+                    fontWeight: 700,
+                    zIndex: 1,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  {notifications.length}
+                </span>
+              )}
+              {showNotifications && notifications.length > 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '2.5rem',
+                  right: 0,
+                  background: '#1E2B48',
+                  color: 'white',
+                  borderRadius: 8,
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                  minWidth: 260,
+                  maxWidth: 340,
+                  zIndex: 1000,
+                  padding: '0.5rem 0',
+                  fontSize: '0.98rem',
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    padding: '0 1rem 0.5rem 1rem',
+                  }}>
+                    <button
+                      onClick={e => { e.stopPropagation(); setNotifications([]); }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#e57373',
+                        fontWeight: 600,
+                        fontSize: '0.95rem',
+                        cursor: 'pointer',
+                        padding: 0,
+                      }}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                  {notifications.map((note, idx) => (
+                    <div key={idx} style={{
+                      padding: '0.75rem 1.25rem',
+                      borderBottom: idx !== notifications.length - 1 ? '1px solid #333' : 'none',
+                      whiteSpace: 'normal',
+                      wordBreak: 'break-word',
+                    }}>
+                      {note}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </span>
 
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>
@@ -352,7 +757,7 @@ export default function HomePage() {
               {/* Profile Dropdown Menu */}
               {showProfileMenu && (
                 <div className={styles.profileDropdown}>
-                  <div className={styles.dropdownItem}>
+                  <div className={styles.dropdownItem} onClick={handleOpenProfileModal}>
                     <span><Profile /></span>
                     <span>View Profile</span>
                   </div>
@@ -385,26 +790,37 @@ export default function HomePage() {
                 <span className={styles.navText}>Manage User Accounts</span>
               </button>
 
-              <div className={styles.navItem} onClick={handleShowPosts} style={{ cursor: 'pointer' }}>
+              <button className={styles.navItem} onClick={handleShowPosts}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Posts</span>
-              </div>
+              </button>
 
-              <div className={styles.navItem}>
+              <button className={styles.navItem} onClick={handleShowStreaks}>
                 <div className={styles.navIcon}><Bible /></div>
-                <span className={styles.navText}>Bible</span>
-              </div>
+                <span className={styles.navText}>Streaks</span>
+              </button>
+
+              <button 
+                className={`${styles.navItem} ${styles.statisticsButton}`}
+                onClick={handleShowLoginStats}
+              >
+                <div className={styles.navIcon}><Fire /></div>
+                <span className={styles.navText}>Login Statistics</span>
+              </button>
+
+              <button 
+                className={`${styles.navItem} ${styles.statisticsButton}`}
+                onClick={handleShowRegistrationStats}
+              >
+                <div className={styles.navIcon}><Fire /></div>
+                <span className={styles.navText}>Registration Statistics</span>
+              </button>
             </div>
 
             <div className={styles.mainLeftBottom}>
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><About /></div>
                 <span className={styles.navText}>About</span>
-              </div>
-
-              <div className={styles.navItem}>
-                <div className={styles.navIcon}><Help /></div>
-                <span className={styles.navText}>Help</span>
               </div>
             </div>
           </div>
@@ -414,23 +830,27 @@ export default function HomePage() {
             <div className={styles.navContainer}>
               {showUserTable && (
                 <div className={styles.userTableWrapper}>
-                {loadingUsers ? (
-                  <div className={styles.userTableLoading}>Loading...</div>
-                ) : (
-                  <table className={styles.userTable}>
-                    <thead>
-                      <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Password</th>
-                        <th>Last Login</th>
-                        <th>Status</th>
-                        <th>Reset Password</th>
-                        <th>Suspend</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users.map((user, idx) => (
+                  {loadingUsers ? (
+                    <div className={styles.userTableLoading}>Loading...</div>
+                  ) : (
+                    <table className={styles.userTable}>
+                      <thead>
+                        <tr>
+                          <th>Username</th>
+                          <th>Email</th>
+                          <th>Password</th>
+                          <th>Last Login</th>
+                          <th>Status</th>
+                          <th>Reset Password</th>
+                          <th>Suspend</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users
+                          .filter(user =>
+                            userStatusFilter === 'all' ? true : user.status === userStatusFilter
+                          )
+                          .map((user, idx) => (
                         <tr key={idx}>
                           <td>{user.username}</td>
                           <td>{user.email}</td>
@@ -457,11 +877,10 @@ export default function HomePage() {
                           </td>
                         </tr>
                       ))}
-                    </tbody>
-                  </table>
-                )}
-                {resetMessage && <div style={{ color: 'white', marginTop: '1rem' }}>{resetMessage}</div>}
-              </div>
+                      </tbody>
+                    </table>
+                  )}
+                </div>
               )}
               {showPostsTable && (
                 <div className={styles.userTableWrapper} style={{ overflowX: 'auto' }}>
@@ -471,7 +890,7 @@ export default function HomePage() {
                     <table className={styles.userTable}>
                       <thead>
                         <tr>
-                          <th>User ID</th>
+                          <th style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 160 }}>Username</th>
                           <th>Topic</th>
                           <th>Content</th>
                           <th>Created At</th>
@@ -480,57 +899,214 @@ export default function HomePage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {posts.map((post) => (
-                          <tr key={post.id} style={post.flagged ? { background: '#ffeaea' } : {}}>
-                            <td style={{ wordBreak: 'break-all' }}>{post.user_id}</td>
-                            <td style={{ wordBreak: 'break-all' }}>{post.topic}</td>
-                            <td style={{ wordBreak: 'break-word' }}>{post.content}</td>
-                            <td style={{ wordBreak: 'break-all' }}>{post.created_at ? new Date(post.created_at).toLocaleString() : ''}</td>
-                            <td>{post.flagged ? 'Yes' : 'No'}</td>
-                            <td style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
-                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                {/* Edit button */}
-                                <button
-                                  onClick={() => {
-                                    setEditingPost(post);
-                                    setEditModalOpen(true);
-                                  }}
-                                  style={{ color: 'white', background: '#e57373', border: 'none', borderRadius: 4, padding: '2px 8px', minWidth: 60, cursor: 'pointer' }}
-                                >
-                                  Edit
-                                </button>
-                                {/* Delete button */}
-                                <button
-                                  onClick={() => handleDeletePost(post.id)}
-                                  disabled={deletingPostId === post.id}
-                                  style={{ color: 'white', background: '#e57373', border: 'none', borderRadius: 4, padding: '2px 8px', minWidth: 60, cursor: 'pointer' }}
-                                >
-                                  {deletingPostId === post.id ? 'Deleting...' : 'Delete'}
-                                </button>
-                                {/* Flag as violation button */}
-                                <button
-                                  onClick={() => handleToggleFlagPost(post.id, post.flagged)}
-                                  disabled={flaggingPostId === post.id}
-                                  style={{
-                                    color: 'white',
-                                    background: post.flagged ? '#4caf50' : '#ff9800',
-                                    border: 'none',
-                                    borderRadius: 4,
-                                    padding: '2px 8px',
-                                    minWidth: 90,
-                                    cursor: 'pointer'
-                                  }}
-                                >
-                                  {flaggingPostId === post.id
-                                    ? (post.flagged ? 'Unflagging...' : 'Flagging...')
-                                    : (post.flagged ? 'Unflag' : 'Flag as Violation')}
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
+                        {posts
+                          .filter(post =>
+                            postFlagFilter === 'all' ? true : post.flagged
+                          )
+                          .map((post) => (
+                            <tr key={post.id} style={post.flagged ? { background: '#ffeaea' } : {}}>
+                              <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 160 }} title={userMap[post.user_id] || post.user_id}>
+                                {userMap[post.user_id] || post.user_id}
+                              </td>
+                              <td style={{ wordBreak: 'break-all' }}>{post.topic}</td>
+                              <td style={{ wordBreak: 'break-word' }}>{post.content}</td>
+                              <td style={{ wordBreak: 'break-all' }}>{post.created_at ? new Date(post.created_at).toLocaleString() : ''}</td>
+                              <td>{post.flagged ? 'Yes' : 'No'}</td>
+                              <td style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                  {/* Edit button */}
+                                  <button
+                                    onClick={() => {
+                                      setEditingPost(post);
+                                      setEditModalOpen(true);
+                                    }}
+                                    style={{ color: 'white', background: '#e57373', border: 'none', borderRadius: 4, padding: '2px 8px', minWidth: 60, cursor: 'pointer' }}
+                                  >
+                                    Edit
+                                  </button>
+                                  {/* Delete button */}
+                                  <button
+                                    onClick={() => handleDeletePost(post.id)}
+                                    disabled={deletingPostId === post.id}
+                                    style={{ color: 'white', background: '#e57373', border: 'none', borderRadius: 4, padding: '2px 8px', minWidth: 60, cursor: 'pointer' }}
+                                  >
+                                    {deletingPostId === post.id ? 'Deleting...' : 'Delete'}
+                                  </button>
+                                  {/* Flag as violation button */}
+                                  <button
+                                    onClick={() => handleToggleFlagPost(post.id, post.flagged)}
+                                    disabled={flaggingPostId === post.id}
+                                    style={{
+                                      color: 'white',
+                                      background: post.flagged ? '#4caf50' : '#ff9800',
+                                      border: 'none',
+                                      borderRadius: 4,
+                                      padding: '2px 8px',
+                                      minWidth: 90,
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    {flaggingPostId === post.id
+                                      ? (post.flagged ? 'Unflagging...' : 'Flagging...')
+                                      : (post.flagged ? 'Unflag' : 'Flag as Violation')}
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
+                  )}
+                </div>
+              )}
+                             {showStreaksTable && (
+                 <div className={styles.userTableWrapper} style={{ overflowX: 'auto' }}>
+                   {loadingStreaks ? (
+                     <div className={styles.userTableLoading}>Loading streaks...</div>
+                   ) : (
+                     <table className={styles.userTable}>
+                       <thead>
+                         <tr>
+                           <th>Username</th>
+                           <th>Email</th>
+                           <th>User ID</th>
+                           <th>Current Streak</th>
+                           <th>Last Active Date</th>
+                           <th>Actions</th>
+                         </tr>
+                       </thead>
+                       <tbody>
+                         {streaks.map((streak) => (
+                           <tr key={streak.user_id}>
+                             <td style={{ wordBreak: 'break-all' }}>
+                               {streak.user?.username || 'Unknown User'}
+                             </td>
+                             <td style={{ wordBreak: 'break-all' }}>
+                               {streak.user?.email || 'No email'}
+                             </td>
+                             <td style={{ wordBreak: 'break-all' }}>{streak.user_id}</td>
+                             <td style={{ 
+                               wordBreak: 'break-all', 
+                               fontWeight: 'bold',
+                               color: streak.streaknum > 0 ? '#4caf50' : '#666'
+                             }}>
+                               {streak.streaknum} {streak.streaknum === 1 ? 'day' : 'days'}
+                             </td>
+                             <td style={{ wordBreak: 'break-all' }}>
+                               {streak.date ? new Date(streak.date).toLocaleDateString() : 'Never'}
+                             </td>
+                             <td style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+                               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                 {/* Reset streak button */}
+                                 <button
+                                   onClick={() => handleResetStreak(streak.user_id)}
+                                   disabled={resettingStreak === streak.user_id}
+                                   style={{ 
+                                     color: 'white', 
+                                     background: '#e57373', 
+                                     border: 'none', 
+                                     borderRadius: 4, 
+                                     padding: '4px 12px', 
+                                     minWidth: 80, 
+                                     cursor: 'pointer',
+                                     fontSize: '12px'
+                                   }}
+                                 >
+                                   {resettingStreak === streak.user_id ? 'Resetting...' : 'Reset Streak'}
+                                 </button>
+                               </div>
+                             </td>
+                           </tr>
+                         ))}
+                       </tbody>
+                     </table>
+                   )}
+                   {!loadingStreaks && streaks.length === 0 && (
+                     <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+                       No streaks found. Users will appear here once they start using the daily reading feature.
+                     </div>
+                   )}
+                 </div>
+               )}
+              {showLoginStats && (
+                <div style={{ background: '#232b3b', borderRadius: 12, padding: 32, margin: 24, height: '100%', minHeight: 400, width: '100%' }}>
+                  <div style={{ width: '100%', textAlign: 'center', fontWeight: 'bold', fontSize: '2rem', color: 'white', marginBottom: 24 }}>
+                    Login Statistics
+                  </div>
+                  {loadingStats ? (
+                    <div style={{ color: 'white' }}>Loading statistics...</div>
+                  ) : (
+                    <div style={{ width: '100%', height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {Object.keys(loginStats).length === 0 ? (
+                        <div style={{ color: '#aaa', textAlign: 'center', padding: '2rem' }}>No login data found.</div>
+                      ) : (
+                        <Bar
+                          data={{
+                            labels: Object.keys(loginStats).sort(),
+                            datasets: [
+                              {
+                                label: 'Logins',
+                                data: Object.keys(loginStats).sort().map(date => loginStats[date]),
+                                backgroundColor: 'rgba(75,192,192,0.6)',
+                              },
+                            ],
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: { display: false },
+                              title: { display: false },
+                            },
+                            scales: {
+                              x: { ticks: { color: 'white' }, grid: { color: '#444' } },
+                              y: { ticks: { color: 'white' }, grid: { color: '#444' } },
+                            },
+                          }}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              {showRegistrationStats && (
+                <div style={{ background: '#232b3b', borderRadius: 12, padding: 32, margin: 24, height: '100%', minHeight: 400, width: '100%' }}>
+                  <div style={{ width: '100%', textAlign: 'center', fontWeight: 'bold', fontSize: '2rem', color: 'white', marginBottom: 24 }}>
+                    Registration Statistics
+                  </div>
+                  {loadingStats ? (
+                    <div style={{ color: 'white' }}>Loading statistics...</div>
+                  ) : (
+                    <div style={{ width: '100%', height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {Object.keys(registrationStats).length === 0 ? (
+                        <div style={{ color: '#aaa', textAlign: 'center', padding: '2rem' }}>No registration data found.</div>
+                      ) : (
+                        <Bar
+                          data={{
+                            labels: Object.keys(registrationStats).sort(),
+                            datasets: [
+                              {
+                                label: 'Registrations',
+                                data: Object.keys(registrationStats).sort().map(date => registrationStats[date]),
+                                backgroundColor: 'rgba(255,99,132,0.6)',
+                              },
+                            ],
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: { display: false },
+                              title: { display: false },
+                            },
+                            scales: {
+                              x: { ticks: { color: 'white' }, grid: { color: '#444' } },
+                              y: { ticks: { color: 'white' }, grid: { color: '#444' } },
+                            },
+                          }}
+                        />
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -546,6 +1122,48 @@ export default function HomePage() {
         post={editingPost}
         onSave={() => handleShowPosts()}
       />
+
+      {/* Edit Profile Modal */}
+      {showProfileModal && (
+        <div
+          style={{
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+          onClick={handleCloseProfileModal}
+        >
+          <div
+            style={{ background: '#232b3b', borderRadius: 16, padding: 32, minWidth: 350, maxWidth: 400, color: 'white', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Change Password</h2>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 500 }}>New Password:</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #444', background: '#1E2B48', color: 'white', marginTop: 4 }}
+                placeholder="Enter new password"
+              />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 500 }}>Confirm New Password:</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #444', background: '#1E2B48', color: 'white', marginTop: 4 }}
+                placeholder="Confirm new password"
+              />
+            </div>
+            {profileMessage && <div style={{ color: profileMessage.includes('success') ? '#4caf50' : '#e57373', marginBottom: 12 }}>{profileMessage}</div>}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button onClick={handleCloseProfileModal} style={{ padding: '8px 18px', borderRadius: 6, background: '#888', color: 'white', border: 'none', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={handleUpdatePassword} style={{ padding: '8px 18px', borderRadius: 6, background: '#4f658c', color: 'white', border: 'none', cursor: 'pointer' }}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
