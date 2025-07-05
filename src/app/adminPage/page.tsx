@@ -7,7 +7,6 @@ import {
   Bell,
   Bible,
   Fire,
-  Help,
   Home,
   Logout,
   Profile,
@@ -108,8 +107,18 @@ export default function HomePage() {
     setLoadingUsers(false);
   }
 
-  const handleLogOut = () => {
-    signOut({ callbackUrl: '/loginPage' });
+  const handleLogOut = async () => {
+    console.log('Logout initiated, current session:', session);
+    try {
+      await signOut({ 
+        callbackUrl: '/loginPage',
+        redirect: true 
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback: redirect manually
+      window.location.href = '/loginPage';
+    }
   };
 
   // Function to reset password and email the user
@@ -639,7 +648,7 @@ export default function HomePage() {
                   <option value="active">Active Only</option>
                   <option value="suspended">Suspended Only</option>
                 </select>
-              </div>
+            </div>
             )}
             {showPostsTable && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -762,7 +771,7 @@ export default function HomePage() {
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}
-                  onClick = {() => signOut({callbackUrl: "/loginPage"})}>
+                  onClick={handleLogOut}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>
@@ -830,22 +839,22 @@ export default function HomePage() {
             <div className={styles.navContainer}>
               {showUserTable && (
                 <div className={styles.userTableWrapper}>
-                  {loadingUsers ? (
-                    <div className={styles.userTableLoading}>Loading...</div>
-                  ) : (
-                    <table className={styles.userTable}>
-                      <thead>
-                        <tr>
-                          <th>Username</th>
-                          <th>Email</th>
-                          <th>Password</th>
-                          <th>Last Login</th>
-                          <th>Status</th>
-                          <th>Reset Password</th>
-                          <th>Suspend</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                {loadingUsers ? (
+                  <div className={styles.userTableLoading}>Loading...</div>
+                ) : (
+                  <table className={styles.userTable}>
+                    <thead>
+                      <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Password</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Reset Password</th>
+                        <th>Suspend</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                         {users
                           .filter(user =>
                             userStatusFilter === 'all' ? true : user.status === userStatusFilter
@@ -877,10 +886,10 @@ export default function HomePage() {
                           </td>
                         </tr>
                       ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
+                    </tbody>
+                  </table>
+                )}
+              </div>
               )}
               {showPostsTable && (
                 <div className={styles.userTableWrapper} style={{ overflowX: 'auto' }}>
@@ -904,56 +913,56 @@ export default function HomePage() {
                             postFlagFilter === 'all' ? true : post.flagged
                           )
                           .map((post) => (
-                            <tr key={post.id} style={post.flagged ? { background: '#ffeaea' } : {}}>
+                          <tr key={post.id} style={post.flagged ? { background: '#ffeaea' } : {}}>
                               <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 160 }} title={userMap[post.user_id] || post.user_id}>
                                 {userMap[post.user_id] || post.user_id}
                               </td>
-                              <td style={{ wordBreak: 'break-all' }}>{post.topic}</td>
-                              <td style={{ wordBreak: 'break-word' }}>{post.content}</td>
-                              <td style={{ wordBreak: 'break-all' }}>{post.created_at ? new Date(post.created_at).toLocaleString() : ''}</td>
-                              <td>{post.flagged ? 'Yes' : 'No'}</td>
-                              <td style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
-                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                  {/* Edit button */}
-                                  <button
-                                    onClick={() => {
-                                      setEditingPost(post);
-                                      setEditModalOpen(true);
-                                    }}
-                                    style={{ color: 'white', background: '#e57373', border: 'none', borderRadius: 4, padding: '2px 8px', minWidth: 60, cursor: 'pointer' }}
-                                  >
-                                    Edit
-                                  </button>
-                                  {/* Delete button */}
-                                  <button
-                                    onClick={() => handleDeletePost(post.id)}
-                                    disabled={deletingPostId === post.id}
-                                    style={{ color: 'white', background: '#e57373', border: 'none', borderRadius: 4, padding: '2px 8px', minWidth: 60, cursor: 'pointer' }}
-                                  >
-                                    {deletingPostId === post.id ? 'Deleting...' : 'Delete'}
-                                  </button>
-                                  {/* Flag as violation button */}
-                                  <button
-                                    onClick={() => handleToggleFlagPost(post.id, post.flagged)}
-                                    disabled={flaggingPostId === post.id}
-                                    style={{
-                                      color: 'white',
-                                      background: post.flagged ? '#4caf50' : '#ff9800',
-                                      border: 'none',
-                                      borderRadius: 4,
-                                      padding: '2px 8px',
-                                      minWidth: 90,
-                                      cursor: 'pointer'
-                                    }}
-                                  >
-                                    {flaggingPostId === post.id
-                                      ? (post.flagged ? 'Unflagging...' : 'Flagging...')
-                                      : (post.flagged ? 'Unflag' : 'Flag as Violation')}
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
+                            <td style={{ wordBreak: 'break-all' }}>{post.topic}</td>
+                            <td style={{ wordBreak: 'break-word' }}>{post.content}</td>
+                            <td style={{ wordBreak: 'break-all' }}>{post.created_at ? new Date(post.created_at).toLocaleString() : ''}</td>
+                            <td>{post.flagged ? 'Yes' : 'No'}</td>
+                            <td style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                {/* Edit button */}
+                                <button
+                                  onClick={() => {
+                                    setEditingPost(post);
+                                    setEditModalOpen(true);
+                                  }}
+                                  style={{ color: 'white', background: '#e57373', border: 'none', borderRadius: 4, padding: '2px 8px', minWidth: 60, cursor: 'pointer' }}
+                                >
+                                  Edit
+                                </button>
+                                {/* Delete button */}
+                                <button
+                                  onClick={() => handleDeletePost(post.id)}
+                                  disabled={deletingPostId === post.id}
+                                  style={{ color: 'white', background: '#e57373', border: 'none', borderRadius: 4, padding: '2px 8px', minWidth: 60, cursor: 'pointer' }}
+                                >
+                                  {deletingPostId === post.id ? 'Deleting...' : 'Delete'}
+                                </button>
+                                {/* Flag as violation button */}
+                                <button
+                                  onClick={() => handleToggleFlagPost(post.id, post.flagged)}
+                                  disabled={flaggingPostId === post.id}
+                                  style={{
+                                    color: 'white',
+                                    background: post.flagged ? '#4caf50' : '#ff9800',
+                                    border: 'none',
+                                    borderRadius: 4,
+                                    padding: '2px 8px',
+                                    minWidth: 90,
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {flaggingPostId === post.id
+                                    ? (post.flagged ? 'Unflagging...' : 'Flagging...')
+                                    : (post.flagged ? 'Unflag' : 'Flag as Violation')}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   )}
@@ -1014,7 +1023,7 @@ export default function HomePage() {
                                  >
                                    {resettingStreak === streak.user_id ? 'Resetting...' : 'Reset Streak'}
                                  </button>
-                               </div>
+            </div>
                              </td>
                            </tr>
                          ))}
