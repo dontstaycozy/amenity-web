@@ -67,6 +67,12 @@ export default function HomePage() {
   const archivedPage = () => {
     router.push('/archivedPage');
   };
+
+  const Popularpage = ()=>{
+
+      router.push('PopularPage');
+
+  }
   const [verseOfTheDay, setVerseOfTheDay] = useState({ text: '', reference: '' });
 
   useEffect(() => {
@@ -381,7 +387,7 @@ export default function HomePage() {
                 <span className={styles.navText}>Home</span>
               </div>
 
-              <div className={styles.navItem}>
+              <div className={styles.navItem} onClick = {Popularpage}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
