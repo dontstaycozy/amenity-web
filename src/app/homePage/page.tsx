@@ -68,9 +68,9 @@ export default function HomePage() {
     router.push('/archivedPage');
   };
 
-  const Popularpage = ()=>{
+  const Popularpage = () => {
 
-      router.push('PopularPage');
+    router.push('PopularPage');
 
   }
   const [verseOfTheDay, setVerseOfTheDay] = useState({ text: '', reference: '' });
@@ -387,7 +387,7 @@ export default function HomePage() {
                 <span className={styles.navText}>Home</span>
               </div>
 
-              <div className={styles.navItem} onClick = {Popularpage}>
+              <div className={styles.navItem} onClick={Popularpage}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
@@ -489,7 +489,7 @@ export default function HomePage() {
                           onClick={() => handleArchive(post.id)}
                           style={{
                             position: 'absolute',
-                            top: 6,
+                            top: 10,
                             right: post.user_id === session?.user?.id ? 50 : 10,
                             cursor: 'pointer',
                             color: archivedPostIds.has(post.id) ? '#ffe8a3' : '#aaa',

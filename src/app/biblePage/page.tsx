@@ -385,67 +385,67 @@ export default function HomePage() {
     }
   };
 
- const handleStreaks = async (userId: string) => {
-  const today = dayjs().format('YYYY-MM-DD'); // Local date string
+  const handleStreaks = async (userId: string) => {
+    const today = dayjs().format('YYYY-MM-DD'); // Local date string
 
-  // 1. Fetch the user's streak
-  const { data: streak, error } = await supadata
-    .from('streaks_input')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
+    // 1. Fetch the user's streak
+    const { data: streak, error } = await supadata
+      .from('streaks_input')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
 
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching streak:', error.message);
-    return;
-  }
-
-  if (!streak) {
-    // 2. No streak yet — insert new
-    const { error: insertError } = await supadata.from('streaks_input').insert({
-      user_id: userId,
-      streaknum: 1,
-      date: today,
-    });
-
-    if (insertError) {
-      console.error('Error inserting streak:', insertError.message);
-    } else {
-      console.log('New streak started for user:', userId);
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching streak:', error.message);
+      return;
     }
 
-    return;
-  }
+    if (!streak) {
+      // 2. No streak yet — insert new
+      const { error: insertError } = await supadata.from('streaks_input').insert({
+        user_id: userId,
+        streaknum: 1,
+        date: today,
+      });
 
-  const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
+      if (insertError) {
+        console.error('Error inserting streak:', insertError.message);
+      } else {
+        console.log('New streak started for user:', userId);
+      }
 
-  // 3. If already updated today, do nothing
-  if (lastActiveDate === today) {
-    console.log('Streak already updated today.');
-    return;
-  }
+      return;
+    }
 
-  // 4. Determine if streak should continue or reset
-  const isYesterday =
-    dayjs(streak.date).add(1, 'day').format('YYYY-MM-DD') === today;
+    const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
 
-  const newCount = isYesterday ? streak.streaknum + 1 : 1;
+    // 3. If already updated today, do nothing
+    if (lastActiveDate === today) {
+      console.log('Streak already updated today.');
+      return;
+    }
 
-  // 5. Update streak
-  const { error: updateError } = await supadata
-    .from('streaks_input')
-    .update({
-      streaknum: newCount,
-      date: today,
-    })
-    .eq('user_id', userId);
+    // 4. Determine if streak should continue or reset
+    const isYesterday =
+      dayjs(streak.date).add(1, 'day').format('YYYY-MM-DD') === today;
 
-  if (updateError) {
-    console.error('Error updating streak:', updateError.message);
-  } else {
-    console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
-  }
-};
+    const newCount = isYesterday ? streak.streaknum + 1 : 1;
+
+    // 5. Update streak
+    const { error: updateError } = await supadata
+      .from('streaks_input')
+      .update({
+        streaknum: newCount,
+        date: today,
+      })
+      .eq('user_id', userId);
+
+    if (updateError) {
+      console.error('Error updating streak:', updateError.message);
+    } else {
+      console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
+    }
+  };
 
 
 
@@ -495,7 +495,7 @@ export default function HomePage() {
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}
-                  onClick={handleLogOut}>
+                    onClick={handleLogOut}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>
@@ -595,9 +595,9 @@ export default function HomePage() {
                     ))}
                   </div>
                 </div>
-                {activeView !== 'daily' && (
+                {activeView !== 'daily' && activeView !== 'saveChapter' && (
                   <button className={styles.bookmarkbutton} onClick={() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)}>
-                    <div className={styles.navIcon}><Bookmark/></div>
+                    <div className={styles.navIcon}><Bookmark /></div>
                   </button>
                 )}
               </div>
@@ -619,13 +619,11 @@ export default function HomePage() {
                   {dailyChapters.map(({ book, chapter }) => (
                     <DailyChapter key={book + chapter} book={book} chapter={chapter} />
                   ))}
-                  <button className={styles.finishReadingBtn} onClick={() => 
-
-                    {
-                       if (session?.user?.id) {
+                  <button className={styles.finishReadingBtn} onClick={() => {
+                    if (session?.user?.id) {
                       handleStreaks(session.user.id);
-                           }
                     }
+                  }
                   }>
                     Finish Reading
                   </button>
