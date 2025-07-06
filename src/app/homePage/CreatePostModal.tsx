@@ -14,7 +14,13 @@ const badWords = [
   'twat', 'wanker', 'bollocks', 'bugger', 'bloody', 'bugger', 'chuff',
   'knob', 'knobhead', 'minge', 'minger', 'minging', 'minger', 'minging',
   'minge', 'minger', 'minging', 'minge', 'minger', 'minging', 'minge',
-  'minger', 'minging', 'minge', 'minger', 'minging', 'minge', 'minger'
+  'minger', 'minging', 'minge', 'minger', 'minging', 'minge', 'minger',
+
+  'putangina', 'puta', 'gago', 'gaga', 'tanga', 'bobo', 'ulol', 'leche',
+  'lintik', 'bwisit', 'hayop', 'pakyu', 'punyeta', 'tarantado', 'peste',
+  'hindot', 'kantot', 'kantutan', 'salsal', 'jakol', 'bayag', 'puke',
+  'etits', 'pekpek', 'utong', 'susuka', 'iputok', 'burat', 'puchu', 'ampota',
+  'animal', 'buwisit', 'syet', 'syota', 'pakyu', 'pakyut', 'pakyu'
 ];
 
 const filterBadWords = (text: string): string => {
