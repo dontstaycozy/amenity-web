@@ -3,6 +3,27 @@ import supadata from '../lib/supabaseclient';
 import { Arrow, Comments, Delete } from '@/app/components/svgs';
 import styles from './HomePage.module.css';
 
+// Simple bad words filter for client-side use
+const badWords = [
+  'bad', 'word', 'example', 'inappropriate', 'profanity', 'curse', 'swear',
+  'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'piss', 'cock', 'dick',
+  'pussy', 'cunt', 'whore', 'slut', 'bastard', 'motherfucker', 'fucker',
+  'fucking', 'shitty', 'asshole', 'dumbass', 'jackass', 'dickhead', 'prick',
+  'twat', 'wanker', 'bollocks', 'bugger', 'bloody', 'bugger', 'chuff',
+  'knob', 'knobhead', 'minge', 'minger', 'minging', 'minger', 'minging',
+  'minge', 'minger', 'minging', 'minge', 'minger', 'minging', 'minge',
+  'minger', 'minging', 'minge', 'minger', 'minging', 'minge', 'minger'
+];
+
+const filterBadWords = (text: string): string => {
+  let filteredText = text;
+  badWords.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    filteredText = filteredText.replace(regex, '*'.repeat(word.length));
+  });
+  return filteredText;
+};
+
 interface Comment {
   id: number;
   created_at: string;
@@ -87,6 +108,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  const [filteredContent, setFilteredContent] = useState(false);
 
   const fetchComments = async () => {
     setLoading(true);
@@ -149,9 +171,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
     setError(null);
 
     try {
+      const filteredComment = filterBadWords(newComment);
+
+      // Check if content was filtered
+      if (filteredComment !== newComment) {
+        setFilteredContent(true);
+        setTimeout(() => setFilteredContent(false), 3000); // Hide after 3 seconds
+      }
+
       const { error } = await supadata.from('post_comments').insert([
         {
-          content: newComment,
+          content: filteredComment,
           post_id: postId,
           user_id: currentUserId,
           created_at: new Date().toISOString(),
@@ -233,6 +263,19 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
             Post
           </button>
         </form>
+        {filteredContent && (
+          <div style={{
+            backgroundColor: '#ffe8a3',
+            color: '#333',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            marginTop: '8px',
+            fontSize: '14px',
+            border: '1px solid #ffd700'
+          }}>
+            ⚠️ Your comment has been filtered for inappropriate language.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -252,6 +295,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [repliesOpen, setRepliesOpen] = useState(false);
+  const [filteredReply, setFilteredReply] = useState(false);
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -261,11 +305,19 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
     setError(null);
 
     try {
+      const filteredReply = filterBadWords(replyText);
+
+      // Check if content was filtered
+      if (filteredReply !== replyText) {
+        setFilteredReply(true);
+        setTimeout(() => setFilteredReply(false), 3000); // Hide after 3 seconds
+      }
+
       const { error: insertError } = await supadata.from('comment_replies').insert([
         {
           comment_id: comment.id,
           user_id: currentUserId,
-          content: replyText,
+          content: filteredReply,
           created_at: new Date().toISOString(),
         },
       ]);
@@ -456,6 +508,19 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
             {loading ? 'Posting...' : 'Post'}
           </button>
         </form>
+      )}
+      {filteredReply && (
+        <div style={{
+          backgroundColor: '#ffe8a3',
+          color: '#333',
+          padding: '6px 10px',
+          borderRadius: '6px',
+          marginTop: '6px',
+          fontSize: '12px',
+          border: '1px solid #ffd700'
+        }}>
+          ⚠️ Your reply has been filtered for inappropriate language.
+        </div>
       )}
       {error && <div style={{ color: 'red', fontSize: 12 }}>{error}</div>}
     </div>
