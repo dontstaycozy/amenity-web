@@ -33,7 +33,6 @@ import CreatePostModal from './CreatePostModal';
 import EditProfileModal from './EditProfileModal';
 import CommentSection from './CommentSection';
 import PostInteractions from './PostInteractions';
-import NotificationItem from '../components/NotificationItem';
 import { useNotifications } from '../hooks/useNotifications';
 import Image from 'next/image';
 import dayjs from 'dayjs';
@@ -63,6 +62,8 @@ export default function HomePage() {
     markAsRead, 
     markAllAsRead 
   } = useNotifications();
+
+  
   
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -253,7 +254,9 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    if (timeLeft && session?.user?.id) {
     checkstreaks();
+  }
   }, [session?.user?.id]);
 
 
@@ -324,21 +327,44 @@ export default function HomePage() {
   const checkstreaks = async () => {
     if (!session?.user?.id) return;
 
-    const today = dayjs().format('YYYY-MM-DD'); // Local date
+  const today = dayjs().format('YYYY-MM-DD');
 
-    const { data: streak, error } = await supadata
-      .from('streaks_input')
-      .select('date')
-      .eq('user_id', session.user.id)
-      .single();
+  const { data: streak, error } = await supadata
+    .from('streaks_input')
+    .select('date')
+    .eq('user_id', session.user.id)
+    .single();
 
-    if (error || !streak) {
-      setStreakDone(false);
-      return;
-    }
-
-    const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD'); // No need for tz()
+  if (error || !streak) {
+    setStreakDone(false);
+  } else {
+    const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
     setStreakDone(lastActiveDate === today);
+  }
+
+  if (!streak || streak.date !== today) {
+    // Check if notification already exists for today
+    const { data: existingNotif, error: notifError } = await supadata
+      .from('notifications')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .eq('type', 'bible_reminder')
+      .gte('created_at', dayjs().startOf('day').toISOString());
+
+    if (!notifError && (!existingNotif || existingNotif.length === 0)) {
+      // Insert new notification
+      const message = `📖 You have ${timeLeft || 'a few hours'} left to complete your daily Bible reading.`;
+      await supadata
+        .from('notifications')
+        .insert([{
+          user_id: session.user.id,
+          message: message,
+          type: 'bible_reminder',
+          is_read: false,
+          created_at: new Date().toISOString(),
+        }]);
+    }
+  }
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -381,66 +407,80 @@ export default function HomePage() {
               </span>
 
               {/* Notification Dropdown Menu */}
-              {showNotificationMenu && (
-                <div className={styles.notificationDropdown}>
-                  {/* Header */}
-                  <div style={{
-                    padding: '1rem 1.25rem',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}>
-                    <h3 style={{ 
-                      color: '#f5f0e9', 
-                      fontSize: '1rem', 
-                      fontWeight: '600',
-                      margin: 0
-                    }}>
-                      Notifications
-                    </h3>
-                    {unreadCount > 0 && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          markAllAsRead();
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#ffe8a3',
-                          fontSize: '0.8rem',
-                          cursor: 'pointer',
-                          textDecoration: 'underline'
-                        }}
-                      >
-                        Mark all as read
-                      </button>
-                    )}
-                  </div>
+             {showNotificationMenu && (
+  <div className={styles.notificationDropdown}>
+    {/* Header */}
+    <div style={{
+      padding: '1rem 1.25rem',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    }}>
+      <h3 style={{
+        color: '#f5f0e9',
+        fontSize: '1rem',
+        fontWeight: '600',
+        margin: 0
+      }}>
+        Notifications
+      </h3>
+      {unreadCount > 0 && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            markAllAsRead();
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#ffe8a3',
+            fontSize: '0.8rem',
+            cursor: 'pointer',
+            textDecoration: 'underline'
+          }}
+        >
+          Mark all as read
+        </button>
+      )}
+    </div>
 
-                  {/* Notifications List */}
-                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                    {notifications.length === 0 ? (
-                      <div style={{
-                        padding: '2rem 1.25rem',
-                        textAlign: 'center',
-                        color: '#8b9cb3'
-                      }}>
-                        No notifications
-                      </div>
-                    ) : (
-                      notifications.map((notification) => (
-                        <NotificationItem
-                          key={notification.id}
-                          notification={notification}
-                          onMarkAsRead={markAsRead}
-                        />
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
+    {/* Notifications List */}
+    <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+      {notifications.length === 0 ? (
+        <div style={{
+          padding: '2rem 1.25rem',
+          textAlign: 'center',
+          color: '#8b9cb3'
+        }}>
+          No notifications
+        </div>
+      ) : (
+        notifications.map((notification) => (
+          <div
+  key={notification.id}
+  style={{
+    padding: '1rem',
+    borderBottom: '1px solid rgba(255,255,255,0.1)',
+    backgroundColor: notification.is_read ? '#1d2a44' : '#223456',
+    cursor: 'pointer'
+  }}
+  onClick={() => markAsRead(notification.id)}
+>
+  <p style={{ margin: 0, color: '#ffe8a3' }}>{notification.message}</p>
+  <span style={{ fontSize: '0.75rem', color: '#aaa' }}>
+     {dayjs(notification.created_at).tz('Asia/Manila').format('MMM D, YYYY h:mm A')}
+  </span>
+</div>
+        ))
+      )}
+    </div>
+
+    {/* Bible Time Left Footer */}
+    
+   
+  </div>
+)}
             </div>
 
             {/* Profile Icon with Dropdown */}

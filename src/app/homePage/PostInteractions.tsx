@@ -14,8 +14,6 @@ const PostInteractions: React.FC<PostInteractionsProps> = ({ postId, currentUser
   const [userDislike, setUserDislike] = useState(false);
   const [loading, setLoading] = useState(false);
 
-
-
   const fetchInteractionState = async () => {
     const { data: interactions } = await supadata
       .from('post_interactions')
@@ -35,93 +33,118 @@ const PostInteractions: React.FC<PostInteractionsProps> = ({ postId, currentUser
     if (currentUserId) fetchInteractionState();
   }, [postId, currentUserId]);
 
+  const sendLikeNotification = async () => {
+    const { data: postData, error: postError } = await supadata
+      .from('Posts')
+      .select('user_id')
+      .eq('id', postId)
+      .single();
+
+    if (!postError && postData && postData.user_id !== currentUserId) {
+      await supadata.from('notifications').insert([
+        {
+          user_id: postData.user_id,
+          post_id: postId,
+          type: 'like',
+          message: `Someone liked your post.`,
+          is_read: false,
+          created_at: new Date(),
+        }
+      ]);
+    }
+  };
+
   const handleLike = async () => {
-  if (!currentUserId) return;
-  setLoading(true);
+    if (!currentUserId) return;
+    setLoading(true);
 
-  const { data: existing } = await supadata
-    .from('post_interactions')
-    .select('id, likes, dislikes')
-    .eq('post_id', postId)
-    .eq('user_id', currentUserId)
-    .maybeSingle();
+    const { data: existing } = await supadata
+      .from('post_interactions')
+      .select('id, likes, dislikes')
+      .eq('post_id', postId)
+      .eq('user_id', currentUserId)
+      .maybeSingle();
 
-  if (existing) {
-    if (existing.likes === 1) {
-      // Already liked , iremove like
-      await supadata.from('post_interactions').delete().eq('id', existing.id);
-      setUserLike(false);
-      setLikeCount(prev => Math.max(prev - 1, 0));
+    if (existing) {
+      if (existing.likes === 1) {
+        // Already liked, remove like
+        await supadata.from('post_interactions').delete().eq('id', existing.id);
+        setUserLike(false);
+        setLikeCount(prev => Math.max(prev - 1, 0));
+      } else {
+        // Was disliked or neutral, switch to like
+        await supadata
+          .from('post_interactions')
+          .update({ likes: 1, dislikes: 0 })
+          .eq('id', existing.id);
+
+        setUserLike(true);
+        setUserDislike(false);
+        setLikeCount(prev => prev + 1);
+        if (existing.dislikes === 1) {
+          setDislikeCount(prev => Math.max(prev - 1, 0));
+        }
+
+        await sendLikeNotification(); // ✅ notify owner
+      }
     } else {
-      // Was disliked or neutral, mo switch to like
-      await supadata
-        .from('post_interactions')
-        .update({ likes: 1, dislikes: 0 })
-        .eq('id', existing.id);
-
+      // No interaction yet, insert like
+      await supadata.from('post_interactions').insert([
+        { post_id: postId, user_id: currentUserId, likes: 1, dislikes: 0 },
+      ]);
       setUserLike(true);
       setUserDislike(false);
       setLikeCount(prev => prev + 1);
-      if (existing.dislikes === 1) {
-        setDislikeCount(prev => Math.max(prev - 1, 0));
-      }
+
+      await sendLikeNotification(); // ✅ notify owner
     }
-  } else {
-    // No interaction yet, i insert like
-    await supadata.from('post_interactions').insert([
-      { post_id: postId, user_id: currentUserId, likes: 1, dislikes: 0 },
-    ]);
-    setUserLike(true);
-    setUserDislike(false);
-    setLikeCount(prev => prev + 1);
-  }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
-const handleDislike = async () => {
-  if (!currentUserId) return;
-  setLoading(true);
+  const handleDislike = async () => {
+    if (!currentUserId) return;
+    setLoading(true);
 
-  const { data: existing } = await supadata
-    .from('post_interactions')
-    .select('id, likes, dislikes')
-    .eq('post_id', postId)
-    .eq('user_id', currentUserId)
-    .maybeSingle();
+    const { data: existing } = await supadata
+      .from('post_interactions')
+      .select('id, likes, dislikes')
+      .eq('post_id', postId)
+      .eq('user_id', currentUserId)
+      .maybeSingle();
 
-  if (existing) {
-    if (existing.dislikes === 1) {
-      // Already disliked, i remove dislike
-      await supadata.from('post_interactions').delete().eq('id', existing.id);
-      setUserDislike(false);
-      setDislikeCount(prev => Math.max(prev - 1, 0));
+    if (existing) {
+      if (existing.dislikes === 1) {
+        // Already disliked, remove dislike
+        await supadata.from('post_interactions').delete().eq('id', existing.id);
+        setUserDislike(false);
+        setDislikeCount(prev => Math.max(prev - 1, 0));
+      } else {
+        // Was liked or neutral, switch to dislike
+        await supadata
+          .from('post_interactions')
+          .update({ dislikes: 1, likes: 0 })
+          .eq('id', existing.id);
+
+        setUserDislike(true);
+        setUserLike(false);
+        setDislikeCount(prev => prev + 1);
+        if (existing.likes === 1) {
+          setLikeCount(prev => Math.max(prev - 1, 0));
+        }
+      }
     } else {
-      // Was liked or neutral, mo  switch to dislike
-      await supadata
-        .from('post_interactions')
-        .update({ dislikes: 1, likes: 0 })
-        .eq('id', existing.id);
-
+      // No interaction yet, insert dislike
+      await supadata.from('post_interactions').insert([
+        { post_id: postId, user_id: currentUserId, dislikes: 1, likes: 0 },
+      ]);
       setUserDislike(true);
       setUserLike(false);
       setDislikeCount(prev => prev + 1);
-      if (existing.likes === 1) {
-        setLikeCount(prev => Math.max(prev - 1, 0));
-      }
     }
-  } else {
-    // No interaction yet, i insert dislike
-    await supadata.from('post_interactions').insert([
-      { post_id: postId, user_id: currentUserId, dislikes: 1, likes: 0 },
-    ]);
-    setUserDislike(true);
-    setUserLike(false);
-    setDislikeCount(prev => prev + 1);
-  }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 12 }}>

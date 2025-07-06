@@ -102,7 +102,8 @@ export class NotificationService {
       return 'Daily reading period has ended. Start tomorrow\'s reading!';
     } else if (timeLeft < 1) {
       const minutesLeft = Math.floor(endOfDay.diff(now, 'minute'));
-      return `Only ${minutesLeft} minutes left for today's reading!`;
+
+     return `Only ${minutesLeft} minutes left for today's reading!`;
     } else {
       const hoursLeft = Math.floor(timeLeft);
       const minutesLeft = Math.floor((timeLeft - hoursLeft) * 60);

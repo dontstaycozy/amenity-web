@@ -54,6 +54,27 @@ export default function HomePage() {
   // Reference to the dropdown container
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
+  const VALID_NOTIFICATION_TYPES = [
+  'like',
+  'comment',
+  'post_flag',
+  'post_delete',
+  'bible_reminder',
+  'streak_milestone',
+  'trending_post',
+  'admin_edit',
+     'account_suspended',
+    'account_unsuspended',
+    'password_reset'
+
+];
+
+function validateNotificationType(type: string) {
+  if (!VALID_NOTIFICATION_TYPES.includes(type)) {
+    throw new Error(`Invalid notification type: ${type}`);
+  }
+}
+
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -79,83 +100,156 @@ export default function HomePage() {
   // Function to reset password and email the user
   const handleResetPassword = async (user: any) => {
     setResettingUser(user.username);
-    setResetMessage(null);
-    
-    try {
-      // Generate a new password
-      const newPassword = generatePassword(12);
-      
-      // Update the password in the Users_Accounts table
-      const { error: updateError } = await supadata
-        .from('Users_Accounts')
-        .update({ password: newPassword })
-        .eq('username', user.username);
-      
-      if (updateError) {
-        setResetMessage('Failed to update password in database.');
-        return;
-      }
-      
-      console.log('🔐 Attempting to send email to:', user.email);
-      
-      // Send email with the new password using the custom API
-      const response = await fetch('/api/send-reset-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: user.email,
-          password: newPassword,
-          username: user.username,
-        }),
-      });
-      
-      console.log('📧 Response status:', response.status);
-      console.log('📧 Response ok:', response.ok);
-      
-      if (!response.ok) {
-        let errorData = {};
-        try {
-          errorData = await response.json();
-          console.error('📧 Email API error data:', errorData);
-        } catch (parseError) {
-          console.error('📧 Failed to parse error response:', parseError);
-          errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
-        }
-        
-        // Fallback: show password even if email fails
-        const errorMessage = (errorData as any)?.details || (errorData as any)?.error || `HTTP ${response.status}`;
-        setResetMessage(`Password updated successfully! New password: ${newPassword} (Email sending failed: ${errorMessage})`);
-      } else {
-        const responseData = await response.json().catch(() => ({}));
-        console.log('✅ Email sent successfully:', responseData);
-        setResetMessage(`New password sent to ${user.email}. Password: ${newPassword}`);
-      }
-      
-      // Update the local state to reflect the new password
-      setUsers((prev) => prev.map(u => u.username === user.username ? { ...u, password: newPassword } : u));
-      
-    } catch (error) {
-      console.error('❌ Password reset error:', error);
-      setResetMessage('An error occurred while resetting the password.');
+  setResetMessage(null);
+
+  try {
+    // 🔐 Generate a new password
+    const newPassword = generatePassword(12);
+
+    // 🔍 Step 1: Get user ID from Users_Accounts
+    const { data: userData, error: fetchError } = await supadata
+      .from('Users_Accounts')
+      .select('userId')
+      .eq('username', user.username)
+      .single();
+
+    if (fetchError || !userData) {
+      console.error("⚠️ Failed to fetch user ID for password reset notification.");
+      setResetMessage("Failed to fetch user ID.");
+      setResettingUser(null);
+      return;
     }
-    
-    setResettingUser(null);
+
+    const userId = userData.userId;
+
+    // 🔔 Step 2: Insert notification
+    const { error: notifError } = await supadata.from('notifications').insert({
+      user_id: userId,
+      type: 'password_reset', // Make sure this is in your constraint check
+      post_id: null,
+      message: `Your account password was reset by admin. Your new Password is: ${newPassword}`,
+      is_read: false,
+      created_at: new Date().toISOString(),
+      read_at: null,
+    });
+
+    if (notifError) {
+      console.error("❌ Failed to insert password reset notification:", notifError.message);
+    } else {
+      console.log("✅ Password reset notification inserted.");
+    }
+
+    // ✅ Step 3: Update the password in Users_Accounts
+    const { error: updateError } = await supadata
+      .from('Users_Accounts')
+      .update({ password: newPassword })
+      .eq('username', user.username);
+
+    if (updateError) {
+      setResetMessage('Failed to update password in database.');
+      return;
+    }
+
+    // 📧 Step 4: Send email with new password
+    console.log('🔐 Attempting to send email to:', user.email);
+
+    const response = await fetch('/api/send-reset-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: user.email,
+        password: newPassword,
+        username: user.username,
+      }),
+    });
+
+    if (!response.ok) {
+      let errorData = {};
+      try {
+        errorData = await response.json();
+      } catch (parseError) {
+        errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+      }
+
+      const errorMessage = (errorData as any)?.details || (errorData as any)?.error || `HTTP ${response.status}`;
+      setResetMessage(`Password updated! New password: ${newPassword} (Email failed: ${errorMessage})`);
+    } else {
+      setResetMessage(`New password sent to ${user.email}. Password: ${newPassword}`);
+    }
+
+    // 🔄 Step 5: Update local UI state
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.username === user.username ? { ...u, password: newPassword } : u
+      )
+    );
+  } catch (error) {
+    console.error('❌ Password reset error:', error);
+    setResetMessage('An error occurred while resetting the password.');
+  }
+
+  setResettingUser(null);
   };
 
   // Function to suspend or unsuspend a user
   const handleToggleSuspend = async (user: any) => {
-    setSuspendingUser(user.username);
-    const newStatus = user.status === 'suspended' ? 'active' : 'suspended';
-    const { error } = await supadata
-      .from('Users_Accounts')
-      .update({ status: newStatus })
-      .eq('username', user.username);
-    if (!error) {
-      setUsers((prev) => prev.map(u => u.username === user.username ? { ...u, status: newStatus } : u));
+     setSuspendingUser(user.username);
+
+  const newStatus = user.status === 'suspended' ? 'active' : 'suspended';
+  const { error } = await supadata
+    .from('Users_Accounts')
+    .update({ status: newStatus })
+    .eq('username', user.username);
+
+  if (!error) {
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.username === user.username ? { ...u, status: newStatus } : u
+      )
+    );
+
+  const { data, error } = await supadata
+  .from('Users_Accounts') // ✅ watch casing: should match your Supabase table
+  .select('userId')       // ✅ make sure it's really `userId` in your table
+  .eq('username', user.username)
+  .single();              // ⬅️ forces result to be a single object, not array
+
+if (error || !data) {
+  console.log("⚠️ Failed to fetch user ID for notification:", error?.message);
+  return;
+}
+
+const userId = data.userId; // ✅ now this will work
+
+    
+
+    // ✅ Insert notification
+    const notificationType = newStatus === 'suspended' ? 'account_suspended' : 'account_unsuspended';
+
+    validateNotificationType(notificationType); // Optional: if you use this helper
+
+    const { error: notifError } = await supadata.from('notifications').insert({
+      user_id: userId,             // make sure this is the correct `id`, not username
+      type: notificationType,
+      post_id: null,                // no post related to this
+      message: newStatus === 'suspended'
+        ? `Your account has been suspended by the admin.`
+        : `Your account has been reactivated by the admin.`,
+      is_read: false,
+      created_at: new Date().toISOString(),
+      read_at: null,
+    });
+
+    if (notifError) {
+      console.log("❌ Failed to insert suspend/unsuspend notification:", notifError.message);
+    } else {
+      console.log("✅ Suspend/unsuspend notification inserted");
     }
-    setSuspendingUser(null);
+  } else {
+    console.log("❌ Failed to update user status:", error.message);
+  }
+
+  setSuspendingUser(null);
   };
 
   // Handler to show posts
@@ -176,32 +270,97 @@ export default function HomePage() {
   // Handler to delete a post
   const handleDeletePost = async (postId: number) => {
     setDeletingPostId(postId);
-    const { error } = await supadata
-      .from('Posts')
-      .delete()
-      .eq('id', postId);
-    if (!error) {
-      setPosts(posts => posts.filter(post => post.id !== postId));
-    } else {
-      console.error('Supabase delete error:', error);
-      alert('Failed to delete post!');
-    }
+
+  const postToDelete = posts.find(p => p.id === postId);
+
+  if (!postToDelete) {
+    console.error("⚠️ postToDelete is null — cannot insert delete notification.");
     setDeletingPostId(null);
-  };
+    return;
+  }
+
+  console.log("🗑️ Preparing to delete post for user:", postToDelete.user_id);
+
+  const type = 'post_delete';
+  validateNotificationType(type);
+
+  // 🔔 Insert notification first
+  const { error: notifError } = await supadata.from('notifications').insert({
+    user_id: postToDelete.user_id,
+    type,
+    post_id: null, // 👈 avoid FK violation
+    message: `Your post titled "${postToDelete.topic}" was deleted by admin.`,
+    is_read: false,
+    created_at: new Date().toISOString(),
+    read_at: null
+  });
+
+  if (notifError) {
+    console.error("❌ Failed to insert delete notification:", notifError.message);
+    setDeletingPostId(null);
+    return;
+  } else {
+    console.log("✅ Delete notification inserted");
+  }
+
+  // 🗑️ Now delete the post
+  const { error: deleteError } = await supadata
+    .from('Posts')
+    .delete()
+    .eq('id', postId);
+
+  if (deleteError) {
+    console.error("❌ Supabase delete error:", deleteError.message);
+    alert("Failed to delete post!");
+  } else {
+    setPosts(prev => prev.filter(post => post.id !== postId));
+    console.log("✅ Post deleted");
+  }
+
+  setDeletingPostId(null);
+};
+
 
   // Handler to flag or unflag a post as violation (toggle flagged field)
   const handleToggleFlagPost = async (postId: number, currentFlagged: boolean) => {
     setFlaggingPostId(postId);
-    const { error } = await supadata
-      .from('Posts')
-      .update({ flagged: !currentFlagged })
-      .eq('id', postId);
-    if (!error) {
-      setPosts(posts => posts.map(post => post.id === postId ? { ...post, flagged: !currentFlagged } : post));
-    } else {
-      alert('Failed to update flag status!');
-    }
-    setFlaggingPostId(null);
+  const postToFlag = posts.find(p => p.id === postId);
+  const { error } = await supadata
+    .from('Posts')
+    .update({ flagged: !currentFlagged })
+    .eq('id', postId);
+
+
+  if (!error) {
+    setPosts(posts => posts.map(post => post.id === postId ? { ...post, flagged: !currentFlagged } : post));
+console.log("Flagging post for user:", postToFlag.user_id);
+    // Insert notification
+    if (postToFlag) {
+  
+  const { error } = await supadata
+    .from('notifications')
+    .insert({
+      user_id: postToFlag.user_id,
+      type: 'post_flag',
+      post_id: postId,
+      message: `Your post titled "${postToFlag.topic}" was flagged/unflagged by admin.`,
+      is_read: false,
+      created_at: new Date().toISOString(),
+      read_at: null
+    });
+
+  if (error) {
+    console.log('❌ Failed to insert flag notification:', error.message);
+  } else {
+    console.log('✅ Notification inserted for post flag');
+  }
+} else {
+  console.log('⚠️ postToFlag is null or undefined');
+}
+  } else {
+    alert('Failed to update flag status!');
+  }
+  setFlaggingPostId(null);
   };
 
   // Close dropdown when clicking outside
@@ -241,28 +400,45 @@ export default function HomePage() {
       }
     };
     const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      let imageUrl = post?.image_url || null;
-      if (imageFile) {
-        // Reuse uploadImage from CreatePostModal
-        const filePath = `public/${Date.now()}_${imageFile.name}`;
-        const { data, error } = await supadata.storage.from('post-images').upload(filePath, imageFile);
-        if (!error && data) {
-          const { data: publicUrlData } = supadata.storage.from('post-images').getPublicUrl(data.path);
-          imageUrl = publicUrlData?.publicUrl || null;
-        } else {
-          alert('Image upload failed!');
-          return;
-        }
-      }
-      const { error } = await supadata.from('Posts').update({ topic, content, image_url: imageUrl, updated_at: new Date().toISOString() }).eq('id', post.id);
-      if (!error) {
-        onSave();
-        onClose();
-      } else {
-        console.error('Failed to update post!', error);
-        alert('Failed to update post!');
-      }
+       e.preventDefault();
+  let imageUrl = post?.image_url || null;
+  if (imageFile) {
+    const filePath = `public/${Date.now()}_${imageFile.name}`;
+    const { data, error } = await supadata.storage.from('post-images').upload(filePath, imageFile);
+    if (!error && data) {
+      const { data: publicUrlData } = supadata.storage.from('post-images').getPublicUrl(data.path);
+      imageUrl = publicUrlData?.publicUrl || null;
+    } else {
+      alert('Image upload failed!');
+      return;
+    }
+  }
+
+  const { error } = await supadata.from('Posts').update({
+    topic,
+    content,
+    image_url: imageUrl,
+    updated_at: new Date().toISOString()
+  }).eq('id', post.id);
+
+  if (!error) {
+    // ✅ Insert edit notification
+    await supadata.from('notifications').insert({
+      user_id: post.user_id,
+      type:'post_edit',
+      post_id: post.id,
+      message: `Your post titled "${post.topic}" was edited by admin.`,
+      is_read: false,
+      created_at: new Date().toISOString(),
+      read_at: null
+    });
+
+    onSave();
+    onClose();
+  } else {
+    console.error('Failed to update post!', error);
+    alert('Failed to update post!');
+  }
     };
     if (!isOpen) return null;
     return (
