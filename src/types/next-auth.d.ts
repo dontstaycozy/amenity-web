@@ -6,12 +6,14 @@ declare module "next-auth" {
     user:{
     id: string;
     name:string;
-    image_url?: string | null;
+    email:string;
+      
   }
 }
 
-  interface User {
+  interface user {
     id: string;
-    image_url?: string | null;
+    email:string
+   
   }
 }
