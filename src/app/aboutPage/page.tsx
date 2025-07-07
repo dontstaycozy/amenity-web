@@ -47,6 +47,18 @@ export default function AboutPage() {
     router.push('/helpPage');
   };
   
+  // --- Burger menu state ---
+  const [openSide, setOpenSide] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  const handleOpenSide = () => setOpenSide(true);
+  const handleCloseOverlay = () => setOpenSide(false);
+  
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -92,6 +104,17 @@ export default function AboutPage() {
       {/* Header Section - Reused from HomePage */}
       <header className={styles.header}>
         <div className={styles.headerContainer}>
+          {/* Hamburger menu for mobile (only hamburger, no X here) */}
+          {isMobile && !openSide && (
+            <button
+              className={styles.hamburgerMenu}
+              aria-label="Open Menu"
+              onClick={handleOpenSide}
+              style={{ position: 'absolute', left: 10, top: 18, zIndex: 1001, background: 'none', border: 'none', display: isMobile ? 'block' : 'none' }}
+            >
+              <span>&#9776;</span> {/* Hamburger icon */}
+            </button>
+          )}
           <div className={styles.headerLeft}>
             <LOGO style={{ width: 100, height: 100 }} />
             <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
@@ -136,37 +159,65 @@ export default function AboutPage() {
       {/* Main Content Section */}
       <main className={styles.main}>
         <div className={styles.mainContainer}>
-          {/* Left Navigation Panel - Reused from HomePage */}
-          <div className={styles.mainLeft}>
-            <div className={styles.mainLeftUp}>
-              <div className={styles.navItem} onClick={goToHome}>
-                <div className={styles.navIcon}><Home /></div>
+          {/* Sidebar for desktop, or for mobile if openSide is true */}
+          {(!isMobile || openSide) && (
+            <div
+              className={styles.mainLeft}
+              style={isMobile ? { position: 'fixed', top: 0, left: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '2px 0 8px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 0 } : {}}
+            >
+              {/* Close button for mobile sidebar */}
+              {isMobile && (
+                <button
+                  onClick={handleCloseOverlay}
+                  aria-label="Close Menu"
+                  style={{
+                    position: 'absolute',
+                    top: 18,
+                    left: 18,
+                    zIndex: 1100,
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '2rem',
+                    color: '#FFE8A3',
+                    cursor: 'pointer',
+                  }}
+                >
+                  &#10005;
+                </button>
+              )}
+              {/* Top nav items */}
+              <div style={{ marginTop: isMobile ? '3.5rem' : 0 }}>
+                <div className={styles.navItem} style={{ color: '#FFE8A3' }} onClick={goToHome}>
+                  <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Home /></div>
                 <span className={styles.navText}>Home</span>
               </div>
-              
-              <div className={styles.navItem} onClick={() => router.push('/PopularPage')}>
-                <div className={styles.navIcon}><Fire /></div>
-                <span className={styles.navText}>Popular</span>
-              </div>
-              
-              <button className={styles.navItem} onClick={biblePage}>
-                <div className={styles.navIcon}><Bible /></div>
+                <div className={styles.navItem} onClick={() => router.push('/PopularPage')}>
+                  <div className={styles.navIcon}><Fire /></div>
+                  <span className={styles.navText}>Popular</span>
+                </div>
+                <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }} onClick={biblePage}>
+                  <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Bible /></div>
                 <span className={styles.navText}>Bible</span>
               </button>
             </div>
-            
-            <div className={styles.mainLeftBottom}>
-              <button className={styles.navItem} style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)' }}>
-                <div className={styles.navIcon}><About /></div>
+              {/* Bottom nav items */}
+              <div style={{ marginBottom: isMobile ? '2.5rem' : 0 }}>
+                <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
+                  <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><About /></div>
                 <span className={styles.navText}>About</span>
               </button>
-              
-              <button className={styles.navItem} onClick={goToHelp}>
-                <div className={styles.navIcon}><Help /></div>
+                <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }} onClick={goToHelp}>
+                  <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Help /></div>
                 <span className={styles.navText}>Help</span>
               </button>
             </div>
           </div>
+          )}
+          
+          {/* Overlay for mobile popout */}
+          {isMobile && openSide && (
+            <div onClick={handleCloseOverlay} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 999 }} />
+          )}
           
           {/* Right Box - Main About Content with Splash Background */}
           <div className={styles.rightBox}>
@@ -239,8 +290,8 @@ export default function AboutPage() {
                 <div className={styles.sectionLeft}>
                   <h2 className={styles.sectionTitle}>Our Story!</h2>
                   <p className={styles.sectionText}>
-                    Building Amenity was our first big project—and it wasn’t easy. With just a month to finish it, we learned while coding, faced many bugs, and grew through the process.<br/>
-                    Wilfred Justin Peteros led as project manager and full-stack developer. Louielyn Abella handled UI/UX and frontend, Mary Claire worked full-stack, and Joram Zhient Entice managed the backend and database. Despite the challenges, we’re proud of what we built together.
+                    Building Amenity was our first big project—and it wasn't easy. With just a month to finish it, we learned while coding, faced many bugs, and grew through the process.<br/>
+                    Wilfred Justin Peteros led as project manager and full-stack developer. Louielyn Abella handled UI/UX and frontend, Mary Claire worked full-stack, and Joram Zhient Entice managed the backend and database. Despite the challenges, we're proud of what we built together.
                   </p>
                 </div>
                 <div className={styles.sectionRight}>

@@ -90,8 +90,6 @@ const badWords = [
 ];
 
 const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, username }) => {
-  if (!isOpen) return null;
-
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [topic, setTopic] = useState('');
@@ -100,6 +98,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const filter = new Filter();
   filter.addWords(...badWords);
@@ -193,7 +192,7 @@ const success = await addPost(cleanContent, imageUrl, cleanTopic, username);
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} style={{ display: isOpen ? 'flex' : 'none' }} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
           <div className={styles.avatar}></div>

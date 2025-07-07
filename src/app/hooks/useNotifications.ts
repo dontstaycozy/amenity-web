@@ -9,6 +9,10 @@ export interface Notification {
   type: string;
   is_read: boolean;
   created_at: string;
+  title?: string;
+  icon?: string;
+  timestamp?: Date | string | number;
+  isRead?: boolean;
 }
 
 export const useNotifications = () => {

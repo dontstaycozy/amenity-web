@@ -12,7 +12,8 @@
   background: #0B1532;
   /* Dark navy background */
   color: #f5f0e9;
-  overflow: hidden;
+  overflow-x: hidden; /* Only hide horizontal overflow */
+  overflow-y: auto;   /* Allow vertical scrolling if needed */
   position: absolute;
   top: 0;
   left: 0;
@@ -285,15 +286,19 @@
 
 /* Main content styles */
 .main {
-  width: 100%;
-  height: 90vh;
   display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: calc(100vh - 10vh); /* or 100vh if header is not fixed */
+  min-height: 0; /* CRITICAL for flex children to shrink */
 }
 
 .mainContainer {
   display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  height: 100%;
+  box-sizing: border-box;
 }
 
 /* Left navigation panel */
@@ -379,17 +384,13 @@
 
 /* Middle content area */
 .mainMid {
-  width: 60%;
-  height: 100%;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
-  /* Enable vertical scrolling */
-  scrollbar-width: thin;
-  /* For Firefox */
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-  /* For Firefox */
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  padding-bottom: 2.5rem; /* Add space for floating button if needed */
 }
 
 /* Styling for webkit browsers (Chrome, Safari, Edge) */
@@ -409,14 +410,31 @@
 .verseContainer {
   background-color: #1E2B48;
   border-radius: 12px;
-  padding: 4rem 2.5rem;
-  margin-bottom: 3rem;
+  padding: 2.5rem 2rem;
+  margin: 2rem auto 3rem auto;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  max-width: 800px;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .verseContainer {
+    max-width: 95vw;
+    padding: 2rem 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .verseContainer {
+    padding: 1.2rem 0.5rem;
+  }
 }
 
 .verseTitle {
@@ -435,7 +453,17 @@
   width: 100%;
 }
 
-.navLeft,
+.navLeft {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .navRight {
   display: flex;
   gap: 1rem;
@@ -699,6 +727,155 @@
     font-size: 1.3rem;
     margin-right: 0.75rem;
   }
+
+  .main {
+    flex-direction: column;
+    height: 100vh;
+    min-height: 0;
+  }
+  .mainContainer {
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .mainMid {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    padding-bottom: 3.5rem; /* More space for floating button on mobile */
+  }
+  .verseContainer {
+    width: auto;
+    max-width: 100vw;
+    margin: 2.5rem 2.5rem 1.5rem 2.5rem;
+    padding: 1.2rem 0.5rem;
+    box-sizing: border-box;
+  }
+  .savedChaptersContainer {
+    width: 100%;
+    max-width: 100vw;
+    margin: 1.2rem 0.5rem 1.2rem 0.5rem;
+    box-sizing: border-box;
+  }
+  .savedChapterItem {
+    width: 100%;
+    margin: 0 0 1rem 0;
+    box-sizing: border-box;
+    padding: 1rem 0.5rem;
+  }
+  .hamburgerMenu {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    z-index: 1001;
+    position: absolute;
+    left: 10px;
+    top: 18px;
+  }
+  .fabStreak {
+    display: block;
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1002;
+    background: #2d3a5a;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    font-size: 2rem;
+    align-items: center;
+    justify-content: center;
+  }
+  .navContainer {
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
+    column-gap: 0.4rem;
+    justify-content: flex-start;
+    margin-bottom: 1rem;
+    padding-bottom: 0;
+    overflow-x: visible;
+  }
+  .navLeft {
+    flex-wrap: wrap;
+    gap: 0.4rem 0.4rem;
+    width: 100%;
+    min-width: 0;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    justify-content: flex-start;
+  }
+  /* Bible button: compact */
+  .navBibleOp {
+    font-size: 0.97rem;
+    padding: 0.38rem 0.5rem;
+    min-width: 40px;
+    max-width: 100%;
+    flex: 1 1 20%;
+    margin-bottom: 0.4rem;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+  /* Daily Reading: balanced width */
+  .navBibleOp:nth-child(2) {
+    font-size: 0.97rem;
+    padding: 0.38rem 0.7rem;
+    min-width: 120px;
+    max-width: 100%;
+    flex: 1 1 42%;
+    margin-bottom: 0.4rem;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+  /* Saved Chapters: fit text, not too big */
+  .BiblePage_navBibleOpSavedChapter__nZ46z {
+    font-size: 0.97rem;
+    padding: 0.38rem 0.5rem;
+    min-width: 120px;
+    max-width: 100%;
+    flex: 1 1 38%;
+    margin-bottom: 0.4rem;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+  .navText {
+    font-size: 0.97rem;
+  }
+  .BiblePage_navIcon___4z1C {
+    margin-left: 0.25rem;
+    margin-right: 0;
+  }
+  .notificationDropdown {
+    position: fixed !important;
+    top: 60px !important; /* Adjust if your header is taller/shorter */
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 0 0 18px 18px !important;
+    z-index: 2002 !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    margin: 0 !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .fabStreak {
+    display: none !important;
+  }
+  .hamburgerMenu {
+    display: none !important;
+  }
 }
 
 /* Glass Bell styles */
@@ -823,7 +1000,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
   white-space: nowrap;
-  margin-left: 10rem;
+  margin-left: 0.5rem;
   border: none;
   border-radius: 6px;
 }
@@ -844,6 +1021,9 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .savedChapterItem {
@@ -853,7 +1033,8 @@
   padding: 16px;
   color: #fff;
   transition: box-shadow 0.2s;
-  min-width: 47rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .savedChapterHeader {
@@ -922,4 +1103,14 @@
   color: #bfc9e0;
   font-size: 0.95rem;
   word-break: break-word;
+}
+
+@media (max-width: 900px) {
+  .navLeft {
+    max-width: 95vw;
+  }
+
+  .savedChaptersContainer {
+    max-width: 95vw;
+  }
 }

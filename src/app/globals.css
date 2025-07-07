@@ -4,6 +4,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Segoe+UI+Historic:wght@400&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Segoe+UI+Emoji:wght@400&display=swap');
 
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* Global CSS */
 
 * {
   box-sizing: border-box;

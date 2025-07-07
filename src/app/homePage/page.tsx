@@ -268,7 +268,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (timeLeft && session?.user?.id) {
-      checkstreaks();
+    checkstreaks();
     }
   }, [session?.user?.id]);
 
@@ -382,14 +382,49 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Add state for mobile sidebar popouts
+  const [openSide, setOpenSide] = useState<'left' | 'right' | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleOpenSide = (side: 'left' | 'right') => {
+    setOpenSide(prev => (prev === side ? null : side));
+  };
+  const handleCloseOverlay = () => setOpenSide(null);
+
+  // Add state for streak modal
+  const [showStreakModal, setShowStreakModal] = useState(false);
+
   return (
 
     <div className={styles.body}>
       {/* Header Section */}
       <header className={styles.header}>
         <div className={styles.headerContainer}>
-          <div className={styles.headerLeft}>
-            <LOGO style={{ width: 100, height: 100 }} /><h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
+          {/* Hamburger menu for mobile */}
+          {isMobile && (
+            <button
+              className={styles.hamburgerMenu}
+              aria-label={openSide === 'left' ? 'Close Menu' : 'Open Menu'}
+              onClick={() => handleOpenSide('left')}
+              style={{ position: 'absolute', left: 10, top: 18, zIndex: 1001, background: 'none', border: 'none', display: isMobile ? 'block' : 'none' }}
+            >
+              {openSide === 'left' ? (
+                <span>&#10005;</span> // X icon
+              ) : (
+                <span>&#9776;</span> // Hamburger icon
+              )}
+            </button>
+          )}
+          <div className={styles.headerLeft} style={isMobile ? { justifyContent: 'center', width: '100%' } : {}}>
+            <LOGO style={{ width: 100, height: 100 }} />
+            <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
           <div className={styles.headerMid}>
             <FilteredSearchBar
@@ -533,37 +568,45 @@ export default function HomePage() {
       <main className={styles.main}>
         <div className={styles.mainContainer}>
           {/* Left Navigation Panel */}
-          <div className={styles.mainLeft}>
-            <div className={styles.mainLeftUp}>
-              <div className={styles.navItem}>
-                <div className={styles.navIcon}><Home /></div>
-                <span className={styles.navText}>Home</span>
-              </div>
+          {(!isMobile || openSide === 'left') && (
+            <div
+              className={styles.mainLeft + (isMobile && openSide === 'left' ? ' ' + styles.mobileSidebar : '')}
+              style={isMobile ? { position: 'fixed', top: 0, left: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '2px 0 8px rgba(0,0,0,0.2)' } : {}}
+            >
+              <div className={styles.mainLeftUp}>
+                <div className={styles.navItem}>
+                  <div className={styles.navIcon}><Home /></div>
+                  <span className={styles.navText}>Home</span>
+                </div>
 
               <button className={styles.navItem} onClick={() => router.push('/PopularPage')}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </button>
 
-              <button className={styles.navItem} onClick={biblePage}>
-                <div className={styles.navIcon}><Bible /></div>
-                <span className={styles.navText}>Bible</span>
-              </button>
+                <button className={styles.navItem} onClick={biblePage}>
+                  <div className={styles.navIcon}><Bible /></div>
+                  <span className={styles.navText}>Bible</span>
+                </button>
+              </div>
+
+              <div className={styles.mainLeftBottom}>
+                <button className={styles.navItem} onClick={() => router.push('/aboutPage')}>
+                  <div className={styles.navIcon}><About /></div>
+                  <span className={styles.navText}>About</span>
+                </button>
+
+                <button className={styles.navItem} onClick={goToHelp}>
+                  <div className={styles.navIcon}><Help /></div>
+                  <span className={styles.navText}>Help</span>
+                </button>
+              </div>
             </div>
-
-            <div className={styles.mainLeftBottom}>
-              <button className={styles.navItem} onClick={() => router.push('/aboutPage')}>
-                <div className={styles.navIcon}><About /></div>
-                <span className={styles.navText}>About</span>
-              </button>
-
-              <button className={styles.navItem} onClick={goToHelp}>
-                <div className={styles.navIcon}><Help /></div>
-                <span className={styles.navText}>Help</span>
-              </button>
-            </div>
-          </div>
-
+          )}
+          {/* Overlay for mobile popout */}
+          {isMobile && openSide && (
+            <div onClick={handleCloseOverlay} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 999 }} />
+          )}
           {/* Middle Content Area - Now Scrollable */}
           <div className={styles.mainMid}>
             {/* Verse of the Day */}
@@ -714,28 +757,94 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Right Section */}
-          <div className={styles.mainRight}>
-            <div className={styles.rightContainer}>
-              <h3 className="headingMedium">Streak Plant!</h3>
+{/* Right Section (Streak Plant) */}
+{(!isMobile || openSide === 'right') && (
+  <div
+    className={styles.mainRight + (isMobile && openSide === 'right' ? ' ' + styles.mobileSidebar : '')}
+    style={isMobile ? { position: 'fixed', top: 0, right: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '-2px 0 8px rgba(0,0,0,0.2)' } : {}}
+  >
+    <div className={styles.rightContainer}>
+      <h3 className="headingMedium">Streak Plant!</h3>
+      {/* Glass Bell Component */}
+      <div className={styles.glassBellContainer}>
+        <div className={styles.bellBase}></div>
+        <div className={styles.bellShadow}></div>
+        <div className={styles.streakPlantInBell}>
+          <StreakPlant stage={Stage} />
+        </div>
+        <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+          <div className={styles.bellTop}></div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
-              {/* Glass Bell Component */}
-              <div className={styles.glassBellContainer}>
-                {/* Shadow and Base at the bottom */}
-                <div className={styles.bellBase}></div>
-
-                <div className={styles.bellShadow}></div>
-                {/* Streak Plant above the base and shadow */}
-                <div className={styles.streakPlantInBell}>
-                  <StreakPlant stage={Stage} />
+          )}
+          {/* Floating Streak Button for mobile */}
+          {isMobile && (
+            <>
+              <button
+                className={styles.fabStreak}
+                aria-label="Open Streak Plant"
+                onClick={() => setShowStreakModal(true)}
+              >
+                <span role="img" aria-label="Streak Plant">🌱</span>
+              </button>
+              {showStreakModal && (
+                <div style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  background: 'rgba(0,0,0,0.5)',
+                  zIndex: 2000,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <div style={{
+                    background: '#1e2b48',
+                    borderRadius: '18px',
+                    padding: '2rem 1.5rem 1.5rem 1.5rem',
+                    position: 'relative',
+                    minWidth: '320px',
+                    maxWidth: '90vw',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}>
+                    <button
+                      onClick={() => setShowStreakModal(false)}
+                      style={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 16,
+                        background: 'none',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: 32,
+                        cursor: 'pointer',
+                        zIndex: 10,
+                      }}
+                      aria-label="Close"
+                    >
+                      ×
+                    </button>
+                    <h2 style={{ color: '#fff', marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 600 }}>Streak Plant!</h2>
+                    <div className={styles.glassBellContainer}>
+                      <div className={styles.glassBell}></div>
+                      <div className={styles.bellShadow}></div>
+                      <div className={styles.bellBase}></div>
+                    </div>
+                  </div>
                 </div>
-                {/* Glass dome above everything, but visually transparent */}
-                <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
-                  <div className={styles.bellTop}></div>
-                </div>
-              </div>
-            </div>
-          </div>
+              )}
+            </>
+          )}
         </div>
       </main>
       <EditProfileModal isOpen={showEditProfileModal} onClose={() => setShowEditProfileModal(false)} />
