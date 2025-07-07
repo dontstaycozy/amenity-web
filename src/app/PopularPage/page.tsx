@@ -231,6 +231,9 @@ export default function PopularPage() {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const notificationDropdownRef = useRef<HTMLDivElement>(null);
+  const [openSide, setOpenSide] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const biblePage = () => router.push('/biblePage');
   const goToHelp = () => router.push('/helpPage');

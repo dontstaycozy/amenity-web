@@ -39,6 +39,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
 import StreakPlant from '../components/StreakPlant';
+import { getUserStreakAndHP } from '../lib/streakService';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

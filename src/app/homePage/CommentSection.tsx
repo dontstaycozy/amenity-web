@@ -151,7 +151,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
 
       setRepliesMap(map);
     } catch (err) {
-      console.error('Failed to fetch replies:', err);
+      console.error('Failed to fetch replies:', JSON.stringify(err, null, 2));
     }
   };
 

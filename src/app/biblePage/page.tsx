@@ -16,7 +16,6 @@ import {
   Bookmark,
   LOGO,
   Plus,
-  LOGO,
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
