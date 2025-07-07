@@ -32,6 +32,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
+import StreakPlant from '../components/StreakPlant';
+import { getUserStreakAndHP, finishReading } from '../lib/streakService';
 
 
 
@@ -283,6 +285,18 @@ export default function HomePage() {
   const [expandedChapters, setExpandedChapters] = useState<{ [id: number]: { loading: boolean, verses: any[] } }>({});
   const [searchSavedChapters, setSearchSavedChapters] = useState('');
 
+  // --- Streak Plant State ---
+  const [hp, setHP] = useState(3); // Default to 3 HP
+  const hpToStage = { 3: 1, 2: 2, 1: 3, 0: 4 };
+  const plantStage = hpToStage[hp];
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    getUserStreakAndHP(session.user.id).then(data => {
+      setHP(data?.Health_Points ?? 3);
+    });
+  }, [session]);
+
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -418,71 +432,6 @@ const Popularpage = () => {
       }));
     }
   };
-
-  const handleStreaks = async (userId: string) => {
-    const today = dayjs().format('YYYY-MM-DD'); // Local date string
-
-    // 1. Fetch the user's streak
-    const { data: streak, error } = await supadata
-      .from('streaks_input')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching streak:', error.message);
-      return;
-    }
-
-    if (!streak) {
-      // 2. No streak yet — insert new
-      const { error: insertError } = await supadata.from('streaks_input').insert({
-        user_id: userId,
-        streaknum: 1,
-        date: today,
-      });
-
-      if (insertError) {
-        console.error('Error inserting streak:', insertError.message);
-      } else {
-        console.log('New streak started for user:', userId);
-      }
-
-      return;
-    }
-
-    const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
-
-    // 3. If already updated today, do nothing
-    if (lastActiveDate === today) {
-      console.log('Streak already updated today.');
-      return;
-    }
-
-    // 4. Determine if streak should continue or reset
-    const isYesterday =
-      dayjs(streak.date).add(1, 'day').format('YYYY-MM-DD') === today;
-
-    const newCount = isYesterday ? streak.streaknum + 1 : 1;
-
-    // 5. Update streak
-    const { error: updateError } = await supadata
-      .from('streaks_input')
-      .update({
-        streaknum: newCount,
-        date: today,
-      })
-      .eq('user_id', userId);
-
-    if (updateError) {
-      console.error('Error updating streak:', updateError.message);
-    } else {
-      console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
-    }
-  };
-
-
-
 
   return (
     <div className={styles.body}>
@@ -727,12 +676,13 @@ const Popularpage = () => {
                   {dailyChapters.map(({ book, chapter }) => (
                     <DailyChapter key={book + chapter} book={book} chapter={chapter} />
                   ))}
-                  <button className={styles.finishReadingBtn} onClick={() => {
+                  <button className={styles.finishReadingBtn} onClick={async () => {
                     if (session?.user?.id) {
-                      handleStreaks(session.user.id);
+                      await finishReading(session.user.id);
+                      const data = await getUserStreakAndHP(session.user.id);
+                      setHP(data?.Health_Points ?? 3);
                     }
-                  }
-                  }>
+                  }}>
                     Finish Reading
                   </button>
                 </>
@@ -817,9 +767,18 @@ const Popularpage = () => {
 
               {/* Glass Bell Component */}
               <div className={styles.glassBellContainer}>
-                <div className={styles.glassBell}></div>
-                <div className={styles.bellShadow}></div>
+                {/* Shadow and Base at the bottom */}
                 <div className={styles.bellBase}></div>
+                
+                <div className={styles.bellShadow}></div>
+                {/* Streak Plant above the base and shadow */}
+                <div className={styles.streakPlantInBell}>
+                  <StreakPlant stage={plantStage}/>
+                </div>
+                {/* Glass dome above everything, but visually transparent */}
+                <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+                  <div className={styles.bellTop}></div>
+                </div>
               </div>
             </div>
           </div>
