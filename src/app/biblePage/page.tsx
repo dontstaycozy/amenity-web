@@ -16,8 +16,7 @@ import {
   Bookmark,
   LOGO,
   Plus,
-  Like,
-  Delete
+  LOGO,
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
@@ -33,15 +32,8 @@ import FilteredSearchBar from '@/app/components/FilteredSearchBar';
 import StreakPlant from '../components/StreakPlant';
 import { getUserStreakAndHP, finishReading } from '../lib/streakService';
 
-
-
-type BookChapters = {
-  [book: string]: number;
-};
-
 dayjs.extend(utc);
 dayjs.extend(timezone);
-const localTZ = 'Asia/Manila';
 
 const bibleBooks: Record<string, number> = {
   Genesis: 50,
@@ -111,28 +103,6 @@ const bibleBooks: Record<string, number> = {
   Jude: 1,
   Revelation: 22,
 };
-
-// Custom icon components
-const ArchiveIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M20 4H4C2.9 4 2 4.9 2 6V8C2 8.55 2.45 9 3 9H21C21.55 9 22 8.55 22 8V6C22 4.9 21.1 4 20 4Z" fill="#f5f0e9" />
-    <path d="M20 10H4C3.45 10 3 10.45 3 11V18C3 19.1 3.9 20 5 20H19C20.1 20 21 19.1 21 18V11C21 10.45 20.55 10 20 10ZM15 16H9C8.45 16 8 15.55 8 15C8 14.45 8.45 14 9 14H15C15.55 14 16 14.45 16 15C16 15.55 15.55 16 15 16Z" fill="#f5f0e9" />
-  </svg>
-);
-
-const SavedIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M17 3H7C5.9 3 5 3.9 5 5V21L12 18L19 21V5C19 3.9 18.1 3 17 3Z" fill="#f5f0e9" />
-  </svg>
-);
-
-const CalendarIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3.01 4.9 3.01 6L3 20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V9H19V20Z" fill="#f5f0e9" />
-    <path d="M12 13H17V18H12V13Z" fill="#f5f0e9" />
-  </svg>
-);
-
 
 // Helper: Deterministic random number generator (seeded)
 function mulberry32(a: number): () => number {

@@ -28,7 +28,7 @@ const PostInteractions: React.FC<PostInteractionsProps> = ({ postId, currentUser
 
   useEffect(() => {
     if (currentUserId) fetchInteractionState();
-  }, [postId, currentUserId]);
+  }, [postId, currentUserId, fetchInteractionState]);
 
   const sendLikeNotification = async () => {
     const { data: postData, error: postError } = await supadata

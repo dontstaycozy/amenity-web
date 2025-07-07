@@ -17,7 +17,6 @@ import {
 import { useRouter } from 'next/navigation';
 import FAQItem from './FAQItem';
 import { faqList } from './FAQdata';
-import { signOut } from 'next-auth/react';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationItem from '../components/NotificationItem';
@@ -93,9 +92,6 @@ export default function HelpPage() {
         router.push('/biblePage');
     };
 
-    const logOut = () => {
-        signOut({ callbackUrl: "/loginPage" });
-    }
     // Add navigation for Help/About if you want
     const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
     const [showNotificationMenu, setShowNotificationMenu] = useState(false);

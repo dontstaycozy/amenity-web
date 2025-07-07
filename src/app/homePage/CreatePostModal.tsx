@@ -97,7 +97,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
   const [showCropModal, setShowCropModal] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<unknown>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const filter = new Filter();
@@ -173,7 +173,7 @@ const success = await addPost(cleanContent, imageUrl, cleanTopic, username);
   };
 
   // Handler for crop complete
-  const onCropComplete = (_: any, croppedAreaPixels: any) => {
+  const onCropComplete = (_: unknown, croppedAreaPixels: unknown) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
 

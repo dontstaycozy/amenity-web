@@ -48,12 +48,11 @@ export default function HomePage() {
   const [showUserTable, setShowUserTable] = useState(false);
   const [showPostsTable, setShowPostsTable] = useState(false);
   const [showStreaksTable, setShowStreaksTable] = useState(false);
-  const [showStatistics, setShowStatistics] = useState(false);
   const [showLoginStats, setShowLoginStats] = useState(false);
   const [showRegistrationStats, setShowRegistrationStats] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
-  const [posts, setPosts] = useState<any[]>([]);
-  const [streaks, setStreaks] = useState<any[]>([]);
+  const [users, setUsers] = useState<unknown[]>([]);
+  const [posts, setPosts] = useState<unknown[]>([]);
+  const [streaks, setStreaks] = useState<unknown[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingStreaks, setLoadingStreaks] = useState(false);
@@ -65,15 +64,13 @@ export default function HomePage() {
   const [deletingPostId, setDeletingPostId] = useState<number | null>(null);
   const [resettingStreak, setResettingStreak] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState<any | null>(null);
+  const [editingPost, setEditingPost] = useState<unknown | null>(null);
   const [loginStats, setLoginStats] = useState<{ [date: string]: number }>({});
   const [registrationStats, setRegistrationStats] = useState<{ [date: string]: number }>({});
-  const [userMap, setUserMap] = useState<{ [userId: string]: string }>({});
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [profileMessage, setProfileMessage] = useState('');
-  const [profileEmail, setProfileEmail] = useState('');
   const [notifications, setNotifications] = useState<string[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'active' | 'suspended'>('all');
@@ -113,7 +110,6 @@ function validateNotificationType(type: string) {
     setShowUserTable(true);
     setShowPostsTable(false);
     setShowStreaksTable(false);
-    setShowStatistics(false);
     setShowLoginStats(false);
     setShowRegistrationStats(false);
     setLoadingUsers(true);
@@ -126,12 +122,8 @@ function validateNotificationType(type: string) {
     setLoadingUsers(false);
   }
 
-  const handleLogOut = () => {
-    signOut({ callbackUrl: '/loginPage' });
-  };
-
   // Function to reset password and email the user
-  const handleResetPassword = async (user: any) => {
+  const handleResetPassword = async (user: unknown) => {
     setResettingUser(user.username);
   setResetMessage(null);
 
@@ -215,7 +207,7 @@ function validateNotificationType(type: string) {
   };
 
   // Function to suspend or unsuspend a user
-  const handleToggleSuspend = async (user: any) => {
+  const handleToggleSuspend = async (user: unknown) => {
      setSuspendingUser(user.username);
 
   const newStatus = user.status === 'suspended' ? 'active' : 'suspended';
@@ -280,7 +272,6 @@ const userId = data.userId; // ✅ now this will work
     setShowUserTable(false);
     setShowPostsTable(true);
     setShowStreaksTable(false);
-    setShowStatistics(false);
     setShowLoginStats(false);
     setShowRegistrationStats(false);
     setLoadingPosts(true);
@@ -300,7 +291,6 @@ const userId = data.userId; // ✅ now this will work
       usersData.forEach((user: any) => {
         map[user.userId] = user.username;
       });
-      setUserMap(map);
     }
     setLoadingPosts(false);
   };
@@ -310,7 +300,6 @@ const userId = data.userId; // ✅ now this will work
     setShowUserTable(false);
     setShowPostsTable(false);
     setShowStreaksTable(true);
-    setShowStatistics(false);
     setShowLoginStats(false);
     setShowRegistrationStats(false);
     setLoadingStreaks(true);
@@ -499,9 +488,8 @@ console.log("Flagging post for user:", postToFlag.user_id);
     setShowUserTable(false);
     setShowPostsTable(false);
     setShowStreaksTable(false);
-    setShowStatistics(false);
-    setShowRegistrationStats(false);
     setShowLoginStats(true);
+    setShowRegistrationStats(false);
     setLoadingStats(true);
     
     try {
@@ -536,7 +524,6 @@ console.log("Flagging post for user:", postToFlag.user_id);
     setShowUserTable(false);
     setShowPostsTable(false);
     setShowStreaksTable(false);
-    setShowStatistics(false);
     setShowLoginStats(false);
     setShowRegistrationStats(true);
     setLoadingStats(true);
@@ -599,7 +586,7 @@ console.log("Flagging post for user:", postToFlag.user_id);
   }, [showNotifications]);
 
   // Edit Post Modal component
-  function EditPostModal({ isOpen, onClose, post, onSave }: { isOpen: boolean, onClose: () => void, post: any, onSave: () => void }) {
+  function EditPostModal({ isOpen, onClose, post, onSave }: { isOpen: boolean, onClose: () => void, post: unknown, onSave: () => void }) {
     const [topic, setTopic] = useState(post?.topic || '');
     const [content, setContent] = useState(post?.content || '');
     const [imagePreview, setImagePreview] = useState<string | null>(post?.image_url || null);
@@ -715,7 +702,6 @@ console.log("Flagging post for user:", postToFlag.user_id);
     setConfirmPassword('');
     setProfileMessage('');
     setShowProfileMenu(false);
-    setProfileEmail('');
     if (session?.user?.id) {
       const { data, error } = await supadata
         .from('Users_Accounts')

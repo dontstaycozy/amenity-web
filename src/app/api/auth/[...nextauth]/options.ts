@@ -95,7 +95,7 @@ export const options: NextAuthOptions = {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         try {
-          const { data: existingUser, error } = await supadata
+          const { data: existingUser, error: _error } = await supadata
             .from("Users_Accounts")
             .select("userId")
             .eq("email", user.email)
@@ -122,18 +122,18 @@ export const options: NextAuthOptions = {
         try {
           const email = user.email?.toLowerCase().trim();
 
-          const { data: existingUser, error: selectError } = await supadata
+          const { data: existingUser, error: _error } = await supadata
             .from("Users_Accounts")
             .select("userId, role, username") // include username
             .eq("email", email)
             .single();
 
-          if (selectError && selectError.code !== "PGRST116") {
-            console.error("Supabase select error:", selectError);
+          if (error && error.code !== "PGRST116") {
+            console.error("Supabase select error:", error);
           }
 
           if (!existingUser) {
-            const { data: newUser, error: insertError } = await supadata
+            const { data: newUser, error: _insertError } = await supadata
               .from("Users_Accounts")
               .insert([
                 {
@@ -147,8 +147,8 @@ export const options: NextAuthOptions = {
               .select("userId, role, username")
               .single();
 
-            if (insertError) {
-              console.error("Supabase insert error:", insertError.message);
+            if (error) {
+              console.error("Supabase insert error:", error.message);
             } else {
               token.id = newUser.userId;
               token.role = newUser.role;

@@ -8,7 +8,6 @@ import {
   About, Bell, Bible, Fire, Help, Home, Logout, Profile, Sun, LOGO, Like, Arrow, Comments,
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
-import FilteredSearchBar from '@/app/components/FilteredSearchBar';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationItem from '../components/NotificationItem';
 
@@ -223,18 +222,12 @@ type Notification = {
 
 export default function PopularPage() {
   const router = useRouter();
-  const { data: session } = useSession();
   const [popularPosts, setPopularPosts] = useState<Post[]>([]);
   const [trendingPosts, setTrendingPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('trending');
   const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  // --- Burger menu state for mobile ---
-  const [openSide, setOpenSide] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [showStreakModal, setShowStreakModal] = useState(false);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const notificationDropdownRef = useRef<HTMLDivElement>(null);

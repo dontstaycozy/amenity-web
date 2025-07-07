@@ -24,12 +24,14 @@ const LandingPage = () => {
       { threshold: 0.1 }
     );
 
-    featureRefs.current.forEach((ref) => {
+    // Make a stable copy of refs for cleanup
+    const refs = featureRefs.current.slice();
+    refs.forEach((ref) => {
       if (ref) observer.observe(ref);
     });
 
     return () => {
-      featureRefs.current.forEach((ref) => {
+      refs.forEach((ref) => {
         if (ref && document.body.contains(ref)) {
           observer.unobserve(ref);
         }

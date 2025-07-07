@@ -157,7 +157,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
 
   useEffect(() => {
     fetchComments();
-  }, [postId]);
+  }, [postId, fetchComments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
      e.preventDefault();

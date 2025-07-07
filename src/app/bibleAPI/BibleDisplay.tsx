@@ -112,7 +112,7 @@ export default function BibleDisplay({ selectedBook = "Genesis", selectedChapter
         }
         const results = await Promise.allSettled(chapterPromises);
         const successful = results
-          .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
+          .filter((r): r is PromiseFulfilledResult<unknown> => r.status === "fulfilled")
           .map((r) => r.value);
         const allVerses = successful.flatMap((chapter) => chapter.verses || []);
         setVerses(allVerses);

@@ -18,6 +18,7 @@ import {
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
+import Image from 'next/image';
 
 interface reply {
   id: number;
@@ -227,9 +228,11 @@ export default function ArchivedPage() {
                           {post.Posts?.content || 'No content available.'}
                         </div>
                         {post.Posts?.image_url && (
-                          <img
+                          <Image
                             src={post.Posts.image_url}
                             alt="Post image"
+                            width={600}
+                            height={400}
                             style={{ maxWidth: '100%', marginTop: '1rem', borderRadius: 8 }}
                           />
                         )}

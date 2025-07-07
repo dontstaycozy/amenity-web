@@ -8,6 +8,7 @@ import Cropper from 'react-easy-crop';
 import getCroppedImg from './cropImage';
 import { amenityAlert } from "../components/amenityAlert";
 import { Filter } from 'bad-words';
+import Image from 'next/image';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -254,9 +255,11 @@ const success = await addPost(cleanContent, imageUrl, cleanTopic, username);
             >
               <Close width={20} height={20} />
             </button>
-            <img
+            <Image
               src={imagePreview}
               alt="Preview"
+              width={200}
+              height={100}
               style={{ maxWidth: '100%', maxHeight: 100, borderRadius: 12 }}
             />
           </div>

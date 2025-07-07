@@ -3,6 +3,7 @@ import styles from './EditProfileModal.module.css';
 import supadata from '../lib/supabaseclient';
 import { useSession } from 'next-auth/react';
 import { Profile } from '@/app/components/svgs'; // Assuming Profile is in your svgs barrel file
+import Image from 'next/image';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -108,9 +109,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose }) 
 
       alert('Profile updated successfully! Please log in again if you changed your credentials.');
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating profile:', error);
-      alert(`Failed to update profile: ${error.message}`);
+      alert(`Failed to update profile: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -120,9 +121,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose }) 
         <div className={styles.header}>
           <span className={styles.profileIcon} onClick={handleImageClick} style={{ cursor: 'pointer', position: 'relative' }}>
             {imagePreview ? (
-              <img src={imagePreview} alt="Profile Preview" className={styles.profileImg} />
+              <Image src={imagePreview} alt="Profile Preview" className={styles.profileImg} width={80} height={80} />
             ) : currentImageUrl ? (
-              <img src={currentImageUrl} alt="Profile" className={styles.profileImg} />
+              <Image src={currentImageUrl} alt="Profile" className={styles.profileImg} width={80} height={80} />
             ) : (
               <Profile />
             )}
