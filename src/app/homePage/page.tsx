@@ -98,11 +98,7 @@
     const archivedPage = () => {
       router.push('/archivedPage');
     };
-    const Popularpage = () => {
-
-      router.push('PopularPage');
-
-    }
+  
     const [verseOfTheDay, setVerseOfTheDay] = useState({ text: '', reference: '' });
 
 
