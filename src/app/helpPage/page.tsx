@@ -148,60 +148,33 @@ export default function HelpPage() {
             {/* Main Content Section */}
             <main className={styles.main}>
                 <div className={styles.mainContainer}>
-                    {/* Sidebar for desktop, or for mobile if openSide is true */}
-                    {(!isMobile || openSide) && (
-                        <div
-                            className={styles.mainLeft}
-                            style={isMobile ? { position: 'fixed', top: 0, left: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '2px 0 8px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 0 } : {}}
-                        >
-                            {/* Close button for mobile sidebar */}
-                            {isMobile && (
-                                <button
-                                    onClick={handleCloseOverlay}
-                                    aria-label="Close Menu"
-                                    style={{
-                                        position: 'absolute',
-                                        top: 18,
-                                        left: 18,
-                                        zIndex: 1100,
-                                        background: 'none',
-                                        border: 'none',
-                                        fontSize: '2rem',
-                                        color: '#FFE8A3',
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    &#10005;
-                                </button>
-                            )}
-                            {/* Top nav items */}
-                            <div style={{ marginTop: isMobile ? '3.5rem' : 0 }}>
-                                <button className={styles.navItem} onClick={homePage} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
-                                    <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Home /></div>
-                                    <span className={styles.navText}>Home</span>
-                                </button>
-                                <div className={styles.navItem} style={{ color: '#FFE8A3' }}>
-                                    <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Fire /></div>
-                                    <span className={styles.navText}>Popular</span>
-                                </div>
-                                <button className={styles.navItem} onClick={biblePage} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
-                                    <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Bible /></div>
-                                    <span className={styles.navText}>Bible</span>
-                                </button>
+                    {/* Left Navigation Panel */}
+                    <div className={styles.mainLeft}>
+                        <div className={styles.mainLeftUp}>
+                            <button className={styles.navItem} onClick={homePage}>
+                                <div className={styles.navIcon}><Home /></div>
+                                <span className={styles.navText}>Home</span>
+                            </button>
+                            <div className={styles.navItem} onClick={() => router.push('/PopularPage')}>
+                                <div className={styles.navIcon}><Fire /></div>
+                                <span className={styles.navText}>Popular</span>
                             </div>
-                            {/* Bottom nav items */}
-                            <div style={{ marginBottom: isMobile ? '2.5rem' : 0 }}>
-                                <div className={styles.navItem} style={{ color: '#FFE8A3' }}>
-                                    <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><About /></div>
-                                    <span className={styles.navText}>About</span>
-                                </div>
-                                <div className={styles.navItem} style={{ color: '#FFE8A3' }}>
-                                    <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Help /></div>
-                                    <span className={styles.navText}>Help</span>
-                                </div>
+                            <button className={styles.navItem} onClick={biblePage}>
+                                <div className={styles.navIcon}><Bible /></div>
+                                <span className={styles.navText}>Bible</span>
+                            </button>
+                        </div>
+                        <div className={styles.mainLeftBottom}>
+                            <button className={styles.navItem} onClick={() => router.push('/aboutPage')}>
+                                <div className={styles.navIcon}><About /></div>
+                                <span className={styles.navText}>About</span>
+                            </button>
+                            <div className={styles.navItem}>
+                                <div className={styles.navIcon}><Help /></div>
+                                <span className={styles.navText}>Help</span>
                             </div>
                         </div>
-                    )}
+                    </div>
                     {/* Overlay for mobile popout */}
                     {isMobile && openSide && (
                         <div onClick={handleCloseOverlay} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 999 }} />

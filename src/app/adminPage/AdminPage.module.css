@@ -114,8 +114,15 @@
   align-items: center;
 }
 
-.headerIcon:hover {
-  opacity: 0.8;
+/* Prevent opacity change on hover for Bell and Profile icons */
+.headerIcon:hover svg {
+  opacity: 1 !important;
+}
+
+/* Explicitly set SVG size for Bell and Profile icons */
+.headerIcon svg {
+  width: 32px !important;
+  height: 32px !important;
 }
 
 .profileContainer {
@@ -249,6 +256,14 @@
 .navText {
   font-weight: 500;
   letter-spacing: 0.02em;
+}
+
+/* Statistics button specific styling */
+.statisticsButton {
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
 }
 
 .mainLeftBottom {

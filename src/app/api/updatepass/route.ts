@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await supadata
     .from('Users_Accounts')
-    .update({ password: newPassword }) 
+    .update({ password: newPassword }) // Plaintext for testing only
     .eq('userId', userId);
 
   if (error) {

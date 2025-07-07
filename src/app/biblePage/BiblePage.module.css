@@ -177,6 +177,113 @@
   font-size: 1.1rem;
 }
 
+/* Notification specific styles */
+.notificationDropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 280px;
+  background-color: #1E2B48;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.2s ease-out;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notificationDropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notificationDropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notificationDropdown::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.notificationItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+}
+
+.notificationItem:last-child {
+  border-bottom: none;
+}
+
+.notificationItem:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.notificationItem span {
+  color: #f5f0e9;
+}
+
+.notificationItem span:first-child {
+  margin-right: 12px;
+  font-size: 1.1rem;
+  min-width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notificationItem span:last-child {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Notification badge */
+.notificationBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border: 2px solid #0a1128;
+}
+
+.notificationContainer {
+  position: relative;
+  display: inline-block;
+}
+
+/* Notification item hover effects */
+.notificationDropdown .notification-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.notificationDropdown .notification-item.unread {
+  background-color: rgba(255, 232, 163, 0.05);
+}
+
+.notificationDropdown .notification-item.read {
+  background-color: transparent;
+}
+
+/* Bible reading reminder special styling */
+.notificationDropdown .notification-item .bible-reminder {
+  color: #ffe8a3 !important;
+}
+
 /* Main content styles */
 .main {
   display: flex;
@@ -255,12 +362,14 @@
   font-weight: 500;
   letter-spacing: 0.02em;
 }
+
 .headingLarge {
   font-size: 3rem;
   font-weight: 600;
   color: #f5f0e9;
   margin-bottom: 1.5rem;
 }
+
 .mainLeftBottom {
   width: 100%;
   height: 60%;
@@ -373,7 +482,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.navBibleOpSavedChapter{
+.navBibleOpSavedChapter {
   background-color: #1E2B48;
   color: #fff;
   padding: 0.6rem 1.5rem;
@@ -387,6 +496,7 @@
   display: flex;
   align-items: center;
 }
+
 .active {
   background-color: #4f658c;
   border-color: #6c86bd;
@@ -831,7 +941,7 @@
   max-height: 80vh;
   overflow-y: auto;
   padding: 10px;
-  box-shadow: 0 8px 32px rgba(30,40,80,0.45), 0 1.5px 6px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 32px rgba(30, 40, 80, 0.45), 0 1.5px 6px rgba(0, 0, 0, 0.12);
   color: #f5f0e9;
   margin-right: 4px;
   border-radius: 12px;
@@ -851,7 +961,8 @@
   color: #f5f0e9;
 }
 
-.chapterItem:hover, .selectedChapter {
+.chapterItem:hover,
+.selectedChapter {
   background: #2d3a5a;
   font-weight: bold;
   color: #fff;
@@ -907,7 +1018,8 @@
   align-items: center;
   cursor: pointer;
   /* Match .faqQuestionRow */
-  justify-content: space-between; /* Ensure X stays right */
+  justify-content: space-between;
+  /* Ensure X stays right */
 }
 
 .deleteButton {

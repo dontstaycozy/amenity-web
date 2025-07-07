@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import supadata from '../lib/supabaseclient';
 import {
   Archive,
@@ -20,19 +20,25 @@ import {
   Create,
   LOGO,
   Delete,
-  UnArchive
+  UnArchive,
+  Like,
+  Dislike,
+  Comments,
+  Arrow,
+  Fire as FireIcon,
+  SaveChapIcon
 } from '@/app/components/svgs'; // Adjust the import path as necessary
-import { signOut } from 'next-auth/react';
-import CreatePostModal from './CreatePostModal';
 import { useRouter } from 'next/navigation';
+import CreatePostModal from './CreatePostModal';
+import EditProfileModal from './EditProfileModal';
 import CommentSection from './CommentSection';
 import PostInteractions from './PostInteractions';
+import { useNotifications } from '../hooks/useNotifications';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
-
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -43,17 +49,42 @@ function formatDate(dateString: string) {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
 }
+
 export default function HomePage() {
   const router = useRouter();
+  const { data: session } = useSession();
+
+  // Notification hook
+  const {
+    notifications,
+    unreadCount,
+    bibleTimeLeft,
+    markAsRead,
+    markAllAsRead
+  } = useNotifications();
+
+
+
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  // State for notification dropdown
+  const [showNotificationMenu, setShowNotificationMenu] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
 
-  // Reference to the dropdown container
+  // Reference to the dropdown containers
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const notificationDropdownRef = useRef<HTMLDivElement>(null);
 
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
+    setShowNotificationMenu(false); // Close notification menu when opening profile
+  };
+
+  // Toggle notification dropdown
+  const toggleNotificationMenu = () => {
+    setShowNotificationMenu(!showNotificationMenu);
+    setShowProfileMenu(false); // Close profile menu when opening notifications
   };
 
   const biblePage = () => {
@@ -67,7 +98,9 @@ export default function HomePage() {
   const archivedPage = () => {
     router.push('/archivedPage');
   };
+
   const [verseOfTheDay, setVerseOfTheDay] = useState({ text: '', reference: '' });
+
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10); // e.g., '2024-06-07'
@@ -113,6 +146,9 @@ export default function HomePage() {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
       }
+      if (notificationDropdownRef.current && !notificationDropdownRef.current.contains(event.target as Node)) {
+        setShowNotificationMenu(false);
+      }
     }
 
     // Add event listener
@@ -122,10 +158,9 @@ export default function HomePage() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [profileDropdownRef]);
+  }, [profileDropdownRef, notificationDropdownRef]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { data: session } = useSession();
   const [posts, setPosts] = useState<Array<{
     id: number;
     topic: string;
@@ -221,7 +256,9 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    checkstreaks();
+    if (timeLeft && session?.user?.id) {
+      checkstreaks();
+    }
   }, [session?.user?.id]);
 
 
@@ -292,7 +329,7 @@ export default function HomePage() {
   const checkstreaks = async () => {
     if (!session?.user?.id) return;
 
-    const today = dayjs().format('YYYY-MM-DD'); // Local date
+    const today = dayjs().format('YYYY-MM-DD');
 
     const { data: streak, error } = await supadata
       .from('streaks_input')
@@ -302,11 +339,34 @@ export default function HomePage() {
 
     if (error || !streak) {
       setStreakDone(false);
-      return;
+    } else {
+      const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
+      setStreakDone(lastActiveDate === today);
     }
 
-    const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD'); // No need for tz()
-    setStreakDone(lastActiveDate === today);
+    if (!streak || streak.date !== today) {
+      // Check if notification already exists for today
+      const { data: existingNotif, error: notifError } = await supadata
+        .from('notifications')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('type', 'bible_reminder')
+        .gte('created_at', dayjs().startOf('day').toISOString());
+
+      if (!notifError && (!existingNotif || existingNotif.length === 0)) {
+        // Insert new notification
+        const message = `📖 You have ${timeLeft || 'a few hours'} left to complete your daily Bible reading.`;
+        await supadata
+          .from('notifications')
+          .insert([{
+            user_id: session.user.id,
+            message: message,
+            type: 'bible_reminder',
+            is_read: false,
+            created_at: new Date().toISOString(),
+          }]);
+      }
+    }
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -369,8 +429,96 @@ export default function HomePage() {
           </div>
 
           <div className={styles.headerRight}>
-            {/* Notification Icon */}
-            <span className={styles.headerIcon}><Bell /> </span>
+            {/* Notification Icon with Dropdown */}
+            <div className={styles.notificationContainer} ref={notificationDropdownRef}>
+              <span
+                className={styles.headerIcon}
+                onClick={toggleNotificationMenu}
+              >
+                <Bell />
+                {unreadCount > 0 && (
+                  <div className={styles.notificationBadge}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </div>
+                )}
+              </span>
+
+              {/* Notification Dropdown Menu */}
+              {showNotificationMenu && (
+                <div className={styles.notificationDropdown}>
+                  {/* Header */}
+                  <div style={{
+                    padding: '1rem 1.25rem',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <h3 style={{
+                      color: '#f5f0e9',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      margin: 0
+                    }}>
+                      Notifications
+                    </h3>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAllAsRead();
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ffe8a3',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Notifications List */}
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    {notifications.length === 0 ? (
+                      <div style={{
+                        padding: '2rem 1.25rem',
+                        textAlign: 'center',
+                        color: '#8b9cb3'
+                      }}>
+                        No notifications
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          style={{
+                            padding: '1rem',
+                            borderBottom: '1px solid rgba(255,255,255,0.1)',
+                            backgroundColor: notification.is_read ? '#1d2a44' : '#223456',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => markAsRead(notification.id)}
+                        >
+                          <p style={{ margin: 0, color: '#ffe8a3' }}>{notification.message}</p>
+                          <span style={{ fontSize: '0.75rem', color: '#aaa' }}>
+                            {dayjs(notification.created_at).tz('Asia/Manila').format('MMM D, YYYY h:mm A')}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Bible Time Left Footer */}
+
+
+                </div>
+              )}
+            </div>
 
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>
@@ -384,7 +532,7 @@ export default function HomePage() {
               {/* Profile Dropdown Menu */}
               {showProfileMenu && (
                 <div className={styles.profileDropdown}>
-                  <div className={styles.dropdownItem}>
+                  <div className={styles.dropdownItem} onClick={() => { setShowEditProfileModal(true); setShowProfileMenu(false); }}>
                     <span><Profile /></span>
                     <span>View Profile</span>
                   </div>
@@ -420,10 +568,10 @@ export default function HomePage() {
                   <span className={styles.navText}>Home</span>
                 </div>
 
-                <div className={styles.navItem}>
+                <button className={styles.navItem} onClick={() => router.push('/PopularPage')}>
                   <div className={styles.navIcon}><Fire /></div>
                   <span className={styles.navText}>Popular</span>
-                </div>
+                </button>
 
                 <button className={styles.navItem} onClick={biblePage}>
                   <div className={styles.navIcon}><Bible /></div>
@@ -531,6 +679,7 @@ export default function HomePage() {
                             cursor: 'pointer',
                             color: archivedPostIds.has(post.id) ? '#ffe8a3' : '#aaa',
                             fontSize: '1.5rem',
+                            margin: 4,
                             zIndex: 1
                           }}
                           title={archivedPostIds.has(post.id) ? 'Unarchive post' : 'Archive post'}
@@ -680,6 +829,13 @@ export default function HomePage() {
           )}
         </div>
       </main>
+      <EditProfileModal isOpen={showEditProfileModal} onClose={() => setShowEditProfileModal(false)} />
+      {/* Modal for creating a post */}
+      <CreatePostModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        username={session?.user?.name || ""}
+      />
     </div>
   );
 }

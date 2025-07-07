@@ -191,10 +191,10 @@ export default function AboutPage() {
                   <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Home /></div>
                 <span className={styles.navText}>Home</span>
               </div>
-                <div className={styles.navItem} style={{ color: '#FFE8A3' }}>
-                  <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Fire /></div>
-                <span className={styles.navText}>Popular</span>
-              </div>
+                <div className={styles.navItem} onClick={() => router.push('/PopularPage')}>
+                  <div className={styles.navIcon}><Fire /></div>
+                  <span className={styles.navText}>Popular</span>
+                </div>
                 <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }} onClick={biblePage}>
                   <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Bible /></div>
                 <span className={styles.navText}>Bible</span>

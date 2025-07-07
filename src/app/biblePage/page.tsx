@@ -16,12 +16,16 @@ import {
   SaveChapIcon,
   Bookmark,
   LOGO,
-  Plus
+  Plus,
+  Like,
+  Delete
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import BibleDisplay from '../bibleAPI/BibleDisplay';
+import NotificationItem from '../components/NotificationItem';
+import { useNotifications } from '../hooks/useNotifications';
 import supadata from '../lib/supabaseclient';
 import { UUID } from 'crypto';
 import dayjs from 'dayjs';
@@ -128,7 +132,6 @@ const CalendarIcon = () => (
     <path d="M12 13H17V18H12V13Z" fill="#f5f0e9" />
   </svg>
 );
-
 
 
 // Helper: Deterministic random number generator (seeded)
@@ -238,14 +241,27 @@ async function addbookmark(book: string, Chapter: number, userid: string): Promi
 export default function HomePage() {
   const { data: session } = useSession();
   const router = useRouter();
+  
+  // Notification hook
+  const { 
+    notifications, 
+    unreadCount, 
+    bibleTimeLeft, 
+    markAsRead, 
+    markAllAsRead 
+  } = useNotifications();
+  
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  // State for notification dropdown
+  const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const [hoveredBook, setHoveredBook] = useState<string | null>(null);
   const [selectedBook, setSelectedBook] = useState("Genesis");
   const [selectedChapter, setSelectedChapter] = useState<number>(1);
 
-  // Reference to the dropdown container
+  // Reference to the dropdown containers
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const notificationDropdownRef = useRef<HTMLDivElement>(null);
 
   const [activeView, setActiveView] = useState<'bible' | 'daily' | 'book' | 'saveChapter'>(() => {
     if (typeof window !== 'undefined') {
@@ -270,6 +286,13 @@ export default function HomePage() {
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
+    setShowNotificationMenu(false); // Close notification menu when opening profile
+  };
+
+  // Toggle notification dropdown
+  const toggleNotificationMenu = () => {
+    setShowNotificationMenu(!showNotificationMenu);
+    setShowProfileMenu(false); // Close profile menu when opening notifications
   };
 
   const handleBibleClick = () => {
@@ -307,11 +330,22 @@ export default function HomePage() {
     router.push('/helpPage');
   };
 
+  
+
+const Popularpage = () => {
+
+    router.push('PopularPage');
+
+  }
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
+      }
+      if (notificationDropdownRef.current && !notificationDropdownRef.current.contains(event.target as Node)) {
+        setShowNotificationMenu(false);
       }
     }
 
@@ -322,7 +356,7 @@ export default function HomePage() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [profileDropdownRef]);
+  }, [profileDropdownRef, notificationDropdownRef]);
   const handleBookmark = async (book: string, chapter: number, username: string) => {
     const success = await addbookmark(book, chapter, username)
     if (success) {
@@ -385,67 +419,67 @@ export default function HomePage() {
     }
   };
 
- const handleStreaks = async (userId: string) => {
-  const today = dayjs().format('YYYY-MM-DD'); // Local date string
+  const handleStreaks = async (userId: string) => {
+    const today = dayjs().format('YYYY-MM-DD'); // Local date string
 
-  // 1. Fetch the user's streak
-  const { data: streak, error } = await supadata
-    .from('streaks_input')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
+    // 1. Fetch the user's streak
+    const { data: streak, error } = await supadata
+      .from('streaks_input')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
 
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching streak:', error.message);
-    return;
-  }
-
-  if (!streak) {
-    // 2. No streak yet — insert new
-    const { error: insertError } = await supadata.from('streaks_input').insert({
-      user_id: userId,
-      streaknum: 1,
-      date: today,
-    });
-
-    if (insertError) {
-      console.error('Error inserting streak:', insertError.message);
-    } else {
-      console.log('New streak started for user:', userId);
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching streak:', error.message);
+      return;
     }
 
-    return;
-  }
+    if (!streak) {
+      // 2. No streak yet — insert new
+      const { error: insertError } = await supadata.from('streaks_input').insert({
+        user_id: userId,
+        streaknum: 1,
+        date: today,
+      });
 
-  const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
+      if (insertError) {
+        console.error('Error inserting streak:', insertError.message);
+      } else {
+        console.log('New streak started for user:', userId);
+      }
 
-  // 3. If already updated today, do nothing
-  if (lastActiveDate === today) {
-    console.log('Streak already updated today.');
-    return;
-  }
+      return;
+    }
 
-  // 4. Determine if streak should continue or reset
-  const isYesterday =
-    dayjs(streak.date).add(1, 'day').format('YYYY-MM-DD') === today;
+    const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
 
-  const newCount = isYesterday ? streak.streaknum + 1 : 1;
+    // 3. If already updated today, do nothing
+    if (lastActiveDate === today) {
+      console.log('Streak already updated today.');
+      return;
+    }
 
-  // 5. Update streak
-  const { error: updateError } = await supadata
-    .from('streaks_input')
-    .update({
-      streaknum: newCount,
-      date: today,
-    })
-    .eq('user_id', userId);
+    // 4. Determine if streak should continue or reset
+    const isYesterday =
+      dayjs(streak.date).add(1, 'day').format('YYYY-MM-DD') === today;
 
-  if (updateError) {
-    console.error('Error updating streak:', updateError.message);
-  } else {
-    console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
-  }
-};
+    const newCount = isYesterday ? streak.streaknum + 1 : 1;
+
+    // 5. Update streak
+    const { error: updateError } = await supadata
+      .from('streaks_input')
+      .update({
+        streaknum: newCount,
+        date: today,
+      })
+      .eq('user_id', userId);
+
+    if (updateError) {
+      console.error('Error updating streak:', updateError.message);
+    } else {
+      console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
+    }
+  };
 
 const [isMobile, setIsMobile] = useState(false);
 const [openSide, setOpenSide] = useState<'left' | 'right' | null>(null);
@@ -521,8 +555,82 @@ useEffect(() => {
           </div>
 
           <div className={styles.headerRight}>
-            {/* Notification Icon */}
-            <span className={styles.headerIcon}><Bell /> </span>
+            {/* Notification Icon with Dropdown */}
+            <div className={styles.notificationContainer} ref={notificationDropdownRef}>
+              <span
+                className={styles.headerIcon}
+                onClick={toggleNotificationMenu}
+              >
+                <Bell />
+                {unreadCount > 0 && (
+                  <div className={styles.notificationBadge}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </div>
+                )}
+              </span>
+
+              {/* Notification Dropdown Menu */}
+              {showNotificationMenu && (
+                <div className={styles.notificationDropdown}>
+                  {/* Header */}
+                  <div style={{
+                    padding: '1rem 1.25rem',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <h3 style={{ 
+                      color: '#f5f0e9', 
+                      fontSize: '1rem', 
+                      fontWeight: '600',
+                      margin: 0
+                    }}>
+                      Notifications
+                    </h3>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAllAsRead();
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ffe8a3',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Notifications List */}
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    {notifications.length === 0 ? (
+                      <div style={{
+                        padding: '2rem 1.25rem',
+                        textAlign: 'center',
+                        color: '#8b9cb3'
+                      }}>
+                        No notifications
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <NotificationItem
+                          key={notification.id}
+                          notification={notification}
+                          onMarkAsRead={markAsRead}
+                        />
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>
@@ -541,7 +649,7 @@ useEffect(() => {
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}
-                  onClick={handleLogOut}>
+                    onClick={handleLogOut}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>
@@ -604,7 +712,7 @@ useEffect(() => {
                   <div className={styles.navIcon}><Home /></div>
                   <span className={styles.navText}>Home</span>
                 </button>
-                <button className={styles.navItem}>
+                <button className={styles.navItem} onClick={Popularpage}>
                   <div className={styles.navIcon}><Fire /></div>
                   <span className={styles.navText}>Popular</span>
                 </button>
@@ -632,7 +740,7 @@ useEffect(() => {
                 <div className={styles.navIcon}><Home /></div>
                 <span className={styles.navText}>Home</span>
               </button>
-              <div className={styles.navItem}>
+              <div className={styles.navItem} onClick={Popularpage}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
@@ -642,10 +750,10 @@ useEffect(() => {
               </div>
             </div>
             <div className={styles.mainLeftBottom}>
-              <div className={styles.navItem}>
+              <button className={styles.navItem} onClick={() => router.push('/aboutPage')}>
                 <div className={styles.navIcon}><About /></div>
                 <span className={styles.navText}>About</span>
-              </div>
+              </button>
               <button className={styles.navItem} onClick={goToHelp}>
                 <div className={styles.navIcon}><Help /></div>
                 <span className={styles.navText}>Help</span>
@@ -721,7 +829,7 @@ useEffect(() => {
                 </div>
                 {activeView !== 'daily' && activeView !== 'saveChapter' && (
                   <button className={styles.bookmarkbutton} onClick={() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)}>
-                    <div className={styles.navIcon}><Bookmark/></div>
+                    <div className={styles.navIcon}><Bookmark /></div>
                   </button>
                 )}
               </div>
@@ -743,13 +851,11 @@ useEffect(() => {
                   {dailyChapters.map(({ book, chapter }) => (
                     <DailyChapter key={book + chapter} book={book} chapter={chapter} />
                   ))}
-                  <button className={styles.finishReadingBtn} onClick={() => 
-
-                    {
-                       if (session?.user?.id) {
+                  <button className={styles.finishReadingBtn} onClick={() => {
+                    if (session?.user?.id) {
                       handleStreaks(session.user.id);
-                           }
                     }
+                  }
                   }>
                     Finish Reading
                   </button>
