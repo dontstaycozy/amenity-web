@@ -757,30 +757,29 @@ export default function HomePage() {
             />
           </div>
 
-{/* Right Section (Streak Plant) */}
-{(!isMobile || openSide === 'right') && (
-  <div
-    className={styles.mainRight + (isMobile && openSide === 'right' ? ' ' + styles.mobileSidebar : '')}
-    style={isMobile ? { position: 'fixed', top: 0, right: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '-2px 0 8px rgba(0,0,0,0.2)' } : {}}
-  >
-    <div className={styles.rightContainer}>
-      <h3 className="headingMedium">Streak Plant!</h3>
-      {/* Glass Bell Component */}
-      <div className={styles.glassBellContainer}>
-        <div className={styles.bellBase}></div>
-        <div className={styles.bellShadow}></div>
-        <div className={styles.streakPlantInBell}>
-          <StreakPlant stage={Stage} />
-        </div>
-        <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
-          <div className={styles.bellTop}></div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
+          {/* Right Section (Streak Plant) */}
+          {(!isMobile || openSide === 'right') && (
+            <div
+              className={styles.mainRight + (isMobile && openSide === 'right' ? ' ' + styles.mobileSidebar : '')}
+              style={isMobile ? { position: 'fixed', top: 0, right: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '-2px 0 8px rgba(0,0,0,0.2)' } : {}}
+            >
+              <div className={styles.rightContainer}>
+                <h3 className="headingMedium">Streak Plant!</h3>
+                {/* Glass Bell Component */}
+                <div className={styles.glassBellContainer}>
+                  <div className={styles.bellBase}></div>
+                  <div className={styles.bellShadow}></div>
+                  <div className={styles.streakPlantInBell}>
+                    <StreakPlant stage={Stage} />
+                  </div>
+                  <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+                    <div className={styles.bellTop}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
+          
           {/* Floating Streak Button for mobile */}
           {isMobile && (
             <>

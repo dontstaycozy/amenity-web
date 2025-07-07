@@ -118,7 +118,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
       setImagePreview(URL.createObjectURL(file));
     }
   };
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
