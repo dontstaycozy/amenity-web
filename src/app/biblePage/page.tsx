@@ -16,18 +16,24 @@ import {
   SaveChapIcon,
   Bookmark,
   LOGO,
-  Plus
+  Plus,
+  Like,
+  Delete
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import BibleDisplay from '../bibleAPI/BibleDisplay';
+import NotificationItem from '../components/NotificationItem';
+import { useNotifications } from '../hooks/useNotifications';
 import supadata from '../lib/supabaseclient';
 import { UUID } from 'crypto';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
+import StreakPlant from '../components/StreakPlant';
+import { getUserStreakAndHP, finishReading } from '../lib/streakService';
 
 
 
@@ -237,14 +243,27 @@ async function addbookmark(book: string, Chapter: number, userid: string): Promi
 export default function HomePage() {
   const { data: session } = useSession();
   const router = useRouter();
+  
+  // Notification hook
+  const { 
+    notifications, 
+    unreadCount, 
+    bibleTimeLeft, 
+    markAsRead, 
+    markAllAsRead 
+  } = useNotifications();
+  
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  // State for notification dropdown
+  const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const [hoveredBook, setHoveredBook] = useState<string | null>(null);
   const [selectedBook, setSelectedBook] = useState("Genesis");
   const [selectedChapter, setSelectedChapter] = useState<number>(1);
 
-  // Reference to the dropdown container
+  // Reference to the dropdown containers
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const notificationDropdownRef = useRef<HTMLDivElement>(null);
 
   const [activeView, setActiveView] = useState<'bible' | 'daily' | 'book' | 'saveChapter'>(() => {
     if (typeof window !== 'undefined') {
@@ -266,9 +285,26 @@ export default function HomePage() {
   const [expandedChapters, setExpandedChapters] = useState<{ [id: number]: { loading: boolean, verses: any[] } }>({});
   const [searchSavedChapters, setSearchSavedChapters] = useState('');
 
+  // --- Streak Plant State ---
+  const [Stage, setStage] = useState<1 | 2 | 3 | 4>(1); // Default to stage 0
+
+useEffect(() => {
+  if (!session?.user?.id) return;
+  getUserStreakAndHP(session.user.id).then(data => {
+    setStage(data?.Stage ?? 1);
+  });
+}, [session]);
+
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
+    setShowNotificationMenu(false); // Close notification menu when opening profile
+  };
+
+  // Toggle notification dropdown
+  const toggleNotificationMenu = () => {
+    setShowNotificationMenu(!showNotificationMenu);
+    setShowProfileMenu(false); // Close profile menu when opening notifications
   };
 
   const handleBibleClick = () => {
@@ -320,6 +356,9 @@ const Popularpage = () => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
       }
+      if (notificationDropdownRef.current && !notificationDropdownRef.current.contains(event.target as Node)) {
+        setShowNotificationMenu(false);
+      }
     }
 
     // Add event listener
@@ -329,7 +368,7 @@ const Popularpage = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [profileDropdownRef]);
+  }, [profileDropdownRef, notificationDropdownRef]);
   const handleBookmark = async (book: string, chapter: number, username: string) => {
     const success = await addbookmark(book, chapter, username)
     if (success) {
@@ -392,71 +431,6 @@ const Popularpage = () => {
     }
   };
 
-  const handleStreaks = async (userId: string) => {
-    const today = dayjs().format('YYYY-MM-DD'); // Local date string
-
-    // 1. Fetch the user's streak
-    const { data: streak, error } = await supadata
-      .from('streaks_input')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching streak:', error.message);
-      return;
-    }
-
-    if (!streak) {
-      // 2. No streak yet — insert new
-      const { error: insertError } = await supadata.from('streaks_input').insert({
-        user_id: userId,
-        streaknum: 1,
-        date: today,
-      });
-
-      if (insertError) {
-        console.error('Error inserting streak:', insertError.message);
-      } else {
-        console.log('New streak started for user:', userId);
-      }
-
-      return;
-    }
-
-    const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
-
-    // 3. If already updated today, do nothing
-    if (lastActiveDate === today) {
-      console.log('Streak already updated today.');
-      return;
-    }
-
-    // 4. Determine if streak should continue or reset
-    const isYesterday =
-      dayjs(streak.date).add(1, 'day').format('YYYY-MM-DD') === today;
-
-    const newCount = isYesterday ? streak.streaknum + 1 : 1;
-
-    // 5. Update streak
-    const { error: updateError } = await supadata
-      .from('streaks_input')
-      .update({
-        streaknum: newCount,
-        date: today,
-      })
-      .eq('user_id', userId);
-
-    if (updateError) {
-      console.error('Error updating streak:', updateError.message);
-    } else {
-      console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
-    }
-  };
-
-
-
-
   return (
     <div className={styles.body}>
       {/* Header Section */}
@@ -482,8 +456,82 @@ const Popularpage = () => {
           </div>
 
           <div className={styles.headerRight}>
-            {/* Notification Icon */}
-            <span className={styles.headerIcon}><Bell /> </span>
+            {/* Notification Icon with Dropdown */}
+            <div className={styles.notificationContainer} ref={notificationDropdownRef}>
+              <span
+                className={styles.headerIcon}
+                onClick={toggleNotificationMenu}
+              >
+                <Bell />
+                {unreadCount > 0 && (
+                  <div className={styles.notificationBadge}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </div>
+                )}
+              </span>
+
+              {/* Notification Dropdown Menu */}
+              {showNotificationMenu && (
+                <div className={styles.notificationDropdown}>
+                  {/* Header */}
+                  <div style={{
+                    padding: '1rem 1.25rem',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <h3 style={{ 
+                      color: '#f5f0e9', 
+                      fontSize: '1rem', 
+                      fontWeight: '600',
+                      margin: 0
+                    }}>
+                      Notifications
+                    </h3>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAllAsRead();
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ffe8a3',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Notifications List */}
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    {notifications.length === 0 ? (
+                      <div style={{
+                        padding: '2rem 1.25rem',
+                        textAlign: 'center',
+                        color: '#8b9cb3'
+                      }}>
+                        No notifications
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <NotificationItem
+                          key={notification.id}
+                          notification={notification}
+                          onMarkAsRead={markAsRead}
+                        />
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>
@@ -626,12 +674,14 @@ const Popularpage = () => {
                   {dailyChapters.map(({ book, chapter }) => (
                     <DailyChapter key={book + chapter} book={book} chapter={chapter} />
                   ))}
-                  <button className={styles.finishReadingBtn} onClick={() => {
+                  <button className={styles.finishReadingBtn} onClick={async () => {
                     if (session?.user?.id) {
-                      handleStreaks(session.user.id);
+                      console.log("cool");
+                      await finishReading(session.user.id);
+                      const data = await getUserStreakAndHP(session.user.id);
+                      setStage(data?.Stage ?? 1);
                     }
-                  }
-                  }>
+                  }}>
                     Finish Reading
                   </button>
                 </>
@@ -716,9 +766,18 @@ const Popularpage = () => {
 
               {/* Glass Bell Component */}
               <div className={styles.glassBellContainer}>
-                <div className={styles.glassBell}></div>
-                <div className={styles.bellShadow}></div>
+                {/* Shadow and Base at the bottom */}
                 <div className={styles.bellBase}></div>
+                
+                <div className={styles.bellShadow}></div>
+                {/* Streak Plant above the base and shadow */}
+                <div className={styles.streakPlantInBell}>
+                  <StreakPlant stage={Stage}/>
+                </div>
+                {/* Glass dome above everything, but visually transparent */}
+                <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+                  <div className={styles.bellTop}></div>
+                </div>
               </div>
             </div>
           </div>

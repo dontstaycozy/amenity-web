@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import supadata from '../lib/supabaseclient';
 import { Arrow, Comments, Delete } from '@/app/components/svgs';
 import styles from './HomePage.module.css';
+import { Filter } from 'bad-words';
 
 interface Comment {
   id: number;
@@ -80,6 +81,20 @@ const CollapsibleText: React.FC<CollapsibleTextProps> = ({ text, maxLength = 150
   );
 };
 
+const badWords = [
+  'bad', 'word', 'example', 'inappropriate', 'profanity', 'curse', 'swear',
+  'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'piss', 'cock', 'dick',
+  'pussy', 'cunt', 'whore', 'slut', 'bastard', 'motherfucker', 'fucker',
+  'fucking', 'shitty', 'asshole', 'dumbass', 'jackass', 'dickhead', 'prick',
+  'twat', 'wanker', 'bollocks', 'bugger', 'bloody', 'chuff', 'stupid',
+  'knob', 'knobhead', 'minge', 'minger', 'minging',
+  'putangina', 'puta', 'gago', 'gaga', 'tanga', 'bobo', 'ulol', 'leche',
+  'lintik', 'bwisit', 'hayop', 'pakyu', 'punyeta', 'tarantado', 'peste',
+  'hindot', 'kantot', 'kantutan', 'salsal', 'jakol', 'bayag', 'puke',
+  'etits', 'pekpek', 'utong', 'susuka', 'iputok', 'burat', 'puchu', 'ampota',
+  'animal', 'buwisit', 'syet', 'syota', 'pakyut'
+];
+
 const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [repliesMap, setRepliesMap] = useState<Record<number, Reply[]>>({});
@@ -87,6 +102,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [commentsOpen, setCommentsOpen] = useState(false);
+
+  const filter = new Filter();
+  filter.addWords(...badWords);
 
   const fetchComments = async () => {
     setLoading(true);
@@ -142,32 +160,60 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
   }, [postId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
+     e.preventDefault();
+  if (!newComment.trim()) return;
 
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    try {
-      const { error } = await supadata.from('post_comments').insert([
+  try {
+    // Filter comment content
+    const cleanComment = filter.clean(newComment);
+    // Step 1: Insert the comment
+    const { error: commentError } = await supadata.from('post_comments').insert([
+      {
+        content: cleanComment,
+        post_id: postId,
+        user_id: currentUserId,
+        created_at: new Date().toISOString(),
+      },
+    ]);
+
+    if (commentError) throw commentError;
+
+    // Step 2: Fetch post owner
+    const { data: postData, error: postError } = await supadata
+      .from('Posts')
+      .select('user_id')
+      .eq('id', postId)
+      .single();
+
+    if (postError) throw postError;
+
+    const postOwnerId = postData?.user_id;
+
+    // Step 3: Insert notification (if commenter is not the post owner)
+    if (postOwnerId && postOwnerId !== currentUserId) {
+      await supadata.from('notifications').insert([
         {
-          content: newComment,
+          type: 'comment',
+          user_id: postOwnerId,
           post_id: postId,
-          user_id: currentUserId,
+          message: 'Someone commented on your post.',
+          is_read: false,
           created_at: new Date().toISOString(),
         },
       ]);
-
-      if (error) throw error;
-
-      setNewComment('');
-      await fetchComments();
-    } catch (err) {
-      console.error('Insert comment failed:', err);
-      setError('Failed to post comment');
-    } finally {
-      setLoading(false);
     }
+
+    setNewComment('');
+    await fetchComments();
+  } catch (err) {
+    console.error('Insert comment failed:', err);
+    setError('Failed to post comment');
+  } finally {
+    setLoading(false);
+  }
   };
 
   return (
@@ -254,33 +300,61 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
   const [repliesOpen, setRepliesOpen] = useState(false);
 
   const handleReplySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyText.trim()) return;
+     e.preventDefault();
+  if (!replyText.trim()) return;
 
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    try {
-      const { error: insertError } = await supadata.from('comment_replies').insert([
+  try {
+    // 1. Insert the reply
+    const { error: insertError } = await supadata.from('comment_replies').insert([
+      {
+        comment_id: comment.id,
+        user_id: currentUserId,
+        content: replyText,
+        created_at: new Date().toISOString(),
+      },
+    ]);
+
+    if (insertError) throw insertError;
+
+    // 2. Fetch comment owner and post ID from post_comments
+    const { data: commentData, error: fetchError } = await supadata
+      .from('post_comments')
+      .select('user_id, post_id')
+      .eq('id', comment.id)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    const commentOwnerId = commentData?.user_id;
+    const postIdForNotification = commentData?.post_id;
+
+    // 3. Insert notification (only if not replying to your own comment)
+    if (commentOwnerId && commentOwnerId !== currentUserId) {
+      await supadata.from('notifications').insert([
         {
-          comment_id: comment.id,
-          user_id: currentUserId,
-          content: replyText,
+          type: 'reply',
+          user_id: commentOwnerId, // notify the original comment owner
+          post_id: postIdForNotification,
+          message: 'Someone replied to your comment.',
+          is_read: false,
           created_at: new Date().toISOString(),
         },
       ]);
-
-      if (insertError) throw insertError;
-
-      setReplyText('');
-      setShowReplyInput(false);
-      onReplyAdded();
-    } catch (err) {
-      console.error('Reply insert failed:', err);
-      setError('Failed to post reply');
-    } finally {
-      setLoading(false);
     }
+
+    // 4. Reset input and refresh
+    setReplyText('');
+    setShowReplyInput(false);
+    onReplyAdded();
+  } catch (err) {
+    console.error('Reply insert failed:', err);
+    setError('Failed to post reply');
+  } finally {
+    setLoading(false);
+  }
   };
 
   const handleDeleteComment = async () => {

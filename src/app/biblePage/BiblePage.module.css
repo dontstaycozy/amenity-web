@@ -176,6 +176,113 @@
   font-size: 1.1rem;
 }
 
+/* Notification specific styles */
+.notificationDropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 280px;
+  background-color: #1E2B48;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.2s ease-out;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notificationDropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notificationDropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notificationDropdown::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.notificationItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+}
+
+.notificationItem:last-child {
+  border-bottom: none;
+}
+
+.notificationItem:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.notificationItem span {
+  color: #f5f0e9;
+}
+
+.notificationItem span:first-child {
+  margin-right: 12px;
+  font-size: 1.1rem;
+  min-width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notificationItem span:last-child {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Notification badge */
+.notificationBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border: 2px solid #0a1128;
+}
+
+.notificationContainer {
+  position: relative;
+  display: inline-block;
+}
+
+/* Notification item hover effects */
+.notificationDropdown .notification-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.notificationDropdown .notification-item.unread {
+  background-color: rgba(255, 232, 163, 0.05);
+}
+
+.notificationDropdown .notification-item.read {
+  background-color: transparent;
+}
+
+/* Bible reading reminder special styling */
+.notificationDropdown .notification-item .bible-reminder {
+  color: #ffe8a3 !important;
+}
+
 /* Main content styles */
 .main {
   width: 100%;
@@ -600,20 +707,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-nd;
   height: 25rem;
   width: 100%;
   margin-top: 1rem;
-  padding-top: 2rem;
 }
 
 .glassBell {
   width: 10rem;
-  height: 20rem;
+  height: 22rem;
   background: rgba(200, 215, 225, 0.45);
   border-radius: 5rem 5rem 2rem 2rem;
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  left: 50%;
+  bottom: 2.5rem;
+  transform: translateX(-50%);
+  z-index: 4;
   box-shadow:
     inset 0 0 20px rgba(255, 255, 255, 0.2),
     0 5px 15px rgba(0, 0, 0, 0.1);
@@ -636,14 +745,14 @@
 
 .bellShadow {
   position: absolute;
-  bottom: 3.5rem;
+  bottom: 3.7rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 8rem;
+  width: 6rem;
   height: 1.5rem;
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 50%;
-  z-index: 1;
+  z-index: 3;
   filter: blur(5px);
 }
 
@@ -656,8 +765,16 @@
   height: 3.5rem;
   background-color: #3a4d6b;
   border-radius: 50%;
-  z-index: 3;
+  z-index: 3  ;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.streakPlantInBell {
+  position: absolute;
+  bottom: 3.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
 }
 
 .chapterSubmenu {
