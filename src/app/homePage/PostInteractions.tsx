@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import { Like } from '@/app/components/svgs';
 import supadata from '../lib/supabaseclient';
@@ -29,6 +30,27 @@ const PostInteractions: React.FC<PostInteractionsProps> = ({ postId, currentUser
     if (currentUserId) fetchInteractionState();
   }, [postId, currentUserId]);
 
+  const sendLikeNotification = async () => {
+    const { data: postData, error: postError } = await supadata
+      .from('Posts')
+      .select('user_id')
+      .eq('id', postId)
+      .single();
+
+    if (!postError && postData && postData.user_id !== currentUserId) {
+      await supadata.from('notifications').insert([
+        {
+          user_id: postData.user_id,
+          post_id: postId,
+          type: 'like',
+          message: `Someone liked your post.`,
+          is_read: false,
+          created_at: new Date(),
+        },
+      ]);
+    }
+  };
+
   const handleLike = async () => {
     if (!currentUserId) return;
     setLoading(true);
@@ -55,6 +77,7 @@ const PostInteractions: React.FC<PostInteractionsProps> = ({ postId, currentUser
 
         setUserLike(true);
         setLikeCount(prev => prev + 1);
+        await sendLikeNotification();
       }
     } else {
       // No interaction yet, insert like
@@ -63,6 +86,7 @@ const PostInteractions: React.FC<PostInteractionsProps> = ({ postId, currentUser
       ]);
       setUserLike(true);
       setLikeCount(prev => prev + 1);
+      await sendLikeNotification();
     }
 
     setLoading(false);
