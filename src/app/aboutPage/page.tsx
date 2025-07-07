@@ -22,30 +22,30 @@ import { signOut } from 'next-auth/react';
 export default function AboutPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  
+
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  
+
   // Reference to the dropdown container
   const profileDropdownRef = useRef<HTMLDivElement>(null);
-  
+
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
   };
-  
+
   const goToHome = () => {
     router.push('/homePage');
   };
-  
+
   const biblePage = () => {
     router.push('/biblePage');
   };
-  
+
   const goToHelp = () => {
     router.push('/helpPage');
   };
-  
+
   // --- Burger menu state ---
   const [openSide, setOpenSide] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -57,19 +57,7 @@ export default function AboutPage() {
   }, []);
   const handleOpenSide = () => setOpenSide(true);
   const handleCloseOverlay = () => setOpenSide(false);
-  
-  // --- Burger menu state ---
-  const [openSide, setOpenSide] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-  const handleOpenSide = () => setOpenSide(true);
-  const handleCloseOverlay = () => setOpenSide(false);
-  
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -77,16 +65,16 @@ export default function AboutPage() {
         setShowProfileMenu(false);
       }
     }
-    
+
     // Add event listener
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     // Clean up
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [profileDropdownRef]);
-  
+
   // Fade-in and fade-out on scroll logic
   useEffect(() => {
     const elements = document.querySelectorAll('.' + styles.fadeInOnScroll);
@@ -109,7 +97,7 @@ export default function AboutPage() {
       elements.forEach((el) => observer.unobserve(el));
     };
   }, []);
-  
+
   return (
     <div className={styles.body}>
       {/* Header Section - Reused from HomePage */}
@@ -130,11 +118,11 @@ export default function AboutPage() {
             <LOGO style={{ width: 100, height: 100 }} />
             <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
-          
+
           <div className={styles.headerRight}>
             {/* Notification Icon */}
             <span className={styles.headerIcon}><Bell /> </span>
-            
+
             {/* Profile Icon with Dropdown */}
             <div className={styles.profileContainer} ref={profileDropdownRef}>
               <span
@@ -143,7 +131,7 @@ export default function AboutPage() {
               >
                 <Profile />
               </span>
-              
+
               {/* Profile Dropdown Menu */}
               {showProfileMenu && (
                 <div className={styles.profileDropdown}>
@@ -166,7 +154,7 @@ export default function AboutPage() {
           </div>
         </div>
       </header>
-      
+
       {/* Main Content Section */}
       <main className={styles.main}>
         <div className={styles.mainContainer}>
@@ -200,51 +188,51 @@ export default function AboutPage() {
               <div style={{ marginTop: isMobile ? '3.5rem' : 0 }}>
                 <div className={styles.navItem} style={{ color: '#FFE8A3' }} onClick={goToHome}>
                   <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Home /></div>
-                <span className={styles.navText}>Home</span>
-              </div>
+                  <span className={styles.navText}>Home</span>
+                </div>
                 <div className={styles.navItem} onClick={() => router.push('/PopularPage')}>
                   <div className={styles.navIcon}><Fire /></div>
                   <span className={styles.navText}>Popular</span>
                 </div>
                 <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }} onClick={biblePage}>
                   <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Bible /></div>
-                <span className={styles.navText}>Bible</span>
-              </button>
-            </div>
+                  <span className={styles.navText}>Bible</span>
+                </button>
+              </div>
               {/* Bottom nav items */}
               <div style={{ marginBottom: isMobile ? '2.5rem' : 0 }}>
                 <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
                   <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><About /></div>
-                <span className={styles.navText}>About</span>
-              </button>
+                  <span className={styles.navText}>About</span>
+                </button>
                 <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }} onClick={goToHelp}>
                   <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Help /></div>
-                <span className={styles.navText}>Help</span>
-              </button>
+                  <span className={styles.navText}>Help</span>
+                </button>
+              </div>
             </div>
-          </div>
           )}
-          
+
           {/* Overlay for mobile popout */}
           {isMobile && openSide && (
             <div onClick={handleCloseOverlay} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 999 }} />
           )}
-          
+
           {/* Right Box - Main About Content with Splash Background */}
           <div className={styles.rightBox}>
             {/* Gradient overlay for smooth scrolling effect */}
             <div className={styles.scrollGradient}></div>
-            
+
             {/* Content wrapper to keep content above background layers */}
             <div className={styles.contentWrapper}>
               {/* Splash Section */}
               <section className={styles.splashSection}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                  <Image 
-                    src="/images/tree.png" 
-                    alt="Amenity Logo" 
-                    width={400} 
-                    height={0} 
+                  <Image
+                    src="/images/tree.png"
+                    alt="Amenity Logo"
+                    width={400}
+                    height={0}
                     className={styles.logoImage}
                     style={{ height: 'auto' }}
                     priority
@@ -252,7 +240,7 @@ export default function AboutPage() {
                   <h1 className={styles.brandName}>Amenity</h1>
                 </div>
               </section>
-              
+
               {/* About Us Section */}
               <section className={`${styles.contentSection} ${styles.fadeInOnScroll}`}>
                 <div className={styles.sectionLeft}>
@@ -264,24 +252,24 @@ export default function AboutPage() {
                   </p>
                 </div>
                 <div className={styles.sectionRight}>
-                  <Image 
-                    src="/images/AboutUs.jpg" 
-                    alt="Team working together" 
-                    width={350} 
-                    height={250} 
+                  <Image
+                    src="/images/AboutUs.jpg"
+                    alt="Team working together"
+                    width={350}
+                    height={250}
                     className={styles.sectionImage}
                   />
                 </div>
               </section>
-              
+
               {/* Why Amenity Section */}
               <section className={`${styles.contentSection} ${styles.fadeInOnScroll}`}>
                 <div className={styles.sectionRight}>
-                  <Image 
-                    src="/images/WhyAmenity.jpg" 
-                    alt="People in community" 
-                    width={350} 
-                    height={250} 
+                  <Image
+                    src="/images/WhyAmenity.jpg"
+                    alt="People in community"
+                    width={350}
+                    height={250}
                     className={styles.sectionImage}
                   />
                 </div>
@@ -295,27 +283,27 @@ export default function AboutPage() {
                   </p>
                 </div>
               </section>
-              
+
               {/* Our Story Section */}
               <section className={`${styles.contentSection} ${styles.fadeInOnScroll}`}>
                 <div className={styles.sectionLeft}>
                   <h2 className={styles.sectionTitle}>Our Story!</h2>
                   <p className={styles.sectionText}>
-                    Building Amenity was our first big project—and it wasn’t easy. With just a month to finish it, we learned while coding, faced many bugs, and grew through the process.<br/>
+                    Building Amenity was our first big project—and it wasn’t easy. With just a month to finish it, we learned while coding, faced many bugs, and grew through the process.<br />
                     Wilfred Justin Peteros led as project manager and full-stack developer. Louielyn Abella handled UI/UX and frontend, Mary Claire worked full-stack, and Joram Zhient Entice managed the backend and database. Despite the challenges, we’re proud of what we built together.
                   </p>
                 </div>
                 <div className={styles.sectionRight}>
-                  <Image 
-                    src="/images/JZML.jpg" 
-                    alt="Team photo" 
-                    width={350} 
-                    height={250} 
+                  <Image
+                    src="/images/JZML.jpg"
+                    alt="Team photo"
+                    width={350}
+                    height={250}
                     className={styles.sectionImage}
                   />
                 </div>
               </section>
-              
+
               {/* Contact Section */}
               <section className={`${styles.contactSection} ${styles.fadeInOnScroll}`}>
                 <div className={styles.footerRow}>
@@ -334,11 +322,11 @@ export default function AboutPage() {
                   <div className={styles.footerColRight}>
                     <div className={styles.footerRightStack}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <Image 
-                          src="/images/tree.png" 
-                          alt="Amenity Logo" 
-                          width={45} 
-                          height={45} 
+                        <Image
+                          src="/images/tree.png"
+                          alt="Amenity Logo"
+                          width={45}
+                          height={45}
                           className={styles.footerLogoImg}
                         />
                         <span className={styles.footerBrandName}>Amenity</span>
