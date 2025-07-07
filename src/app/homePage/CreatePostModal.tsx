@@ -7,6 +7,33 @@ import supadata from '../lib/supabaseclient';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from './cropImage';
 
+// Simple bad words filter for client-side use
+const badWords = [
+  'bad', 'word', 'example', 'inappropriate', 'profanity', 'curse', 'swear',
+  'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'piss', 'cock', 'dick',
+  'pussy', 'cunt', 'whore', 'slut', 'bastard', 'motherfucker', 'fucker',
+  'fucking', 'shitty', 'asshole', 'dumbass', 'jackass', 'dickhead', 'prick',
+  'twat', 'wanker', 'bollocks', 'bugger', 'bloody', 'bugger', 'chuff',
+  'knob', 'knobhead', 'minge', 'minger', 'minging', 'minger', 'minging',
+  'minge', 'minger', 'minging', 'minge', 'minger', 'minging', 'minge',
+  'minger', 'minging', 'minge', 'minger', 'minging', 'minge', 'minger',
+
+  'putangina', 'puta', 'gago', 'gaga', 'tanga', 'bobo', 'ulol', 'leche',
+  'lintik', 'bwisit', 'hayop', 'pakyu', 'punyeta', 'tarantado', 'peste',
+  'hindot', 'kantot', 'kantutan', 'salsal', 'jakol', 'bayag', 'puke',
+  'etits', 'pekpek', 'utong', 'susuka', 'iputok', 'burat', 'puchu', 'ampota',
+  'animal', 'buwisit', 'syet', 'syota', 'pakyu', 'pakyut', 'pakyu'
+];
+
+const filterBadWords = (text: string): string => {
+  let filteredText = text;
+  badWords.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    filteredText = filteredText.replace(regex, '*'.repeat(word.length));
+  });
+  return filteredText;
+};
+
 interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -84,6 +111,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [filteredContent, setFilteredContent] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -100,43 +129,52 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
       setImagePreview(URL.createObjectURL(file));
     }
   };
-const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (isSubmitting) return; // Prevent double click
-  setIsSubmitting(true);
+    if (isSubmitting) return; // Prevent double click
+    setIsSubmitting(true);
 
-  let imageUrl: string | null = null;
+    let imageUrl: string | null = null;
 
-  try {
-    if (imageFile) {
-      imageUrl = await uploadImage(imageFile);
-      if (!imageUrl) {
-        alert('Image upload failed!');
-        return;
+    try {
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+        if (!imageUrl) {
+          alert('Image upload failed!');
+          return;
+        }
       }
-    }
 
-    const success = await addPost(content, imageUrl, topic, username);
+      const filteredContentText = filterBadWords(content);
+      const filteredTopic = filterBadWords(topic);
 
-    if (success) {
-      alert('Post created!');
-      setContent('');
-      setTopic('');
-      setImageFile(null);
-      setImagePreview(null);
-      onClose();
-    } else {
-      alert('Failed to create post. Try again.');
+      // Check if content was filtered
+      if (filteredContentText !== content || filteredTopic !== topic) {
+        setFilteredContent(true);
+        setTimeout(() => setFilteredContent(false), 3000); // Hide after 3 seconds
+      }
+
+      const success = await addPost(filteredContentText, imageUrl, filteredTopic, username);
+
+      if (success) {
+        alert('Post created!');
+        setContent('');
+        setTopic('');
+        setImageFile(null);
+        setImagePreview(null);
+        onClose();
+      } else {
+        alert('Failed to create post. Try again.');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert('An error occurred while posting.');
+    } finally {
+      setIsSubmitting(false); // Reset after everything
     }
-  } catch (error) {
-    console.error('Submission error:', error);
-    alert('An error occurred while posting.');
-  } finally {
-    setIsSubmitting(false); // Reset after everything
-  }
-};
+  };
 
   // Handler for crop complete
   const onCropComplete = (_: any, croppedAreaPixels: any) => {
@@ -176,6 +214,19 @@ const [isSubmitting, setIsSubmitting] = useState(false);
           value={content}
           onChange={e => setContent(e.target.value)}
         />
+        {filteredContent && (
+          <div style={{
+            backgroundColor: '#ffe8a3',
+            color: '#333',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            marginTop: '8px',
+            fontSize: '14px',
+            border: '1px solid #ffd700'
+          }}>
+            ⚠️ Your content has been filtered for inappropriate language.
+          </div>
+        )}
         {/* Image preview */}
         {imagePreview && (
           <div style={{ margin: '1rem', textAlign: 'center', position: 'relative', display: 'inline-block' }}>
@@ -276,13 +327,13 @@ const [isSubmitting, setIsSubmitting] = useState(false);
           onChange={handleImageChange}
         />
         <div className={styles.footer}>
-       <button
-  className={styles.postBtn}
-  onClick={handleSubmit}
-  disabled={isSubmitting}
->
-  {isSubmitting ? 'Posting...' : 'Post'}
-</button>
+          <button
+            className={styles.postBtn}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Posting...' : 'Post'}
+          </button>
           <button
             className={styles.imageBtn}
             onClick={() => {
