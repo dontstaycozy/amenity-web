@@ -33,8 +33,8 @@ const StreakPlant: React.FC<StreakPlantProps> = ({ stage, className }) => {
       <Image
         src={src}
         alt={`Streak Plant Stage ${stage}`}
-        width={128}
-        height={192}
+        width={300}
+        height={300}
         style={{ objectFit: 'contain', maxWidth: '100%', maxHeight: '100%' }}
         priority
       />

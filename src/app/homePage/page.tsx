@@ -714,13 +714,18 @@ export default function HomePage() {
 
               {/* Glass Bell Component */}
               <div className={styles.glassBellContainer}>
-                <div className={styles.glassBell}>
-                  {/* Streak Plant inside the bell */}
-                  <div className={styles.bellTop}></div>
+                {/* Shadow and Base at the bottom */}
+                <div className={styles.bellBase}></div>
+                
+                <div className={styles.bellShadow}></div>
+                {/* Streak Plant above the base and shadow */}
+                <div className={styles.streakPlantInBell}>
                   <StreakPlant stage={plantStage}/>
                 </div>
-                <div className={styles.bellShadow}></div>
-                <div className={styles.bellBase}></div>
+                {/* Glass dome above everything, but visually transparent */}
+                <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+                  <div className={styles.bellTop}></div>
+                </div>
               </div>
             </div>
           </div>
