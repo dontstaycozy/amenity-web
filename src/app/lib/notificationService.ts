@@ -1,4 +1,4 @@
-// Notification service for handling dynamic notifications
+// src/app/lib/notificationService.ts
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -8,13 +8,13 @@ dayjs.extend(timezone);
 
 export interface Notification {
   id: string;
-  type: 'like' | 'comment' | 'flag' | 'bible_reminder' | 'streak' | 'trending' | 'deleted';
-  title: string;
+  type: string;
+  user_id: string;
+  post_id?: string;
   message: string;
-  icon: string;
-  timestamp: Date;
-  isRead: boolean;
-  actionUrl?: string;
+  is_read: boolean;
+  created_at: string;
+  read_at?: string | null;
 }
 
 export class NotificationService {
@@ -33,62 +33,56 @@ export class NotificationService {
   }
 
   private initializeNotifications() {
-    // Initialize with default notifications
+    const now = dayjs().tz('Asia/Manila').toISOString();
+
     this.notifications = [
       {
         id: '1',
         type: 'like',
-        title: 'New Activity',
+        user_id: 'demo-user',
         message: 'New likes/comments on your posts',
-        icon: 'Like',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-        isRead: false
+        is_read: false,
+        created_at: now
       },
       {
         id: '2',
         type: 'flag',
-        title: 'Admin Action',
+        user_id: 'demo-user',
         message: 'Your post has been flagged by admin',
-        icon: 'Fire',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        isRead: false
+        is_read: false,
+        created_at: now
       },
       {
         id: '3',
         type: 'bible_reminder',
-        title: 'Daily Reading Reminder',
+        user_id: 'demo-user',
         message: this.getBibleReadingReminderMessage(),
-        icon: 'Bible',
-        timestamp: new Date(),
-        isRead: false,
-        actionUrl: '/biblePage?view=daily'
+        is_read: false,
+        created_at: now
       },
       {
         id: '4',
         type: 'streak',
-        title: 'Reading Streak',
+        user_id: 'demo-user',
         message: 'Reading Streak milestones',
-        icon: 'SaveChapIcon',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
-        isRead: false
+        is_read: false,
+        created_at: now
       },
       {
         id: '5',
         type: 'trending',
-        title: 'Trending',
+        user_id: 'demo-user',
         message: 'Popular posts trending',
-        icon: 'Fire',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6), // 6 hours ago
-        isRead: false
+        is_read: false,
+        created_at: now
       },
       {
         id: '6',
         type: 'deleted',
-        title: 'Post Removed',
+        user_id: 'demo-user',
         message: 'Post deleted by admin',
-        icon: 'Delete',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8), // 8 hours ago
-        isRead: false
+        is_read: false,
+        created_at: now
       }
     ];
   }
@@ -97,59 +91,62 @@ export class NotificationService {
     const now = dayjs().tz('Asia/Manila');
     const endOfDay = now.endOf('day');
     const timeLeft = endOfDay.diff(now, 'hour', true);
-    
+
     if (timeLeft <= 0) {
       return 'Daily reading period has ended. Start tomorrow\'s reading!';
     } else if (timeLeft < 1) {
       const minutesLeft = Math.floor(endOfDay.diff(now, 'minute'));
-
-     return `Only ${minutesLeft} minutes left for today's reading!`;
+      return `Only ${minutesLeft} minutes left for today's reading!`;
     } else {
       const hoursLeft = Math.floor(timeLeft);
       const minutesLeft = Math.floor((timeLeft - hoursLeft) * 60);
-      if (minutesLeft > 0) {
-        return `${hoursLeft}h ${minutesLeft}m remaining for today's reading`;
-      } else {
-        return `${hoursLeft} hours remaining for today's reading`;
-      }
+      return minutesLeft > 0
+        ? `${hoursLeft}h ${minutesLeft}m remaining for today's reading`
+        : `${hoursLeft} hours remaining for today's reading`;
     }
   }
 
   public getNotifications(): Notification[] {
-    // Update the Bible reading reminder message
     const bibleReminder = this.notifications.find(n => n.type === 'bible_reminder');
     if (bibleReminder) {
       bibleReminder.message = this.getBibleReadingReminderMessage();
-      bibleReminder.timestamp = new Date();
+      bibleReminder.created_at = new Date().toISOString();
     }
-    
+
     return this.notifications;
   }
 
   public getUnreadCount(): number {
-    return this.notifications.filter(n => !n.isRead).length;
+    return this.notifications.filter(n => !n.is_read).length;
   }
 
   public markAsRead(notificationId: string): void {
     const notification = this.notifications.find(n => n.id === notificationId);
     if (notification) {
-      notification.isRead = true;
+      notification.is_read = true;
+      notification.read_at = new Date().toISOString();
     }
   }
 
   public markAllAsRead(): void {
-    this.notifications.forEach(n => n.isRead = true);
+    const now = new Date().toISOString();
+    this.notifications.forEach(n => {
+      n.is_read = true;
+      n.read_at = now;
+    });
   }
 
-  public addNotification(notification: Omit<Notification, 'id' | 'timestamp'>): void {
+  public addNotification(notification: Omit<Notification, 'id' | 'created_at' | 'read_at' | 'is_read'>): void {
     const newNotification: Notification = {
       ...notification,
       id: Date.now().toString(),
-      timestamp: new Date()
+      is_read: false,
+      created_at: new Date().toISOString(),
+      read_at: null
     };
+
     this.notifications.unshift(newNotification);
-    
-    // Keep only the latest 20 notifications
+
     if (this.notifications.length > 20) {
       this.notifications = this.notifications.slice(0, 20);
     }
@@ -163,16 +160,15 @@ export class NotificationService {
     const now = dayjs().tz('Asia/Manila');
     const endOfDay = now.endOf('day');
     const timeLeft = endOfDay.diff(now, 'hour', true);
-    
+
     if (timeLeft <= 0) {
       return { hours: 0, minutes: 0, isExpired: true };
     }
-    
+
     const hours = Math.floor(timeLeft);
     const minutes = Math.floor((timeLeft - hours) * 60);
-    
     return { hours, minutes, isExpired: false };
   }
 }
 
-export default NotificationService; 
+export default NotificationService;

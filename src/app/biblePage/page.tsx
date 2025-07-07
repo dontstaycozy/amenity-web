@@ -286,16 +286,14 @@ export default function HomePage() {
   const [searchSavedChapters, setSearchSavedChapters] = useState('');
 
   // --- Streak Plant State ---
-  const [hp, setHP] = useState(3); // Default to 3 HP
-  const hpToStage = { 3: 1, 2: 2, 1: 3, 0: 4 };
-  const plantStage = hpToStage[hp];
+  const [Stage, setStage] = useState<1 | 2 | 3 | 4>(1); // Default to stage 0
 
-  useEffect(() => {
-    if (!session?.user?.id) return;
-    getUserStreakAndHP(session.user.id).then(data => {
-      setHP(data?.Health_Points ?? 3);
-    });
-  }, [session]);
+useEffect(() => {
+  if (!session?.user?.id) return;
+  getUserStreakAndHP(session.user.id).then(data => {
+    setStage(data?.Stage ?? 1);
+  });
+}, [session]);
 
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
@@ -678,9 +676,10 @@ const Popularpage = () => {
                   ))}
                   <button className={styles.finishReadingBtn} onClick={async () => {
                     if (session?.user?.id) {
+                      console.log("cool");
                       await finishReading(session.user.id);
                       const data = await getUserStreakAndHP(session.user.id);
-                      setHP(data?.Health_Points ?? 3);
+                      setStage(data?.Stage ?? 1);
                     }
                   }}>
                     Finish Reading
@@ -773,7 +772,7 @@ const Popularpage = () => {
                 <div className={styles.bellShadow}></div>
                 {/* Streak Plant above the base and shadow */}
                 <div className={styles.streakPlantInBell}>
-                  <StreakPlant stage={plantStage}/>
+                  <StreakPlant stage={Stage}/>
                 </div>
                 {/* Glass dome above everything, but visually transparent */}
                 <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
