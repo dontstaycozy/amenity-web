@@ -142,32 +142,58 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
   }, [postId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
+     e.preventDefault();
+  if (!newComment.trim()) return;
 
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    try {
-      const { error } = await supadata.from('post_comments').insert([
+  try {
+    // Step 1: Insert the comment
+    const { error: commentError } = await supadata.from('post_comments').insert([
+      {
+        content: newComment,
+        post_id: postId,
+        user_id: currentUserId,
+        created_at: new Date().toISOString(),
+      },
+    ]);
+
+    if (commentError) throw commentError;
+
+    // Step 2: Fetch post owner
+    const { data: postData, error: postError } = await supadata
+      .from('Posts')
+      .select('user_id')
+      .eq('id', postId)
+      .single();
+
+    if (postError) throw postError;
+
+    const postOwnerId = postData?.user_id;
+
+    // Step 3: Insert notification (if commenter is not the post owner)
+    if (postOwnerId && postOwnerId !== currentUserId) {
+      await supadata.from('notifications').insert([
         {
-          content: newComment,
+          type: 'comment',
+          user_id: postOwnerId,
           post_id: postId,
-          user_id: currentUserId,
+          message: 'Someone commented on your post.',
+          is_read: false,
           created_at: new Date().toISOString(),
         },
       ]);
-
-      if (error) throw error;
-
-      setNewComment('');
-      await fetchComments();
-    } catch (err) {
-      console.error('Insert comment failed:', err);
-      setError('Failed to post comment');
-    } finally {
-      setLoading(false);
     }
+
+    setNewComment('');
+    await fetchComments();
+  } catch (err) {
+    console.error('Insert comment failed:', err);
+    setError('Failed to post comment');
+  } finally {
+    setLoading(false);
+  }
   };
 
   return (
@@ -254,33 +280,61 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, replies, currentUser
   const [repliesOpen, setRepliesOpen] = useState(false);
 
   const handleReplySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyText.trim()) return;
+     e.preventDefault();
+  if (!replyText.trim()) return;
 
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    try {
-      const { error: insertError } = await supadata.from('comment_replies').insert([
+  try {
+    // 1. Insert the reply
+    const { error: insertError } = await supadata.from('comment_replies').insert([
+      {
+        comment_id: comment.id,
+        user_id: currentUserId,
+        content: replyText,
+        created_at: new Date().toISOString(),
+      },
+    ]);
+
+    if (insertError) throw insertError;
+
+    // 2. Fetch comment owner and post ID from post_comments
+    const { data: commentData, error: fetchError } = await supadata
+      .from('post_comments')
+      .select('user_id, post_id')
+      .eq('id', comment.id)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    const commentOwnerId = commentData?.user_id;
+    const postIdForNotification = commentData?.post_id;
+
+    // 3. Insert notification (only if not replying to your own comment)
+    if (commentOwnerId && commentOwnerId !== currentUserId) {
+      await supadata.from('notifications').insert([
         {
-          comment_id: comment.id,
-          user_id: currentUserId,
-          content: replyText,
+          type: 'reply',
+          user_id: commentOwnerId, // notify the original comment owner
+          post_id: postIdForNotification,
+          message: 'Someone replied to your comment.',
+          is_read: false,
           created_at: new Date().toISOString(),
         },
       ]);
-
-      if (insertError) throw insertError;
-
-      setReplyText('');
-      setShowReplyInput(false);
-      onReplyAdded();
-    } catch (err) {
-      console.error('Reply insert failed:', err);
-      setError('Failed to post reply');
-    } finally {
-      setLoading(false);
     }
+
+    // 4. Reset input and refresh
+    setReplyText('');
+    setShowReplyInput(false);
+    onReplyAdded();
+  } catch (err) {
+    console.error('Reply insert failed:', err);
+    setError('Failed to post reply');
+  } finally {
+    setLoading(false);
+  }
   };
 
   const handleDeleteComment = async () => {
