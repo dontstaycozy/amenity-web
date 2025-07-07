@@ -72,8 +72,6 @@ async function addPost(
 }
 
 const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, username }) => {
-  if (!isOpen) return null;
-
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [topic, setTopic] = useState('');
@@ -82,6 +80,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -98,43 +97,43 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
       setImagePreview(URL.createObjectURL(file));
     }
   };
-const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (isSubmitting) return; // Prevent double click
-  setIsSubmitting(true);
+    if (isSubmitting) return; // Prevent double click
+    setIsSubmitting(true);
 
-  let imageUrl: string | null = null;
+    let imageUrl: string | null = null;
 
-  try {
-    if (imageFile) {
-      imageUrl = await uploadImage(imageFile);
-      if (!imageUrl) {
-        alert('Image upload failed!');
-        return;
+    try {
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+        if (!imageUrl) {
+          alert('Image upload failed!');
+          return;
+        }
       }
-    }
 
-    const success = await addPost(content, imageUrl, topic, username);
+      const success = await addPost(content, imageUrl, topic, username);
 
-    if (success) {
-      alert('Post created!');
-      setContent('');
-      setTopic('');
-      setImageFile(null);
-      setImagePreview(null);
-      onClose();
-    } else {
-      alert('Failed to create post. Try again.');
+      if (success) {
+        alert('Post created!');
+        setContent('');
+        setTopic('');
+        setImageFile(null);
+        setImagePreview(null);
+        onClose();
+      } else {
+        alert('Failed to create post. Try again.');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert('An error occurred while posting.');
+    } finally {
+      setIsSubmitting(false); // Reset after everything
     }
-  } catch (error) {
-    console.error('Submission error:', error);
-    alert('An error occurred while posting.');
-  } finally {
-    setIsSubmitting(false); // Reset after everything
-  }
-};
+  };
 
   // Handler for crop complete
   const onCropComplete = (_: any, croppedAreaPixels: any) => {
@@ -155,7 +154,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} style={{ display: isOpen ? 'flex' : 'none' }} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
           <div className={styles.avatar}></div>
@@ -274,13 +273,13 @@ const [isSubmitting, setIsSubmitting] = useState(false);
           onChange={handleImageChange}
         />
         <div className={styles.footer}>
-       <button
-  className={styles.postBtn}
-  onClick={handleSubmit}
-  disabled={isSubmitting}
->
-  {isSubmitting ? 'Posting...' : 'Post'}
-</button>
+          <button
+            className={styles.postBtn}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Posting...' : 'Post'}
+          </button>
           <button
             className={styles.imageBtn}
             onClick={() => {

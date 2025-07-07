@@ -407,7 +407,7 @@
   max-width: calc(20% - 2rem);
 }
 
-/* Glass Bell styles */
+/* Glass Bell styles (copied from BiblePage.module.css) */
 .glassBellContainer {
   position: relative;
   display: flex;
@@ -433,7 +433,6 @@
   overflow: hidden;
 }
 
-/* Add a subtle reflection effect */
 .glassBell::after {
   content: '';
   position: absolute;
@@ -574,8 +573,41 @@
     width: 100%;
     justify-content: center;
   }
+  .mainContainer {
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+  }
+  .mainMid {
+    width: 100%;
+    max-width: 100vw;
+    padding: 0.5rem 0.5rem 0 0.5rem;
+    margin: 0;
+  }
+  .verseContainer {
+    width: auto;
+    max-width: 100vw;
+    margin: 2.5rem 2.5rem 1.5rem 2.5rem;
+    padding: 1.2rem 0.5rem;
+    box-sizing: border-box;
+  }
   .cardContainer {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1.5rem;
+    margin: 0;
+  }
+  .card {
+    width: auto;
+    max-width: 100vw;
+    margin: 2.5rem 2.5rem 1.5rem 2.5rem;
+    box-sizing: border-box;
+    padding: 1.2rem 0.5rem;
+    border-radius: 12px;
+    background: #1E2B48;
   }
   .navItem {
     padding: 0.75rem;
@@ -584,5 +616,122 @@
   .navIcon {
     font-size: 1.3rem;
     margin-right: 0.75rem;
+  }
+  .hamburgerMenu {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    z-index: 1001;
+    position: absolute;
+    left: 10px;
+    top: 18px;
+  }
+  .mobileTopButtons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    width: 100%;
+    z-index: 1001;
+  }
+  .menuBtn, .streakBtn {
+    z-index: 1001;
+    background: #1E2B48;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    margin: 0 0.5rem;
+  }
+  .fabStreak {
+    display: block;
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1002;
+    background: #2d3a5a;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    font-size: 2rem;
+    align-items: center;
+    justify-content: center;
+  }
+  .headerLeft {
+    justify-content: center;
+    width: 100% !important;
+  }
+  /* Add margin to post list container (background: #1E2B48) to match card margin */
+  .mainMid > div > div[style*='background-color: #1E2B48'] {
+    margin: 0 2.5rem 1.5rem 2.5rem !important;
+  }
+  /* Add margin to post cards under 'See what's going on...' */
+  .mainMid > div > div[style*='background'] > div > div {
+    margin: 0 16px 1.5rem 16px !important;
+  }
+  .mainLeft {
+    width: 80vw;
+    min-width: 0;
+    max-width: 80vw;
+    background: #1e2b48;
+    border-right: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0;
+  }
+  .mainLeftUp {
+    width: 100%;
+    padding: 0;
+    margin-top: 3.5rem;
+    gap: 0;
+  }
+  .mainLeftBottom {
+    width: 100%;
+    padding: 0;
+    margin-bottom: 2rem;
+    gap: 0;
+  }
+  .navItem {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    margin: 0;
+    background: none;
+    border: none;
+    color: inherit;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+  }
+  .navIcon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    width: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .navText {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileTopButtons, .fabStreak {
+    display: none !important;
   }
 }

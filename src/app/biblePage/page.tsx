@@ -447,15 +447,61 @@ export default function HomePage() {
   }
 };
 
+const [isMobile, setIsMobile] = useState(false);
+const [openSide, setOpenSide] = useState<'left' | 'right' | null>(null);
 
+useEffect(() => {
+  const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  return () => window.removeEventListener('resize', checkMobile);
+}, []);
 
+const handleOpenSide = (side: 'left' | 'right') => {
+  setOpenSide(prev => (prev === side ? null : side));
+};
+const handleCloseOverlay = () => setOpenSide(null);
+
+// Add state for streak modal
+const [showStreakModal, setShowStreakModal] = useState(false);
+
+const [showBookDropdown, setShowBookDropdown] = useState(false);
+const dropdownRef = useRef<HTMLDivElement>(null);
+
+// Close dropdown when clicking outside
+useEffect(() => {
+  function handleClickOutside(event: MouseEvent) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setShowBookDropdown(false);
+    }
+  }
+  if (showBookDropdown) {
+    document.addEventListener('mousedown', handleClickOutside);
+  }
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, [showBookDropdown]);
 
   return (
     <div className={styles.body}>
       {/* Header Section */}
       <header className={styles.header}>
         <div className={styles.headerContainer}>
-          <div className={styles.headerLeft}>
+          {/* Hamburger menu for mobile */}
+          {isMobile && (
+            <button
+              className={styles.hamburgerMenu}
+              aria-label={openSide === 'left' ? 'Close Menu' : 'Open Menu'}
+              onClick={() => handleOpenSide('left')}
+              style={{ position: 'absolute', left: 10, top: 18, zIndex: 1001, background: 'none', border: 'none', display: isMobile ? 'block' : 'none' }}
+            >
+              {openSide === 'left' ? null : (
+                <span>&#9776;</span> // Hamburger icon
+              )}
+            </button>
+          )}
+          <div className={styles.headerLeft} style={isMobile ? { justifyContent: 'center', width: '100%' } : {}}>
             <LOGO style={{ width: 100, height: 100 }} /><h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
 
@@ -514,39 +560,99 @@ export default function HomePage() {
       {/* Main Content Section */}
       <main className={styles.main}>
         <div className={styles.mainContainer}>
-          {/* Left Navigation Panel */}
+          {/* Mobile: show/hide left nav as sidebar, floating streak button */}
+          {isMobile && openSide && (
+            <div onClick={handleCloseOverlay} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 999 }} />
+          )}
+          {isMobile && openSide === 'left' && (
+            <div
+              className={styles.mainLeft + ' ' + styles.mobileSidebar}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                height: '100vh',
+                width: '80vw',
+                background: '#1e2b48',
+                zIndex: 1000,
+                boxShadow: '2px 0 8px rgba(0,0,0,0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between'
+              }}
+            >
+              {/* Close button */}
+              <button
+                onClick={handleCloseOverlay}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#FFE8A3',
+                  fontSize: '2rem',
+                  position: 'absolute',
+                  left: 16,
+                  top: 16,
+                  zIndex: 1001,
+                  cursor: 'pointer'
+                }}
+                aria-label="Close Menu"
+              >
+                &#10005;
+              </button>
+              <div style={{ marginTop: '3.5rem' }}>
+                <button className={styles.navItem} onClick={homePage}>
+                  <div className={styles.navIcon}><Home /></div>
+                  <span className={styles.navText}>Home</span>
+                </button>
+                <button className={styles.navItem}>
+                  <div className={styles.navIcon}><Fire /></div>
+                  <span className={styles.navText}>Popular</span>
+                </button>
+                <button className={styles.navItem} onClick={handleBibleClick}>
+                  <div className={styles.navIcon}><Bible /></div>
+                  <span className={styles.navText}>Bible</span>
+                </button>
+              </div>
+              <div style={{ marginBottom: '2rem' }}>
+                <button className={styles.navItem}>
+                  <div className={styles.navIcon}><About /></div>
+                  <span className={styles.navText}>About</span>
+                </button>
+                <button className={styles.navItem} onClick={goToHelp}>
+                  <div className={styles.navIcon}><Help /></div>
+                  <span className={styles.navText}>Help</span>
+                </button>
+              </div>
+            </div>
+          )}
+          {!isMobile && (
           <div className={styles.mainLeft}>
             <div className={styles.mainLeftUp}>
-
               <button className={styles.navItem} onClick={homePage}>
                 <div className={styles.navIcon}><Home /></div>
                 <span className={styles.navText}>Home</span>
               </button>
-
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><Fire /></div>
                 <span className={styles.navText}>Popular</span>
               </div>
-
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><Bible /></div>
                 <span className={styles.navText}>Bible</span>
               </div>
             </div>
-
             <div className={styles.mainLeftBottom}>
               <div className={styles.navItem}>
                 <div className={styles.navIcon}><About /></div>
                 <span className={styles.navText}>About</span>
               </div>
-
               <button className={styles.navItem} onClick={goToHelp}>
                 <div className={styles.navIcon}><Help /></div>
                 <span className={styles.navText}>Help</span>
               </button>
             </div>
           </div>
-
+          )}
           {/* Middle Content Area - Now Scrollable */}
           <div className={styles.mainMid}>
             <div className={styles.navContainer}>
@@ -561,17 +667,34 @@ export default function HomePage() {
                   <span className={styles.navText}>Saved Chapters</span>
                   <div className={styles.navIcon}><SaveChapIcon /></div>
                 </button>
-                <div className={styles.dropdown}>
-                  <button className={styles.navBibleOp}>
+                <div className={styles.dropdown} ref={dropdownRef}>
+                  <button
+                    className={styles.navBibleOp}
+                    onClick={e => {
+                      if (isMobile) {
+                        e.stopPropagation();
+                        setShowBookDropdown(prev => !prev);
+                      }
+                    }}
+                    type="button"
+                  >
                     <span className={styles.navText}>Book ▾</span>
                   </button>
-                  <div className={styles.dropdownMenu}>
+                  <div
+                    className={styles.dropdownMenu}
+                    style={{
+                      display: isMobile ? (showBookDropdown ? 'block' : 'none') : undefined
+                    }}
+                  >
                     {Object.keys(bibleBooks).map((book) => (
                       <div
                         key={book}
                         className={styles.dropdownItem}
-                        onMouseEnter={() => setHoveredBook(book)}
-                        onMouseLeave={() => setHoveredBook(null)}
+                        onMouseEnter={() => { if (!isMobile) setHoveredBook(book); }}
+                        onMouseLeave={() => { if (!isMobile) setHoveredBook(null); }}
+                        onClick={() => {
+                          if (isMobile) setHoveredBook(book);
+                        }}
                         style={{ position: 'relative', display: 'block' }}
                       >
                         <div style={{ fontWeight: hoveredBook === book ? 'bold' : 'normal' }}>{book}</div>
@@ -584,6 +707,7 @@ export default function HomePage() {
                                 onClick={() => {
                                   handleBookClick(book, chapter);
                                   setHoveredBook(null);
+                                  setShowBookDropdown(false); // Close dropdown after selection
                                 }}
                               >
                                 {chapter}
@@ -595,7 +719,7 @@ export default function HomePage() {
                     ))}
                   </div>
                 </div>
-                {activeView !== 'daily' && (
+                {activeView !== 'daily' && activeView !== 'saveChapter' && (
                   <button className={styles.bookmarkbutton} onClick={() => handleBookmark(selectedBook, selectedChapter, session!.user!.id)}>
                     <div className={styles.navIcon}><Bookmark/></div>
                   </button>
@@ -704,8 +828,12 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right Section */}
-          <div className={styles.mainRight}>
+          {/* Right Section (Streak Plant) */}
+          {(!isMobile || openSide === 'right') && (
+            <div
+              className={styles.mainRight + (isMobile && openSide === 'right' ? ' ' + styles.mobileSidebar : '')}
+              style={isMobile ? { position: 'fixed', top: 0, right: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '-2px 0 8px rgba(0,0,0,0.2)' } : {}}
+            >
             <div className={styles.rightContainer}>
               <h3 className="headingMedium">Streak Plant!</h3>
 
@@ -717,6 +845,70 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+          )}
+          {/* Floating Streak Button for mobile */}
+          {isMobile && (
+            <>
+              <button
+                className={styles.fabStreak}
+                aria-label="Open Streak Plant"
+                onClick={() => setShowStreakModal(true)}
+              >
+                <span role="img" aria-label="Streak Plant">🌱</span>
+              </button>
+              {showStreakModal && (
+                <div style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  background: 'rgba(0,0,0,0.5)',
+                  zIndex: 2000,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <div style={{
+                    background: '#1e2b48',
+                    borderRadius: '18px',
+                    padding: '2rem 1.5rem 1.5rem 1.5rem',
+                    width: '90vw',
+                    maxWidth: 400,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}>
+                    <button
+                      onClick={() => setShowStreakModal(false)}
+                      style={{
+                        position: 'absolute',
+                        top: 16,
+                        right: 16,
+                        background: 'none',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: '2rem',
+                        cursor: 'pointer',
+                        zIndex: 10,
+                      }}
+                      aria-label="Close Streak Plant"
+                    >
+                      &#10005;
+                    </button>
+                    <h3 className="headingMedium" style={{ color: '#fff', marginBottom: '1.5rem' }}>Streak Plant!</h3>
+                    <div className={styles.glassBellContainer}>
+                      <div className={styles.glassBell}></div>
+                      <div className={styles.bellShadow}></div>
+                      <div className={styles.bellBase}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </main>
     </div>

@@ -604,70 +604,103 @@
 
 @media (max-width: 768px) {
   .header {
+    min-height: 70px;
     height: auto;
-    min-height: 10vh;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
   }
-
   .headerContainer {
-    flex-direction: column;
+    min-height: 70px;
+    padding: 0.5rem 0.5rem 0.5rem 3.5rem; /* leave space for burger */
+    flex-direction: row;
     align-items: center;
-    padding: 1rem;
+    justify-content: flex-start;
+    gap: 0.5rem;
   }
-
-  .headerLeft,
-  .headerMid,
+  .headerLeft {
+    min-width: 0;
+    width: auto;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.5rem;
+  }
   .headerRight {
-    width: 100%;
-    justify-content: center;
+    min-width: 0;
+    width: auto;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .brandName {
+    font-size: 2.2rem;
+    text-align: center;
     margin-bottom: 0.5rem;
   }
-
-  .navItem {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .navIcon {
-    font-size: 1.3rem;
-    margin-right: 0.75rem;
-  }
-
-  .splashSection {
-    padding: 2rem 1rem;
-    min-height: 40vh;
-  }
-
   .logoImage {
-    width: 150px;
+    width: 120px;
+    margin-bottom: 0.5rem;
   }
-
-  .brandName {
-    font-size: 2.5rem;
-  }
-
   .contentSection {
-    padding: 1.5rem 1rem;
+    flex-direction: column;
+    padding: 1.2rem 0.5rem;
+    min-height: unset;
+    margin-bottom: 1.2rem;
+    gap: 1rem;
   }
-
-  .sectionTitle {
-    font-size: 1.8rem;
+  .sectionLeft, .sectionRight {
+    width: 100%;
+    padding: 0;
+    margin-bottom: 1rem;
+    text-align: center;
   }
-
-  .sectionText {
-    font-size: 0.95rem;
-  }
-
   .sectionImage {
-    max-width: 100%;
+    max-width: 90vw;
+    width: 100%;
+    height: auto;
+    margin: 0 auto 1rem auto;
+    display: block;
   }
-  
   .contactSection {
-    padding: 1.5rem 1rem;
+    padding: 1.2rem 0.5rem;
+    margin-top: 1.2rem;
   }
-  
   .contactEmail {
     padding: 0.5rem 1rem;
     font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  .footerRow {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0 0.5rem 0;
+    align-items: center;
+  }
+  .footerColCenter {
+    display: none;
+  }
+  .footerColLeft, .footerColRight {
+    justify-content: center;
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+  .footerLogo {
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+  .footerLogoImg {
+    width: 35px !important;
+    height: auto !important;
+  }
+  .footerBrandName {
+    font-size: 1.1rem;
+  }
+  .footerBy {
+    font-size: 0.95rem;
+  }
+  .footerRightStack, .footerLeftStack {
+    align-items: center;
+    gap: 0.2rem;
   }
 }
 
@@ -705,4 +738,61 @@
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Burger menu button for mobile */
+.hamburgerMenu {
+  position: absolute;
+  left: 10px;
+  top: 18px;
+  z-index: 1001;
+  background: none;
+  border: none;
+  display: block;
+  font-size: 2.2rem;
+  color: #FFE8A3;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-width: 48px;
+  min-height: 48px;
+  line-height: 1;
+}
+
+.hamburgerMenu:active,
+.hamburgerMenu:focus {
+  background: rgba(255, 232, 163, 0.08);
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .header {
+    min-height: 70px;
+    height: auto;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .headerContainer {
+    min-height: 70px;
+    padding: 0.5rem 0.5rem 0.5rem 3.5rem; /* leave space for burger */
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+  .headerLeft {
+    min-width: 0;
+    width: auto;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .headerRight {
+    min-width: 0;
+    width: auto;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.5rem;
+  }
 }

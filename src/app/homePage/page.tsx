@@ -327,14 +327,33 @@ export default function HomePage() {
   };
   const handleCloseOverlay = () => setOpenSide(null);
 
+  // Add state for streak modal
+  const [showStreakModal, setShowStreakModal] = useState(false);
+
   return (
 
     <div className={styles.body}>
       {/* Header Section */}
       <header className={styles.header}>
         <div className={styles.headerContainer}>
-          <div className={styles.headerLeft}>
-            <LOGO style={{ width: 100, height: 100 }} /><h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
+          {/* Hamburger menu for mobile */}
+          {isMobile && (
+            <button
+              className={styles.hamburgerMenu}
+              aria-label={openSide === 'left' ? 'Close Menu' : 'Open Menu'}
+              onClick={() => handleOpenSide('left')}
+              style={{ position: 'absolute', left: 10, top: 18, zIndex: 1001, background: 'none', border: 'none', display: isMobile ? 'block' : 'none' }}
+            >
+              {openSide === 'left' ? (
+                <span>&#10005;</span> // X icon
+              ) : (
+                <span>&#9776;</span> // Hamburger icon
+              )}
+            </button>
+          )}
+          <div className={styles.headerLeft} style={isMobile ? { justifyContent: 'center', width: '100%' } : {}}>
+            <LOGO style={{ width: 100, height: 100 }} />
+            <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
           <div className={styles.headerMid}>
             <FilteredSearchBar
@@ -389,17 +408,6 @@ export default function HomePage() {
       {/* Main Content Section */}
       <main className={styles.main}>
         <div className={styles.mainContainer}>
-          {/* Mobile popout buttons */}
-          {isMobile && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-              <button onClick={() => handleOpenSide('left')} style={{ zIndex: 1001 }}>
-                {openSide === 'left' ? 'Close Menu' : 'Menu'}
-              </button>
-              <button onClick={() => handleOpenSide('right')} style={{ zIndex: 1001 }}>
-                {openSide === 'right' ? 'Close Streak' : 'Streak'}
-              </button>
-            </div>
-          )}
           {/* Left Navigation Panel */}
           {(!isMobile || openSide === 'left') && (
             <div
@@ -589,7 +597,7 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Right Section */}
+          {/* Right Section (Streak Plant) */}
           {(!isMobile || openSide === 'right') && (
             <div
               className={styles.mainRight + (isMobile && openSide === 'right' ? ' ' + styles.mobileSidebar : '')}
@@ -597,7 +605,6 @@ export default function HomePage() {
             >
               <div className={styles.rightContainer}>
                 <h3 className="headingMedium">Streak Plant!</h3>
-
                 {/* Glass Bell Component */}
                 <div className={styles.glassBellContainer}>
                   <div className={styles.glassBell}></div>
@@ -606,6 +613,70 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+          )}
+          {/* Floating Streak Button for mobile */}
+          {isMobile && (
+            <>
+              <button
+                className={styles.fabStreak}
+                aria-label="Open Streak Plant"
+                onClick={() => setShowStreakModal(true)}
+              >
+                <span role="img" aria-label="Streak Plant">🌱</span>
+              </button>
+              {showStreakModal && (
+                <div style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  background: 'rgba(0,0,0,0.5)',
+                  zIndex: 2000,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <div style={{
+                    background: '#1e2b48',
+                    borderRadius: '18px',
+                    padding: '2rem 1.5rem 1.5rem 1.5rem',
+                    position: 'relative',
+                    minWidth: '320px',
+                    maxWidth: '90vw',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}>
+                    <button
+                      onClick={() => setShowStreakModal(false)}
+                      style={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 16,
+                        background: 'none',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: 32,
+                        cursor: 'pointer',
+                        zIndex: 10,
+                      }}
+                      aria-label="Close"
+                    >
+                      ×
+                    </button>
+                    <h2 style={{ color: '#fff', marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 600 }}>Streak Plant!</h2>
+                    <div className={styles.glassBellContainer}>
+                      <div className={styles.glassBell}></div>
+                      <div className={styles.bellShadow}></div>
+                      <div className={styles.bellBase}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
