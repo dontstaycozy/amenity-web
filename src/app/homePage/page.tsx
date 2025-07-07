@@ -98,7 +98,13 @@ export default function HomePage() {
   const archivedPage = () => {
     router.push('/archivedPage');
   };
-  const [verseOfTheDay, setVerseOfTheDay] = useState({ text: 'Loading...', reference: 'Loading...' });
+   const Popularpage = () => {
+
+    router.push('PopularPage');
+
+  }
+  const [verseOfTheDay, setVerseOfTheDay] = useState({ text: '', reference: '' });
+
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10); // e.g., '2024-06-07'
