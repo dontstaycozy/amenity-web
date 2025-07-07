@@ -136,3 +136,27 @@ main {
   height: 100%;
   width: 100%;
 }
+
+/* Custom styles for the amenity alert popup */
+.amenity-alert-popup {
+  border-radius: 16px;
+  font-family: 'Segoe UI Variable', 'Segoe UI Emoji', sans-serif;
+  background: #2563eb !important; /* Amenity blue, override default */
+  color: #fff !important; /* White text for contrast */
+}
+
+.amenity-alert-title {
+  color: #fff !important; /* White title for contrast on blue */
+}
+
+.amenity-alert-confirm {
+  background-color: #1e40af !important; /* Darker blue for button */
+  color: #fff !important;
+  border: none !important;
+}
+
+.amenity-alert-cancel {
+  background-color: #3b82f6 !important; /* Lighter blue for cancel */
+  color: #fff !important;
+  border: none !important;
+}

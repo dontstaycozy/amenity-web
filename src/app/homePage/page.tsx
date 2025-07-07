@@ -39,6 +39,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
+import StreakPlant from '../components/StreakPlant';
+import { getUserStreakAndHP, finishReading } from '../lib/streakService';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -53,6 +55,15 @@ function formatDate(dateString: string) {
 export default function HomePage() {
   const router = useRouter();
   const { data: session } = useSession();
+  // --- Streak Plant State ---
+  const [Stage, setStage] = useState<1 | 2 | 3 | 4>(1); // Default to stage 0
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    getUserStreakAndHP(session.user.id).then(data => {
+      setStage(data?.Stage ?? 1);
+    });
+  }, [session]);
 
   // Notification hook
   const {
@@ -568,10 +579,10 @@ export default function HomePage() {
                   <span className={styles.navText}>Home</span>
                 </div>
 
-                <button className={styles.navItem} onClick={() => router.push('/PopularPage')}>
-                  <div className={styles.navIcon}><Fire /></div>
-                  <span className={styles.navText}>Popular</span>
-                </button>
+              <button className={styles.navItem} onClick={() => router.push('/PopularPage')}>
+                <div className={styles.navIcon}><Fire /></div>
+                <span className={styles.navText}>Popular</span>
+              </button>
 
                 <button className={styles.navItem} onClick={biblePage}>
                   <div className={styles.navIcon}><Bible /></div>
@@ -746,22 +757,29 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Right Section (Streak Plant) */}
-          {(!isMobile || openSide === 'right') && (
-            <div
-              className={styles.mainRight + (isMobile && openSide === 'right' ? ' ' + styles.mobileSidebar : '')}
-              style={isMobile ? { position: 'fixed', top: 0, right: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '-2px 0 8px rgba(0,0,0,0.2)' } : {}}
-            >
-              <div className={styles.rightContainer}>
-                <h3 className="headingMedium">Streak Plant!</h3>
-                {/* Glass Bell Component */}
-                <div className={styles.glassBellContainer}>
-                  <div className={styles.glassBell}></div>
-                  <div className={styles.bellShadow}></div>
-                  <div className={styles.bellBase}></div>
-                </div>
-              </div>
-            </div>
+{/* Right Section (Streak Plant) */}
+{(!isMobile || openSide === 'right') && (
+  <div
+    className={styles.mainRight + (isMobile && openSide === 'right' ? ' ' + styles.mobileSidebar : '')}
+    style={isMobile ? { position: 'fixed', top: 0, right: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '-2px 0 8px rgba(0,0,0,0.2)' } : {}}
+  >
+    <div className={styles.rightContainer}>
+      <h3 className="headingMedium">Streak Plant!</h3>
+      {/* Glass Bell Component */}
+      <div className={styles.glassBellContainer}>
+        <div className={styles.bellBase}></div>
+        <div className={styles.bellShadow}></div>
+        <div className={styles.streakPlantInBell}>
+          <StreakPlant stage={Stage} />
+        </div>
+        <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+          <div className={styles.bellTop}></div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
           )}
           {/* Floating Streak Button for mobile */}
           {isMobile && (

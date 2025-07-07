@@ -32,6 +32,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
+import StreakPlant from '../components/StreakPlant';
+import { getUserStreakAndHP, finishReading } from '../lib/streakService';
 
 
 
@@ -289,6 +291,16 @@ export default function HomePage() {
   const [loadingSaved, setLoadingSaved] = useState(false);
   const [expandedChapters, setExpandedChapters] = useState<{ [id: number]: { loading: boolean, verses: any[] } }>({});
   const [searchSavedChapters, setSearchSavedChapters] = useState('');
+
+  // --- Streak Plant State ---
+  const [Stage, setStage] = useState<1 | 2 | 3 | 4>(1); // Default to stage 0
+
+useEffect(() => {
+  if (!session?.user?.id) return;
+  getUserStreakAndHP(session.user.id).then(data => {
+    setStage(data?.Stage ?? 1);
+  });
+}, [session]);
 
   // Toggle profile dropdown
   const toggleProfileMenu = () => {
@@ -858,14 +870,16 @@ useEffect(() => {
                   {dailyChapters.map(({ book, chapter }) => (
                     <DailyChapter key={book + chapter} book={book} chapter={chapter} />
                   ))}
-                  <button className={styles.finishReadingBtn} onClick={() => {
-                       if (session?.user?.id) {
-                      handleStreaks(session.user.id);
-                           }
-                    }
-                  }>
-                    Finish Reading
-                  </button>
+<button className={styles.finishReadingBtn} onClick={async () => {
+  if (session?.user?.id) {
+    await finishReading(session.user.id);
+    const data = await getUserStreakAndHP(session.user.id);
+    setStage(data?.Stage ?? 1);
+  }
+}}>
+  Finish Reading
+</button>
+
                 </>
               )}
               {activeView === 'saveChapter' && (
@@ -952,9 +966,18 @@ useEffect(() => {
 
               {/* Glass Bell Component */}
               <div className={styles.glassBellContainer}>
-                <div className={styles.glassBell}></div>
-                <div className={styles.bellShadow}></div>
+                {/* Shadow and Base at the bottom */}
                 <div className={styles.bellBase}></div>
+                
+                <div className={styles.bellShadow}></div>
+                {/* Streak Plant above the base and shadow */}
+                <div className={styles.streakPlantInBell}>
+                  <StreakPlant stage={Stage}/>
+                </div>
+                {/* Glass dome above everything, but visually transparent */}
+                <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+                  <div className={styles.bellTop}></div>
+                </div>
               </div>
             </div>
           </div>
