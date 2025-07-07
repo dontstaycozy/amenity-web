@@ -835,6 +835,21 @@
     font-weight: 500;
     letter-spacing: 0.02em;
   }
+  .notificationDropdown {
+    left: 0 !important;
+    right: 0 !important;
+    width: 96vw !important;
+    min-width: unset !important;
+    max-width: 96vw !important;
+    position: fixed !important;
+    top: 10vh !important;
+    z-index: 2001 !important;
+    margin: 0 auto !important;
+    border-radius: 12px !important;
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important;
+  }
 }
 
 @media (min-width: 769px) {

@@ -853,6 +853,20 @@
     margin-left: 0.25rem;
     margin-right: 0;
   }
+  .notificationDropdown {
+    position: fixed !important;
+    top: 60px !important; /* Adjust if your header is taller/shorter */
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 0 0 18px 18px !important;
+    z-index: 2002 !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    margin: 0 !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+  }
 }
 
 @media (min-width: 769px) {

@@ -180,14 +180,21 @@ interface Verse {
 function DailyChapter({ book, chapter }: DailyChapterProps) {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     setLoading(true);
+    setError(null);
     fetch(`https://bible-api.com/${encodeURIComponent(book)}+${chapter}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
       .then(data => setVerses(data.verses || []))
+      .catch(err => setError('Failed to fetch Bible data. Please try again later.'))
       .finally(() => setLoading(false));
   }, [book, chapter]);
   if (loading) return <p className="paragraph">Loading {book} {chapter}...</p>;
+  if (error) return <p className="paragraph" style={{ color: 'salmon' }}>{error}</p>;
   if (!verses.length) return <p className="paragraph">No data available for {book} {chapter}.</p>;
   return (
     <div style={{ marginBottom: '2rem' }}>
@@ -419,67 +426,67 @@ const Popularpage = () => {
     }
   };
 
-  const handleStreaks = async (userId: string) => {
-    const today = dayjs().format('YYYY-MM-DD'); // Local date string
+ const handleStreaks = async (userId: string) => {
+  const today = dayjs().format('YYYY-MM-DD'); // Local date string
 
-    // 1. Fetch the user's streak
-    const { data: streak, error } = await supadata
-      .from('streaks_input')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+  // 1. Fetch the user's streak
+  const { data: streak, error } = await supadata
+    .from('streaks_input')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
 
-    if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching streak:', error.message);
-      return;
-    }
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching streak:', error.message);
+    return;
+  }
 
-    if (!streak) {
-      // 2. No streak yet — insert new
-      const { error: insertError } = await supadata.from('streaks_input').insert({
-        user_id: userId,
-        streaknum: 1,
-        date: today,
-      });
+  if (!streak) {
+    // 2. No streak yet — insert new
+    const { error: insertError } = await supadata.from('streaks_input').insert({
+      user_id: userId,
+      streaknum: 1,
+      date: today,
+    });
 
-      if (insertError) {
-        console.error('Error inserting streak:', insertError.message);
-      } else {
-        console.log('New streak started for user:', userId);
-      }
-
-      return;
-    }
-
-    const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
-
-    // 3. If already updated today, do nothing
-    if (lastActiveDate === today) {
-      console.log('Streak already updated today.');
-      return;
-    }
-
-    // 4. Determine if streak should continue or reset
-    const isYesterday =
-      dayjs(streak.date).add(1, 'day').format('YYYY-MM-DD') === today;
-
-    const newCount = isYesterday ? streak.streaknum + 1 : 1;
-
-    // 5. Update streak
-    const { error: updateError } = await supadata
-      .from('streaks_input')
-      .update({
-        streaknum: newCount,
-        date: today,
-      })
-      .eq('user_id', userId);
-
-    if (updateError) {
-      console.error('Error updating streak:', updateError.message);
+    if (insertError) {
+      console.error('Error inserting streak:', insertError.message);
     } else {
-      console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
+      console.log('New streak started for user:', userId);
     }
-  };
+
+    return;
+  }
+
+  const lastActiveDate = dayjs(streak.date).format('YYYY-MM-DD');
+
+  // 3. If already updated today, do nothing
+  if (lastActiveDate === today) {
+    console.log('Streak already updated today.');
+    return;
+  }
+
+  // 4. Determine if streak should continue or reset
+  const isYesterday =
+    dayjs(streak.date).add(1, 'day').format('YYYY-MM-DD') === today;
+
+  const newCount = isYesterday ? streak.streaknum + 1 : 1;
+
+  // 5. Update streak
+  const { error: updateError } = await supadata
+    .from('streaks_input')
+    .update({
+      streaknum: newCount,
+      date: today,
+    })
+    .eq('user_id', userId);
+
+  if (updateError) {
+    console.error('Error updating streak:', updateError.message);
+  } else {
+    console.log(`Streak ${isYesterday ? 'continued' : 'reset'} for user:`, userId);
+  }
+};
 
 const [isMobile, setIsMobile] = useState(false);
 const [openSide, setOpenSide] = useState<'left' | 'right' | null>(null);
@@ -649,7 +656,7 @@ useEffect(() => {
                     <span>View Profile</span>
                   </div>
                   <div className={styles.dropdownItem}
-                    onClick={handleLogOut}>
+                  onClick={handleLogOut}>
                     <span><Logout /></span>
 
                     <span>Log Out</span>
@@ -852,10 +859,10 @@ useEffect(() => {
                     <DailyChapter key={book + chapter} book={book} chapter={chapter} />
                   ))}
                   <button className={styles.finishReadingBtn} onClick={() => {
-                    if (session?.user?.id) {
+                       if (session?.user?.id) {
                       handleStreaks(session.user.id);
+                           }
                     }
-                  }
                   }>
                     Finish Reading
                   </button>

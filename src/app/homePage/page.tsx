@@ -257,7 +257,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (timeLeft && session?.user?.id) {
-      checkstreaks();
+    checkstreaks();
     }
   }, [session?.user?.id]);
 

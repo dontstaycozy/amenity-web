@@ -99,6 +99,7 @@ export default function HelpPage() {
                             <span>&#9776;</span>
                         </button>
                     )}
+                    {/* X button inside sidebar when openSide is true (not in header) */}
                     <div className={styles.headerLeft}>
                         <LOGO style={{ width: 100, height: 100 }} />
                         <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
@@ -148,8 +149,8 @@ export default function HelpPage() {
             {/* Main Content Section */}
             <main className={styles.main}>
                 <div className={styles.mainContainer}>
-                    {/* Left Navigation Panel */}
-                    <div className={styles.mainLeft}>
+                    {/* Left Navigation Panel (desktop) */}
+                    <div className={styles.mainLeft} style={isMobile ? { display: 'none' } : {}}>
                         <div className={styles.mainLeftUp}>
                             <button className={styles.navItem} onClick={homePage}>
                                 <div className={styles.navIcon}><Home /></div>
@@ -177,7 +178,70 @@ export default function HelpPage() {
                     </div>
                     {/* Overlay for mobile popout */}
                     {isMobile && openSide && (
+                        <>
+                        {/* Overlay background */}
                         <div onClick={handleCloseOverlay} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 999 }} />
+                        {/* Sidebar menu */}
+                        <div
+                          className={styles.mainLeft + ' ' + styles.mobileSidebar}
+                          style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            height: '100vh',
+                            width: '80vw',
+                            background: '#1e2b48',
+                            zIndex: 1000,
+                            boxShadow: '2px 0 8px rgba(0,0,0,0.2)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          {/* Gold X button */}
+                          <button
+                            onClick={handleCloseOverlay}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#FFE8A3',
+                              fontSize: '2rem',
+                              position: 'absolute',
+                              left: 16,
+                              top: 16,
+                              zIndex: 1001,
+                              cursor: 'pointer',
+                            }}
+                            aria-label="Close Menu"
+                          >
+                            &#10005;
+                          </button>
+                          <div style={{ marginTop: '3.5rem' }}>
+                            <button className={styles.navItem} onClick={() => { handleCloseOverlay(); homePage(); }}>
+                              <div className={styles.navIcon}><Home /></div>
+                              <span className={styles.navText}>Home</span>
+                            </button>
+                            <button className={styles.navItem} onClick={() => { handleCloseOverlay(); router.push('/PopularPage'); }}>
+                              <div className={styles.navIcon}><Fire /></div>
+                              <span className={styles.navText}>Popular</span>
+                            </button>
+                            <button className={styles.navItem} onClick={() => { handleCloseOverlay(); biblePage(); }}>
+                              <div className={styles.navIcon}><Bible /></div>
+                              <span className={styles.navText}>Bible</span>
+                            </button>
+                          </div>
+                          <div style={{ marginBottom: '2rem' }}>
+                            <button className={styles.navItem} onClick={() => { handleCloseOverlay(); router.push('/aboutPage'); }}>
+                              <div className={styles.navIcon}><About /></div>
+                              <span className={styles.navText}>About</span>
+                            </button>
+                            <button className={styles.navItem} onClick={handleCloseOverlay}>
+                              <div className={styles.navIcon}><Help /></div>
+                              <span className={styles.navText}>Help</span>
+                            </button>
+                          </div>
+                        </div>
+                        </>
                     )}
                     {/* Middle Content Area - FAQ */}
                     <div className={styles.mainMid}>
