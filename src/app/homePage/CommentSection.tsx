@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import supadata from '../lib/supabaseclient';
 import { Arrow, Comments, Delete } from '@/app/components/svgs';
 import styles from './HomePage.module.css';
+import { Filter } from 'bad-words';
 
 interface Comment {
   id: number;
@@ -80,6 +81,20 @@ const CollapsibleText: React.FC<CollapsibleTextProps> = ({ text, maxLength = 150
   );
 };
 
+const badWords = [
+  'bad', 'word', 'example', 'inappropriate', 'profanity', 'curse', 'swear',
+  'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'piss', 'cock', 'dick',
+  'pussy', 'cunt', 'whore', 'slut', 'bastard', 'motherfucker', 'fucker',
+  'fucking', 'shitty', 'asshole', 'dumbass', 'jackass', 'dickhead', 'prick',
+  'twat', 'wanker', 'bollocks', 'bugger', 'bloody', 'chuff', 'stupid',
+  'knob', 'knobhead', 'minge', 'minger', 'minging',
+  'putangina', 'puta', 'gago', 'gaga', 'tanga', 'bobo', 'ulol', 'leche',
+  'lintik', 'bwisit', 'hayop', 'pakyu', 'punyeta', 'tarantado', 'peste',
+  'hindot', 'kantot', 'kantutan', 'salsal', 'jakol', 'bayag', 'puke',
+  'etits', 'pekpek', 'utong', 'susuka', 'iputok', 'burat', 'puchu', 'ampota',
+  'animal', 'buwisit', 'syet', 'syota', 'pakyut'
+];
+
 const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [repliesMap, setRepliesMap] = useState<Record<number, Reply[]>>({});
@@ -87,6 +102,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [commentsOpen, setCommentsOpen] = useState(false);
+
+  const filter = new Filter();
+  filter.addWords(...badWords);
 
   const fetchComments = async () => {
     setLoading(true);
@@ -149,10 +167,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
   setError(null);
 
   try {
+    // Filter comment content
+    const cleanComment = filter.clean(newComment);
     // Step 1: Insert the comment
     const { error: commentError } = await supadata.from('post_comments').insert([
       {
-        content: newComment,
+        content: cleanComment,
         post_id: postId,
         user_id: currentUserId,
         created_at: new Date().toISOString(),

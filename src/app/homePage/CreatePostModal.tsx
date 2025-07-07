@@ -6,6 +6,7 @@ import { Image, Edit, Close } from '@/app/components/svgs';
 import supadata from '../lib/supabaseclient';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from './cropImage';
+import { Filter } from 'bad-words';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -73,6 +74,20 @@ async function addPost(
   return true;
 }
 
+const badWords = [
+  'bad', 'word', 'example', 'inappropriate', 'profanity', 'curse', 'swear',
+  'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'piss', 'cock', 'dick',
+  'pussy', 'cunt', 'whore', 'slut', 'bastard', 'motherfucker', 'fucker',
+  'fucking', 'shitty', 'asshole', 'dumbass', 'jackass', 'dickhead', 'prick',
+  'twat', 'wanker', 'bollocks', 'bugger', 'bloody', 'chuff', 'stupid',
+  'knob', 'knobhead', 'minge', 'minger', 'minging',
+  'putangina', 'puta', 'gago', 'gaga', 'tanga', 'bobo', 'ulol', 'leche',
+  'lintik', 'bwisit', 'hayop', 'pakyu', 'punyeta', 'tarantado', 'peste',
+  'hindot', 'kantot', 'kantutan', 'salsal', 'jakol', 'bayag', 'puke',
+  'etits', 'pekpek', 'utong', 'susuka', 'iputok', 'burat', 'puchu', 'ampota',
+  'animal', 'buwisit', 'syet', 'syota', 'pakyut'
+];
+
 const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, username }) => {
   if (!isOpen) return null;
 
@@ -84,6 +99,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, user
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+
+  const filter = new Filter();
+  filter.addWords(...badWords);
 
   useEffect(() => {
     return () => {
@@ -118,7 +136,11 @@ const [isSubmitting, setIsSubmitting] = useState(false);
       }
     }
 
-    const success = await addPost(content, imageUrl, topic, username);
+    // Filter topic and content
+    const cleanTopic = filter.clean(topic);
+    const cleanContent = filter.clean(content);
+
+    const success = await addPost(cleanContent, imageUrl, cleanTopic, username);
 
     if (success) {
       alert('Post created!');
