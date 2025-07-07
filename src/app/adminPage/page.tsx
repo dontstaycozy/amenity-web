@@ -30,6 +30,33 @@ import {
 } from 'chart.js';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// Define interfaces for User, Post, Streak
+interface User {
+  username: string;
+  email: string;
+  password: string;
+  last_login: string | null;
+  status: 'active' | 'suspended';
+  userId?: string; // for mapping
+}
+
+interface Post {
+  id: number;
+  user_id: string;
+  topic: string;
+  content: string;
+  image_url?: string;
+  created_at?: string;
+  flagged?: boolean;
+}
+
+interface Streak {
+  user_id: string;
+  streaknum: number;
+  date: string;
+  user?: { username?: string; email?: string } | null;
+}
+
 // Helper to generate a random password
 function generatePassword(length = 10) {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
@@ -42,7 +69,6 @@ function generatePassword(length = 10) {
 
 export default function HomePage() {
   const { data: session } = useSession();
-  const router = useRouter();
   // State for profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showUserTable, setShowUserTable] = useState(false);
@@ -50,9 +76,9 @@ export default function HomePage() {
   const [showStreaksTable, setShowStreaksTable] = useState(false);
   const [showLoginStats, setShowLoginStats] = useState(false);
   const [showRegistrationStats, setShowRegistrationStats] = useState(false);
-  const [users, setUsers] = useState<unknown[]>([]);
-  const [posts, setPosts] = useState<unknown[]>([]);
-  const [streaks, setStreaks] = useState<unknown[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [streaks, setStreaks] = useState<Streak[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingStreaks, setLoadingStreaks] = useState(false);
@@ -64,7 +90,7 @@ export default function HomePage() {
   const [deletingPostId, setDeletingPostId] = useState<number | null>(null);
   const [resettingStreak, setResettingStreak] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState<unknown | null>(null);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [loginStats, setLoginStats] = useState<{ [date: string]: number }>({});
   const [registrationStats, setRegistrationStats] = useState<{ [date: string]: number }>({});
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -117,13 +143,13 @@ function validateNotificationType(type: string) {
         .from('Users_Accounts')
         .select('username, email, password, last_login, status');
     if (!error && data) {
-        setUsers(data);
+        setUsers(data as User[]);
     }
     setLoadingUsers(false);
   }
 
   // Function to reset password and email the user
-  const handleResetPassword = async (user: unknown) => {
+  const handleResetPassword = async (user: User) => {
     setResettingUser(user.username);
   setResetMessage(null);
 
@@ -207,7 +233,7 @@ function validateNotificationType(type: string) {
   };
 
   // Function to suspend or unsuspend a user
-  const handleToggleSuspend = async (user: unknown) => {
+  const handleToggleSuspend = async (user: User) => {
      setSuspendingUser(user.username);
 
   const newStatus = user.status === 'suspended' ? 'active' : 'suspended';
@@ -284,12 +310,12 @@ const userId = data.userId; // ✅ now this will work
       .from('Users_Accounts')
       .select('userId, username'); 
     if (!error && data) {
-      setPosts(data);
+      setPosts(data as Post[]);
     }
     if (!usersError && usersData) {
       const map: { [userId: string]: string } = {};
-      usersData.forEach((user: any) => {
-        map[user.userId] = user.username;
+      (usersData as User[]).forEach((user) => {
+        if (user.userId && user.username) map[user.userId] = user.username;
       });
     }
     setLoadingPosts(false);
@@ -325,12 +351,12 @@ const userId = data.userId; // ✅ now this will work
         return;
       }
       // Map users by userId
-      const userMap = new Map();
-      (usersData || []).forEach(user => {
+      const userMap = new Map<string, { username?: string; email?: string }>();
+      (usersData || []).forEach((user: { userId: string; username?: string; email?: string }) => {
         userMap.set(user.userId, user);
       });
       // Attach user info to each streak (match user_id to user.userId)
-      const streaksWithUsers = (streaksData || []).map(streak => ({
+      const streaksWithUsers: Streak[] = (streaksData || []).map((streak: any) => ({
         ...streak,
         user: userMap.get(streak.user_id) || null
       }));
@@ -344,7 +370,7 @@ const userId = data.userId; // ✅ now this will work
   // Handler to reset a user's streak
   const handleResetStreak = async (userId: string) => {
     // Find the user info for confirmation
-    const streak = streaks.find(s => s.user_id === userId);
+    const streak = streaks.find((s) => s.user_id === userId);
     const username = streak?.user?.username || userId;
     
     // Show confirmation dialog
@@ -391,7 +417,7 @@ const userId = data.userId; // ✅ now this will work
   const handleDeletePost = async (postId: number) => {
     setDeletingPostId(postId);
 
-  const postToDelete = posts.find(p => p.id === postId);
+  const postToDelete = posts.find((p) => p.id === postId);
 
   if (!postToDelete) {
     console.error("⚠️ postToDelete is null — cannot insert delete notification.");
@@ -444,43 +470,34 @@ const userId = data.userId; // ✅ now this will work
   // Handler to flag or unflag a post as violation (toggle flagged field)
   const handleToggleFlagPost = async (postId: number, currentFlagged: boolean) => {
     setFlaggingPostId(postId);
-  const postToFlag = posts.find(p => p.id === postId);
-  const { error } = await supadata
-    .from('Posts')
-    .update({ flagged: !currentFlagged })
-    .eq('id', postId);
+    const postToFlag = posts.find((p) => p.id === postId);
+    const { error } = await supadata
+      .from('Posts')
+      .update({ flagged: !currentFlagged })
+      .eq('id', postId);
 
-
-  if (!error) {
-    setPosts(posts => posts.map(post => post.id === postId ? { ...post, flagged: !currentFlagged } : post));
-console.log("Flagging post for user:", postToFlag.user_id);
-    // Insert notification
-    if (postToFlag) {
-  
-  const { error } = await supadata
-    .from('notifications')
-    .insert({
-      user_id: postToFlag.user_id,
-      type: 'post_flag',
-      post_id: postId,
-      message: `Your post titled "${postToFlag.topic}" was flagged/unflagged by admin.`,
-      is_read: false,
-      created_at: new Date().toISOString(),
-      read_at: null
-    });
-
-  if (error) {
-    console.log('❌ Failed to insert flag notification:', error.message);
-  } else {
-    console.log('✅ Notification inserted for post flag');
-  }
-} else {
-  console.log('⚠️ postToFlag is null or undefined');
-}
-  } else {
-    alert('Failed to update flag status!');
-  }
-  setFlaggingPostId(null);
+    if (!error) {
+      setPosts(posts => posts.map(post => post.id === postId ? { ...post, flagged: !currentFlagged } : post));
+      if (postToFlag) {
+        // Insert notification
+        await supadata
+          .from('notifications')
+          .insert({
+            user_id: postToFlag.user_id,
+            type: 'post_flag',
+            post_id: postId,
+            message: `Your post titled "${postToFlag.topic}" was flagged/unflagged by admin.`,
+            is_read: false,
+            created_at: new Date().toISOString(),
+            read_at: null
+          });
+      } else {
+        console.log('⚠️ postToFlag is null or undefined');
+      }
+    } else {
+      alert('Failed to update flag status!');
+    }
+    setFlaggingPostId(null);
   };
 
   // Handler to show login statistics
@@ -586,7 +603,7 @@ console.log("Flagging post for user:", postToFlag.user_id);
   }, [showNotifications]);
 
   // Edit Post Modal component
-  function EditPostModal({ isOpen, onClose, post, onSave }: { isOpen: boolean, onClose: () => void, post: unknown, onSave: () => void }) {
+  function EditPostModal({ isOpen, onClose, post, onSave }: { isOpen: boolean, onClose: () => void, post: Post, onSave: () => void }) {
     const [topic, setTopic] = useState(post?.topic || '');
     const [content, setContent] = useState(post?.content || '');
     const [imagePreview, setImagePreview] = useState<string | null>(post?.image_url || null);
@@ -702,13 +719,13 @@ console.log("Flagging post for user:", postToFlag.user_id);
     setConfirmPassword('');
     setProfileMessage('');
     setShowProfileMenu(false);
-    if (session?.user?.id) {
+    if (session?.user && (session.user as any).id) {
       const { data, error } = await supadata
         .from('Users_Accounts')
         .select('email')
-        .eq('userId', session.user.id)
+        .eq('userId', (session.user as any).id)
         .single();
-      if (!error && data?.email) setProfileEmail(data.email);
+      // if (!error && data?.email) setProfileEmail(data.email); // Commented out, setProfileEmail not defined
     }
   };
 
@@ -1067,7 +1084,7 @@ console.log("Flagging post for user:", postToFlag.user_id);
                                 </button>
                                 {/* Flag as violation button */}
                                 <button
-                                  onClick={() => handleToggleFlagPost(post.id, post.flagged)}
+                                  onClick={() => handleToggleFlagPost(post.id, Boolean(post.flagged))}
                                   disabled={flaggingPostId === post.id}
                                   style={{
                                     color: 'white',
@@ -1249,12 +1266,14 @@ console.log("Flagging post for user:", postToFlag.user_id);
       </main>
 
       {/* Edit Post Modal */}
-      <EditPostModal
-        isOpen={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        post={editingPost}
-        onSave={() => handleShowPosts()}
-      />
+      {editModalOpen && editingPost && (
+        <EditPostModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          post={editingPost as Post}
+          onSave={() => handleShowPosts()}
+        />
+      )}
 
       {/* Edit Profile Modal */}
       {showProfileModal && (

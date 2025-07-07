@@ -2,7 +2,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import styles from '../homePage/HomePage.module.css';
 import popularStyles from './PopularPage.module.css';
-import { useSession } from 'next-auth/react';
 import supabase from '../lib/supabaseclient';
 import {
   About, Bell, Bible, Fire, Help, Home, Logout, Profile, Sun, LOGO, Like, Arrow, Comments,
@@ -10,6 +9,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationItem from '../components/NotificationItem';
+import StreakPlant from '../components/StreakPlant';
+import { getUserStreakAndHP } from '../lib/streakService';
+import { useSession } from 'next-auth/react';
 
 interface reply {
   id: number;
@@ -208,11 +210,11 @@ const CollapsibleComment: React.FC<CollapsibleCommentProps> = ({ comment }) => {
 // If Notification type is imported from notificationService, redefine locally for compatibility:
 type Notification = {
   id: string;
-  user_id?: string;
+  user_id: string;
   message: string;
   type: string;
-  is_read?: boolean;
-  created_at?: string;
+  is_read: boolean;
+  created_at: string;
   title?: string;
   icon?: string;
   timestamp?: Date | string | number;
@@ -222,6 +224,18 @@ type Notification = {
 
 export default function PopularPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+  
+  // --- Streak Plant State ---
+  const [Stage, setStage] = useState<1 | 2 | 3 | 4>(1); // Default to stage 1
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    getUserStreakAndHP(session.user.id).then(data => {
+      setStage(data?.Stage ?? 1);
+    });
+  }, [session]);
+
   const [popularPosts, setPopularPosts] = useState<Post[]>([]);
   const [trendingPosts, setTrendingPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -233,7 +247,10 @@ export default function PopularPage() {
   const notificationDropdownRef = useRef<HTMLDivElement>(null);
   const [openSide, setOpenSide] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery] = useState('');
+
+  // Add state for streak modal
+  const [showStreakModal, setShowStreakModal] = useState(false);
 
   const biblePage = () => router.push('/biblePage');
   const goToHelp = () => router.push('/helpPage');
@@ -649,10 +666,10 @@ export default function PopularPage() {
           <>
             <button
               className={styles.fabStreak}
-              aria-label="Show Streak Plant"
+              aria-label="Open Streak Plant"
               onClick={() => setShowStreakModal(true)}
             >
-              <span role="img" aria-label="plant">🌱</span>
+              <span role="img" aria-label="Streak Plant">🌱</span>
             </button>
             {showStreakModal && (
               <div style={{
@@ -702,6 +719,9 @@ export default function PopularPage() {
                     <div className={styles.glassBell}></div>
                     <div className={styles.bellShadow}></div>
                     <div className={styles.bellBase}></div>
+                    <div className={styles.streakPlantInBell}>
+                      <StreakPlant stage={Stage} />
+                    </div>
                   </div>
                 </div>
               </div>

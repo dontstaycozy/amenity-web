@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import supadata from '../lib/supabaseclient';
 import { Arrow, Comments, Delete } from '@/app/components/svgs';
 import styles from './HomePage.module.css';
@@ -106,7 +106,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
   const filter = new Filter();
   filter.addWords(...badWords);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -129,9 +129,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
 
-  const fetchReplies = async (commentIds: number[]) => {
+  const fetchReplies = useCallback(async (commentIds: number[]) => {
     if (commentIds.length === 0) return;
 
     try {
@@ -153,11 +153,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, currentUserId }
     } catch (err) {
       console.error('Failed to fetch replies:', JSON.stringify(err, null, 2));
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchComments();
-  }, [postId, fetchComments]);
+  }, [fetchComments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
      e.preventDefault();

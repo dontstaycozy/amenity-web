@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Like } from '@/app/components/svgs';
 import supadata from '../lib/supabaseclient';
 
@@ -13,7 +13,7 @@ const PostInteractions: React.FC<PostInteractionsProps> = ({ postId, currentUser
   const [userLike, setUserLike] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const fetchInteractionState = async () => {
+  const fetchInteractionState = useCallback(async () => {
     const { data: interactions } = await supadata
       .from('post_interactions')
       .select('likes, user_id')
@@ -24,11 +24,11 @@ const PostInteractions: React.FC<PostInteractionsProps> = ({ postId, currentUser
       const user = interactions.find(i => i.user_id === currentUserId);
       setUserLike(user?.likes === 1);
     }
-  };
+  }, [postId, currentUserId]);
 
   useEffect(() => {
     if (currentUserId) fetchInteractionState();
-  }, [postId, currentUserId, fetchInteractionState]);
+  }, [fetchInteractionState]);
 
   const sendLikeNotification = async () => {
     const { data: postData, error: postError } = await supadata

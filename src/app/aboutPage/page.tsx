@@ -287,8 +287,8 @@ export default function AboutPage() {
                 <div className={styles.sectionLeft}>
                   <h2 className={styles.sectionTitle}>Our Story!</h2>
                   <p className={styles.sectionText}>
-                    Building Amenity was our first big project—and it wasn't easy. With just a month to finish it, we learned while coding, faced many bugs, and grew through the process.<br />
-                    Wilfred Justin Peteros led as project manager and full-stack developer. Louielyn Abella handled UI/UX and frontend, Mary Claire worked full-stack, and Joram Zhient Entice managed the backend and database. Despite the challenges, we're proud of what we built together.
+                    Building Amenity was our first big project—and it wasn&apos;t easy. With just a month to finish it, we learned while coding, faced many bugs, and grew through the process.<br />
+                    Wilfred Justin Peteros led as project manager and full-stack developer. Louielyn Abella handled UI/UX and frontend, Mary Claire worked full-stack, and Joram Zhient Entice managed the backend and database. Despite the challenges, we&apos;re proud of what we built together.
                   </p>
                 </div>
                 <div className={styles.sectionRight}>
