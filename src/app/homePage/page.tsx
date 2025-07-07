@@ -39,6 +39,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
+import StreakPlant from '../components/StreakPlant';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -371,6 +372,9 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Mock plant stage for demonstration
+  const [plantStage] = useState<1 | 2 | 3 | 4>(1);
+
   return (
 
     <div className={styles.body}>
@@ -529,10 +533,10 @@ export default function HomePage() {
                 <span className={styles.navText}>Home</span>
               </div>
 
-                <button className={styles.navItem} onClick={() => router.push('/PopularPage')}>
-                  <div className={styles.navIcon}><Fire /></div>
-                  <span className={styles.navText}>Popular</span>
-                </button>
+              <button className={styles.navItem} onClick={() => router.push('/PopularPage')}>
+                <div className={styles.navIcon}><Fire /></div>
+                <span className={styles.navText}>Popular</span>
+              </button>
 
               <button className={styles.navItem} onClick={biblePage}>
                 <div className={styles.navIcon}><Bible /></div>
@@ -710,7 +714,11 @@ export default function HomePage() {
 
               {/* Glass Bell Component */}
               <div className={styles.glassBellContainer}>
-                <div className={styles.glassBell}></div>
+                <div className={styles.glassBell}>
+                  {/* Streak Plant inside the bell */}
+                  <div className={styles.bellTop}></div>
+                  <StreakPlant stage={plantStage}/>
+                </div>
                 <div className={styles.bellShadow}></div>
                 <div className={styles.bellBase}></div>
               </div>
