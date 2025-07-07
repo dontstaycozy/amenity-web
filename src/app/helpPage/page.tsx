@@ -21,6 +21,23 @@ import FAQItem from './FAQItem';
 import { faqList } from './FAQdata';
 import { signOut } from 'next-auth/react';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
+import { useNotifications } from '../hooks/useNotifications';
+import NotificationItem from '../components/NotificationItem';
+
+// If Notification type is imported from notificationService, redefine locally for compatibility:
+type Notification = {
+  id: string;
+  user_id?: string;
+  message: string;
+  type: string;
+  is_read?: boolean;
+  created_at?: string;
+  title?: string;
+  icon?: string;
+  timestamp?: Date | string | number;
+  isRead?: boolean;
+  actionUrl?: string;
+};
 
 export default function HelpPage() {
     const router = useRouter();
@@ -82,7 +99,30 @@ export default function HelpPage() {
         signOut({ callbackUrl: "/loginPage" });
     }
     // Add navigation for Help/About if you want
+    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+    const [showNotificationMenu, setShowNotificationMenu] = useState(false);
+    const notificationDropdownRef = useRef<HTMLDivElement>(null);
+    const toggleNotificationMenu = () => {
+        setShowNotificationMenu(!showNotificationMenu);
+    };
 
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                notificationDropdownRef.current &&
+                !notificationDropdownRef.current.contains(event.target as Node)
+            ) {
+                setShowNotificationMenu(false);
+            }
+        }
+        if (showNotificationMenu) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showNotificationMenu]);
+    
     return (
         <div className={styles.body}>
             {/* Header Section */}
@@ -114,7 +154,40 @@ export default function HelpPage() {
                         />
                     </div>
                     <div className={styles.headerRight}>
-                        <span className={styles.headerIcon}><Bell /></span>
+                        <div className={styles.notificationContainer} ref={notificationDropdownRef}>
+                            <span className={styles.headerIcon} onClick={toggleNotificationMenu}>
+                                <Bell />
+                                {unreadCount > 0 && (
+                                    <div className={styles.notificationBadge}>
+                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                    </div>
+                                )}
+                            </span>
+                            {showNotificationMenu && (
+                                <div className={styles.notificationDropdown}>
+                                    <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <h3 style={{ color: '#f5f0e9', fontSize: '1rem', fontWeight: '600', margin: 0 }}>Notifications</h3>
+                                        {unreadCount > 0 && (
+                                            <button
+                                                onClick={e => { e.stopPropagation(); markAllAsRead(); }}
+                                                style={{ background: 'none', border: 'none', color: '#ffe8a3', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+                                            >
+                                                Mark all as read
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                        {notifications.length === 0 ? (
+                                            <div style={{ padding: '2rem 1.25rem', textAlign: 'center', color: '#8b9cb3' }}>No notifications</div>
+                                        ) : (
+                                            notifications.map(notification => (
+                                                <NotificationItem key={notification.id} notification={notification as Notification} onMarkAsRead={markAsRead} />
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         {/* Profile Icon with Dropdown */}
                         <div className={styles.profileContainer} ref={profileDropdownRef}>
                             <span
