@@ -73,7 +73,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose }) 
           alert("User not authenticated.");
           return;
         }
-        const updateObj: any = {};
+        const updateObj: unknown = {};
         if (newUsername) updateObj.username = newUsername;
         if (uploadedImageUrl) updateObj.image_url = uploadedImageUrl;
         const { error: usernameError } = await supadata

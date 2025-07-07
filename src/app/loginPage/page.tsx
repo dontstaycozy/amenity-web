@@ -52,13 +52,6 @@ async function addData(username: string, password: string, email: string): Promi
 }
 
 
-// Add JSX namespace declaration
-declare namespace JSX {
-  interface IntrinsicElements {
-    [elemName: string]: any;
-  }
-}
-
 // Types
 interface FormState {
   username: string;

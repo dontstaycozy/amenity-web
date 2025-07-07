@@ -7,13 +7,10 @@ import {
   Bell,
   Bible,
   Fire,
-  Help,
   Home,
   Logout,
   Profile,
-  Search,
   Sun,
-  Create,
   LOGO
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';

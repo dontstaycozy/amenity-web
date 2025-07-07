@@ -1,13 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import supadata from '../lib/supabaseclient';
 import './forgotpass.css'; // ⬅️ Add this line to include the styles
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

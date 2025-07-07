@@ -2,14 +2,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import supadata from '../lib/supabaseclient';
-import { useSession } from 'next-auth/react';
 import './resetpass.css'; // ⬅️ Add this line to use styles
 
 export default function ChangePasswordPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
-  const { data: session } = useSession();
   const router = useRouter();
 
   const handleChangePassword = async (e: React.FormEvent) => {

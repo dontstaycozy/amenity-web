@@ -9,6 +9,8 @@ import {
 } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
+import { useNotifications } from '../hooks/useNotifications';
+import NotificationItem from '../components/NotificationItem';
 
 interface reply {
   id: number;
@@ -204,6 +206,21 @@ const CollapsibleComment: React.FC<CollapsibleCommentProps> = ({ comment }) => {
   );
 };
 
+// If Notification type is imported from notificationService, redefine locally for compatibility:
+type Notification = {
+  id: string;
+  user_id?: string;
+  message: string;
+  type: string;
+  is_read?: boolean;
+  created_at?: string;
+  title?: string;
+  icon?: string;
+  timestamp?: Date | string | number;
+  isRead?: boolean;
+  actionUrl?: string;
+};
+
 export default function PopularPage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -214,6 +231,13 @@ export default function PopularPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('trending');
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  // --- Burger menu state for mobile ---
+  const [openSide, setOpenSide] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showStreakModal, setShowStreakModal] = useState(false);
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const [showNotificationMenu, setShowNotificationMenu] = useState(false);
+  const notificationDropdownRef = useRef<HTMLDivElement>(null);
 
   const biblePage = () => router.push('/biblePage');
   const goToHelp = () => router.push('/helpPage');
@@ -229,6 +253,16 @@ export default function PopularPage() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleOpenSide = () => setOpenSide(true);
+  const handleCloseOverlay = () => setOpenSide(false);
 
   const fetchPopularPosts = async () => {
     setLoading(true);
@@ -458,17 +492,82 @@ export default function PopularPage() {
     </div>
   );
 
+  const toggleNotificationMenu = () => {
+    setShowNotificationMenu(!showNotificationMenu);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        notificationDropdownRef.current &&
+        !notificationDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowNotificationMenu(false);
+      }
+    }
+    if (showNotificationMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNotificationMenu]);
+
   return (
     <div className={styles.body}>
       <header className={styles.header}>
         <div className={styles.headerContainer}>
+          {/* Hamburger menu for mobile (only hamburger, no X here) */}
+          {isMobile && !openSide && (
+            <button
+              className={styles.hamburgerMenu}
+              aria-label="Open Menu"
+              onClick={handleOpenSide}
+              style={{ position: 'absolute', left: 10, top: 18, zIndex: 1001, background: 'none', border: 'none', display: isMobile ? 'block' : 'none' }}
+            >
+              <span>&#9776;</span> {/* Hamburger icon */}
+            </button>
+          )}
           <div className={styles.headerLeft}>
             <LOGO style={{ width: 100, height: 100 }} />
             <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
           </div>
           <div className={styles.headerRight}>
             {/* Notification Icon */}
-            <span className={styles.headerIcon}><Bell /> </span>
+            <div className={styles.notificationContainer} ref={notificationDropdownRef}>
+              <span className={styles.headerIcon} onClick={toggleNotificationMenu}>
+                <Bell />
+                {unreadCount > 0 && (
+                  <div className={styles.notificationBadge}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </div>
+                )}
+              </span>
+              {showNotificationMenu && (
+                <div className={styles.notificationDropdown}>
+                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ color: '#f5f0e9', fontSize: '1rem', fontWeight: '600', margin: 0 }}>Notifications</h3>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={e => { e.stopPropagation(); markAllAsRead(); }}
+                        style={{ background: 'none', border: 'none', color: '#ffe8a3', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    {notifications.length === 0 ? (
+                      <div style={{ padding: '2rem 1.25rem', textAlign: 'center', color: '#8b9cb3' }}>No notifications</div>
+                    ) : (
+                      notifications.map(notification => (
+                        <NotificationItem key={notification.id} notification={notification as Notification} onMarkAsRead={markAsRead} />
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className={styles.profileContainer} ref={profileDropdownRef}>
               <span className={styles.headerIcon} onClick={() => setShowProfileMenu(!showProfileMenu)}>
                 <Profile />
@@ -484,10 +583,34 @@ export default function PopularPage() {
           </div>
         </div>
       </header>
-
       <main className={styles.main}>
         <div className={styles.mainContainer}>
-          <div className={styles.mainLeft}>
+          {/* Sidebar for desktop, or for mobile if openSide is true */}
+          {(!isMobile || openSide) && (
+            <div
+              className={styles.mainLeft}
+              style={isMobile ? { position: 'fixed', top: 0, left: 0, height: '100vh', width: '80vw', background: '#1e2b48', zIndex: 1000, boxShadow: '2px 0 8px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 0 } : {}}
+            >
+              {/* Close button for mobile sidebar */}
+              {isMobile && (
+                <button
+                  onClick={handleCloseOverlay}
+                  aria-label="Close Menu"
+                  style={{
+                    position: 'absolute',
+                    top: 18,
+                    left: 18,
+                    zIndex: 1100,
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '2rem',
+                    color: '#FFE8A3',
+                    cursor: 'pointer',
+                  }}
+                >
+                  &#10005;
+                </button>
+              )}
             <div className={styles.mainLeftUp}>
               <div className={styles.navItem} onClick={homePage}><div className={styles.navIcon}><Home /></div><span className={styles.navText}>Home</span></div>
               <div className={styles.navItem}><div className={styles.navIcon}><Fire /></div><span className={styles.navText}>Popular</span></div>
@@ -501,13 +624,18 @@ export default function PopularPage() {
               <button className={styles.navItem} onClick={goToHelp}><div className={styles.navIcon}><Help /></div><span className={styles.navText}>Help</span></button>
             </div>
           </div>
-
+          )}
+          {/* Overlay for mobile popout */}
+          {isMobile && openSide && (
+            <div onClick={handleCloseOverlay} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 999 }} />
+          )}
           <div className={styles.mainMid}>
             {renderToggleButtons()}
             {viewMode === 'trending' && renderPosts(trendingPosts, 'Top 10 Trending Posts', 'trending')}
             {viewMode === 'liked' && renderPosts(popularPosts, 'Top 10 Most Liked Posts', 'liked')}
           </div>
-
+          {/* Only show right sidebar on desktop/tablet, not on mobile */}
+          {!isMobile && (
           <div className={styles.mainRight}>
             <div className={styles.rightContainer}>
               <h3 className="headingMedium">Streak Plant!</h3>
@@ -518,7 +646,72 @@ export default function PopularPage() {
               </div>
             </div>
           </div>
+          )}
         </div>
+        {/* Floating Streak Plant Button for Mobile */}
+        {isMobile && (
+          <>
+            <button
+              className={styles.fabStreak}
+              aria-label="Show Streak Plant"
+              onClick={() => setShowStreakModal(true)}
+            >
+              <span role="img" aria-label="plant">🌱</span>
+            </button>
+            {showStreakModal && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                background: 'rgba(0,0,0,0.5)',
+                zIndex: 2000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <div style={{
+                  background: '#1e2b48',
+                  borderRadius: '18px',
+                  padding: '2rem 1.5rem 1.5rem 1.5rem',
+                  position: 'relative',
+                  minWidth: '320px',
+                  maxWidth: '90vw',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}>
+                  <button
+                    onClick={() => setShowStreakModal(false)}
+                    style={{
+                      position: 'absolute',
+                      top: 12,
+                      right: 16,
+                      background: 'none',
+                      border: 'none',
+                      color: '#fff',
+                      fontSize: 32,
+                      cursor: 'pointer',
+                      zIndex: 10,
+                    }}
+                    aria-label="Close"
+                  >
+                    ×
+                  </button>
+                  <h2 style={{ color: '#fff', marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 600 }}>Streak Plant!</h2>
+                  <div className={styles.glassBellContainer}>
+                    <div className={styles.glassBell}></div>
+                    <div className={styles.bellShadow}></div>
+                    <div className={styles.bellBase}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </main>
     </div>
   );

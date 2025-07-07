@@ -14,7 +14,7 @@ export const options: NextAuthOptions = {
         mode: { label: "Mode", type: "text" },
       },
       async authorize(credentials) {
-        const { username, password, email, mode } = credentials as any;
+        const { username, password, email, mode } = credentials as unknown;
         console.log("Received credentials in authorize:", credentials);
 
         if (mode === "resetpassword") {
@@ -172,7 +172,7 @@ export const options: NextAuthOptions = {
       // For credentials-based users
       if (user && !token.id) {
         token.id = user.id;
-        token.role = (user as any).role;
+        token.role = (user as unknown).role;
         token.email = user.email;
         token.name = user.name;
       }
@@ -183,7 +183,7 @@ export const options: NextAuthOptions = {
     async session({ session, token }) {
       if (token?.id) {
         session.user.id = token.id as string;
-        (session.user as any).role = token.role as string;
+        (session.user as unknown).role = token.role as string;
         session.user.name = token.name as string; // ✅ Add the correct username to the session
       }
       return session;

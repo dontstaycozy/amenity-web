@@ -89,27 +89,27 @@ export async function POST(request: NextRequest) {
         messageId: result.messageId
       });
       
-    } catch (emailError: any) {
-      console.error('⚠️ Email sending failed:', emailError.message);
+    } catch (emailError: unknown) {
+      console.error('⚠️ Email sending failed:', emailError);
       console.error('📧 Email error details:', {
-        code: emailError.code,
-        command: emailError.command,
-        response: emailError.response,
-        responseCode: emailError.responseCode
+        code: emailError?.code,
+        command: emailError?.command,
+        response: emailError?.response,
+        responseCode: emailError?.responseCode
       });
       
       return NextResponse.json({
         error: 'Failed to send email.',
-        details: emailError.message,
-        code: emailError.code
+        details: emailError,
+        code: emailError?.code
       }, { status: 500 });
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in password reset email:', error);
     return NextResponse.json({
-      error: error.message || 'Failed to process request',
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      error: error?.message || 'Failed to process request',
+      details: process.env.NODE_ENV === 'development' ? error?.stack : undefined,
     }, { status: 500 });
   }
 } 

@@ -12,7 +12,6 @@ import {
   Home,
   Logout,
   Profile,
-  Search,
   Sun,
   LOGO,
   Close,
