@@ -45,7 +45,7 @@ const PostInteractions: React.FC<PostInteractionsProps> = ({ postId, currentUser
           message: `Someone liked your post.`,
           is_read: false,
           created_at: new Date(),
-        }
+        },
       ]);
     }
   };
