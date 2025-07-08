@@ -3,6 +3,13 @@ import type { NextAuthOptions } from "next-auth";
 import supadata from "@/app/lib/supabaseclient";
 import GoogleProvider from "next-auth/providers/google";
 
+interface Credentials {
+  username?: string;
+  password?: string;
+  email?: string;
+  mode?: string;
+}
+
 export const options: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -13,13 +20,15 @@ export const options: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         mode: { label: "Mode", type: "text" },
       },
-      async authorize(credentials) {
-        const { username, password, email, mode } = credentials as unknown;
+      async authorize(credentials: Credentials | undefined) {
+        if (!credentials) return null;
+        
+        const { username, password, email, mode } = credentials;
         console.log("Received credentials in authorize:", credentials);
 
         if (mode === "resetpassword") {
           try {
-            const { error } = await supadata.auth.resetPasswordForEmail(email, {
+            const { error } = await supadata.auth.resetPasswordForEmail(email!, {
               redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/resetpassword`,
             });
 
@@ -122,18 +131,18 @@ export const options: NextAuthOptions = {
         try {
           const email = user.email?.toLowerCase().trim();
 
-          const { data: existingUser, error: _error } = await supadata
+          const { data: existingUser, error: selectError } = await supadata
             .from("Users_Accounts")
             .select("userId, role, username") // include username
             .eq("email", email)
             .single();
 
-          if (error && error.code !== "PGRST116") {
-            console.error("Supabase select error:", error);
+          if (selectError && selectError.code !== "PGRST116") {
+            console.error("Supabase select error:", selectError);
           }
 
           if (!existingUser) {
-            const { data: newUser, error: _insertError } = await supadata
+            const { data: newUser, error: insertError } = await supadata
               .from("Users_Accounts")
               .insert([
                 {
@@ -147,9 +156,9 @@ export const options: NextAuthOptions = {
               .select("userId, role, username")
               .single();
 
-            if (error) {
-              console.error("Supabase insert error:", error.message);
-            } else {
+            if (insertError) {
+              console.error("Supabase insert error:", insertError.message);
+            } else if (newUser) {
               token.id = newUser.userId;
               token.role = newUser.role;
               token.name = newUser.username;
@@ -172,7 +181,7 @@ export const options: NextAuthOptions = {
       // For credentials-based users
       if (user && !token.id) {
         token.id = user.id;
-        token.role = (user as unknown).role;
+        token.role = (user as any).role;
         token.email = user.email;
         token.name = user.name;
       }
@@ -183,7 +192,7 @@ export const options: NextAuthOptions = {
     async session({ session, token }) {
       if (token?.id) {
         session.user.id = token.id as string;
-        (session.user as unknown).role = token.role as string;
+        (session.user as any).role = token.role as string;
         session.user.name = token.name as string; // ✅ Add the correct username to the session
       }
       return session;

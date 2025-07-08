@@ -189,7 +189,7 @@ export default function HomePage() {
         .select('id, post_id')
         .eq('user_id', session.user.id);
       if (!error && data) {
-        setArchivedPostIds(new Set(data.map((row: unknown) => row.post_id)));
+        setArchivedPostIds(new Set(data.map((row: any) => row.post_id)));
       }
     };
     fetchArchivedPosts();
