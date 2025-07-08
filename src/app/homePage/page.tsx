@@ -401,6 +401,10 @@ export default function HomePage() {
   // Add state for streak modal
   const [showStreakModal, setShowStreakModal] = useState(false);
 
+  const homePage = () => {
+    router.push('/homePage');
+  };
+
   return (
 
     <div className={styles.body}>
@@ -423,8 +427,10 @@ export default function HomePage() {
             </button>
           )}
           <div className={styles.headerLeft} style={isMobile ? { justifyContent: 'center', width: '100%' } : {}}>
-            <LOGO style={{ width: 100, height: 100 }} />
-            <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
+            <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={homePage} tabIndex={0} role="button" aria-label="Go to Home Page" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') homePage(); }}>
+              <LOGO style={{ width: 100, height: 100 }} />
+              <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive", marginLeft: 8 }}>Amenity</h3>
+            </div>
           </div>
           <div className={styles.headerMid}>
             <FilteredSearchBar

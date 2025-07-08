@@ -121,8 +121,10 @@ export default function HelpPage() {
                     )}
                     {/* X button inside sidebar when openSide is true (not in header) */}
                     <div className={styles.headerLeft}>
-                        <LOGO style={{ width: 100, height: 100 }} />
-                        <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive" }}>Amenity</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={homePage} tabIndex={0} role="button" aria-label="Go to Home Page" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') homePage(); }}>
+                          <LOGO style={{ width: 100, height: 100 }} />
+                          <h3 className="headingMedium" style={{ fontFamily: "'Segoe Script', cursive", marginLeft: 8 }}>Amenity</h3>
+                        </div>
                     </div>
                     <div className={styles.headerMid}>
                         <FilteredSearchBar
@@ -308,7 +310,15 @@ export default function HelpPage() {
                     {/* Right Section */}
                     {!isMobile && (
                       <div className={styles.mainRight}>
+                        <div className={styles.rightContainer}>
+                          <h3 className="headingMedium">Streak Plant!</h3>
+                          <div className={styles.glassBellContainer}>
+                            <div className={styles.glassBell}></div>
+                            <div className={styles.bellShadow}></div>
+                            <div className={styles.bellBase}></div>
+                          </div>
                         </div>
+                      </div>
                     )}
                 </div>
                 {/* Floating Streak Button for mobile */}
