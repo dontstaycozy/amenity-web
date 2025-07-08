@@ -141,22 +141,38 @@ main {
 .amenity-alert-popup {
   border-radius: 16px;
   font-family: 'Segoe UI Variable', 'Segoe UI Emoji', sans-serif;
-  background: #2563eb !important; /* Amenity blue, override default */
-  color: #fff !important; /* White text for contrast */
+  background: #1E2B48 !important; /* New background color */
+  color: #E0C58F !important; /* Yellow text for contrast */
 }
 
 .amenity-alert-title {
-  color: #fff !important; /* White title for contrast on blue */
+  color: #E0C58F !important; /* Yellow title */
+}
+
+.amenity-alert-text {
+  color: #F5F0E9 !important; /* Off-white for alert body text */
+}
+
+.swal2-html-container, .swal2-content, .swal2-text {
+  color: #F5F0E9 !important; /* Off-white for alert body text fallback */
 }
 
 .amenity-alert-confirm {
-  background-color: #1e40af !important; /* Darker blue for button */
-  color: #fff !important;
+  background: #2563eb !important; /* Button background */
+  color: #F5F0E9 !important; /* Off-white text */
+  border-radius: 8px !important;
+  font-weight: 600 !important;
   border: none !important;
 }
 
+.amenity-alert-confirm:focus, .amenity-alert-confirm:hover {
+  background: #1E2B48 !important;
+  color: #F5F0E9 !important;
+  border: 1px solid #E0C58F !important;
+}
+
 .amenity-alert-cancel {
-  background-color: #3b82f6 !important; /* Lighter blue for cancel */
+  background-color: #3b82f6 !important;
   color: #fff !important;
   border: none !important;
 }

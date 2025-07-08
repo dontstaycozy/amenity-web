@@ -17,6 +17,7 @@ export function amenityAlert(
       title: "amenity-alert-title",
       confirmButton: "amenity-alert-confirm",
       cancelButton: "amenity-alert-cancel",
+      htmlContainer: "amenity-alert-text", // Added for custom text color
     },
   });
 }
