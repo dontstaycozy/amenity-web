@@ -858,12 +858,6 @@ export default function HomePage() {
         </div>
       </main>
       <EditProfileModal isOpen={showEditProfileModal} onClose={() => setShowEditProfileModal(false)} />
-      {/* Modal for creating a post */}
-      <CreatePostModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        username={session?.user?.name || ""}
-      />
     </div>
   );
 }

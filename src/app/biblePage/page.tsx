@@ -261,6 +261,8 @@ export default function HomePage() {
 
   // --- Streak Plant State ---
   const [Stage, setStage] = useState<1 | 2 | 3 | 4>(1); // Default to stage 0
+  // Track if daily reading is finished for today
+  const [finishedReadingToday, setFinishedReadingToday] = useState(false);
 
 useEffect(() => {
   if (!session?.user?.id) return;
@@ -843,14 +845,20 @@ useEffect(() => {
                   {dailyChapters.map(({ book, chapter }) => (
                     <DailyChapter key={book + chapter} book={book} chapter={chapter} />
                   ))}
-<button className={styles.finishReadingBtn} onClick={async () => {
-  if (session?.user?.id) {
-    await finishReading(session.user.id);
-    const data = await getUserStreakAndHP(session.user.id);
-    setStage(data?.Stage ?? 1);
-  }
-}}>
-  Finish Reading
+<button
+  className={styles.finishReadingBtn}
+  onClick={async () => {
+    if (session?.user?.id) {
+      await finishReading(session.user.id);
+      const data = await getUserStreakAndHP(session.user.id);
+      setStage(data?.Stage ?? 1);
+      setFinishedReadingToday(true);
+    }
+  }}
+  disabled={finishedReadingToday}
+  style={finishedReadingToday ? { background: '#aaa', color: '#fff', cursor: 'not-allowed' } : {}}
+>
+  {finishedReadingToday ? 'Finished' : 'Finish Reading'}
 </button>
 
                 </>
