@@ -310,81 +310,11 @@ export default function HelpPage() {
                     {/* Right Section */}
                     {!isMobile && (
                       <div className={styles.mainRight}>
-                        <div className={styles.rightContainer}>
-                          <h3 className="headingMedium">Streak Plant!</h3>
-                          <div className={styles.glassBellContainer}>
-                            <div className={styles.glassBell}></div>
-                            <div className={styles.bellShadow}></div>
-                            <div className={styles.bellBase}></div>
-                          </div>
-                        </div>
+                        
                       </div>
                     )}
                 </div>
-                {/* Floating Streak Button for mobile */}
-                {isMobile && (
-                  <>
-                    <button
-                      className={FAQstyles.fabStreak}
-                      aria-label="Open Streak Plant"
-                      onClick={() => setShowStreakModal(true)}
-                    >
-                      <span role="img" aria-label="Streak Plant">🌱</span>
-                    </button>
-                    {showStreakModal && (
-                      <div style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100vw',
-                        height: '100vh',
-                        background: 'rgba(0,0,0,0.5)',
-                        zIndex: 2000,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
-                        <div style={{
-                          background: '#1e2b48',
-                          borderRadius: '18px',
-                          padding: '2rem 1.5rem 1.5rem 1.5rem',
-                          position: 'relative',
-                          minWidth: '320px',
-                          maxWidth: '90vw',
-                          width: '100%',
-                          boxSizing: 'border-box',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                        }}>
-                          <button
-                            onClick={() => setShowStreakModal(false)}
-                            style={{
-                              position: 'absolute',
-                              top: 12,
-                              right: 16,
-                              background: 'none',
-                              border: 'none',
-                              color: '#fff',
-                              fontSize: 32,
-                              cursor: 'pointer',
-                              zIndex: 10,
-                            }}
-                            aria-label="Close"
-                          >
-                            ×
-                          </button>
-                          <h2 style={{ color: '#fff', marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 600 }}>Streak Plant!</h2>
-                          <div className={FAQstyles.glassBellContainer}>
-                            <div className={FAQstyles.glassBell}></div>
-                            <div className={FAQstyles.bellShadow}></div>
-                            <div className={FAQstyles.bellBase}></div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
+                
             </main>
         </div>
     );

@@ -19,15 +19,13 @@ const FilteredSearchBar: React.FC<FilteredSearchBarProps> = ({
   onDelete,
   showFilterChip = true,
 }: FilteredSearchBarProps) => {
-  const [inputValue, setInputValue] = React.useState(searchQuery);
-
   // Keep inputValue in sync if searchQuery changes from outside
   React.useEffect(() => {
-    setInputValue(searchQuery);
+    setSearchQuery(searchQuery);
   }, [searchQuery]);
 
   const handleSearch = () => {
-    setSearchQuery(inputValue);
+    setSearchQuery(searchQuery);
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -116,8 +114,8 @@ const FilteredSearchBar: React.FC<FilteredSearchBarProps> = ({
           minWidth: 0,
         }}
         placeholder={placeholder}
-        value={inputValue}
-        onChange={e => setInputValue(e.target.value)}
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
         onKeyDown={handleInputKeyDown}
         onBlur={e => e.currentTarget.style.boxShadow = ''}
       />
