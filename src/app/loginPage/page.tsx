@@ -8,6 +8,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { BsBoxArrowLeft } from 'react-icons/bs';
 import supadata from '../lib/supabaseclient';
+import { amenityAlert } from "../components/amenityAlert";
 
 
 console.log("type of: ", supadata);
@@ -109,11 +110,17 @@ const LogInForm = ({ onSwitch }: { onSwitch: () => void }) => {
           remember: false,
         });
         setError("");
-        if (session?.user && (session.user as any).role === 'admin') {
-          router.push('/adminPage');
-        } else {
-          router.push('/homePage');
-        }
+        amenityAlert(
+          "Login Successful!",
+          "Welcome back to Amenity.",
+          "success"
+        ).then(() => {
+          if (session?.user && (session.user as any).role === 'admin') {
+            router.push('/adminPage');
+          } else {
+            router.push('/homePage');
+          }
+        });
       } else {
         setForm({
           username: '',

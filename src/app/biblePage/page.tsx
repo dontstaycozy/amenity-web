@@ -30,6 +30,7 @@ import timezone from 'dayjs/plugin/timezone';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
 import StreakPlant from '../components/StreakPlant';
 import { getUserStreakAndHP, finishReading } from '../lib/streakService';
+import { amenityAlert } from "../components/amenityAlert";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -872,6 +873,11 @@ useEffect(() => {
       setFinishedReadingToday(true); // Mark as done for UI
       const data = await getUserStreakAndHP(session.user.id);
       setStage(data?.Stage ?? 1); // Update plant stage
+      amenityAlert(
+        "Daily Reading Complete!",
+        "Congratulations! You have completed your daily Bible reading for today.",
+        "success"
+      );
     }
   }}
   disabled={finishedReadingToday}
