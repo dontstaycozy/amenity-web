@@ -904,7 +904,7 @@ useEffect(() => {
                                 expandedChapters[item.id].loading ? (
                                   <div>Loading...</div>
                                 ) : (
-                                  expandedChapters[item.id].verses.map((v: unknown) => (
+                                  expandedChapters[item.id].verses.map((v: any) => (
                                     <span key={v.verse}><sup>{v.verse}</sup> {v.text} </span>
                                   ))
                                 )

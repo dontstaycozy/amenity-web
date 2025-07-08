@@ -21,7 +21,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose }) 
   const [uploading, setUploading] = useState(false);
 
   // Get current image_url from session or user (if available)
-  const currentImageUrl = session?.user?.image_url || null;
+  const currentImageUrl = (session?.user as any)?.image_url || null;
 
   if (!isOpen) return null;
 
@@ -74,7 +74,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose }) 
           alert("User not authenticated.");
           return;
         }
-        const updateObj: unknown = {};
+        const updateObj: any = {};
         if (newUsername) updateObj.username = newUsername;
         if (uploadedImageUrl) updateObj.image_url = uploadedImageUrl;
         const { error: usernameError } = await supadata

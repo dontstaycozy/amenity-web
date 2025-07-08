@@ -1,5 +1,5 @@
 // cropImage.ts
-export default function getCroppedImg(imageSrc: string, pixelCrop: unknown): Promise<string> {
+export default function getCroppedImg(imageSrc: string, pixelCrop: any): Promise<string> {
   return new Promise((resolve, reject) => {
     const image = new window.Image();
     image.src = imageSrc;

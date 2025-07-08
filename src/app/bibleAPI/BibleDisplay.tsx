@@ -114,7 +114,7 @@ export default function BibleDisplay({ selectedBook = "Genesis", selectedChapter
         const successful = results
           .filter((r): r is PromiseFulfilledResult<unknown> => r.status === "fulfilled")
           .map((r) => r.value);
-        const allVerses = successful.flatMap((chapter) => chapter.verses || []);
+        const allVerses = successful.flatMap((chapter: any) => chapter.verses || []);
         setVerses(allVerses);
         setReference(book);
       }

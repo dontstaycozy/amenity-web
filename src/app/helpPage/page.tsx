@@ -20,21 +20,7 @@ import { faqList } from './FAQdata';
 import FilteredSearchBar from '@/app/components/FilteredSearchBar';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationItem from '../components/NotificationItem';
-
-// If Notification type is imported from notificationService, redefine locally for compatibility:
-type Notification = {
-  id: string;
-  user_id?: string;
-  message: string;
-  type: string;
-  is_read?: boolean;
-  created_at?: string;
-  title?: string;
-  icon?: string;
-  timestamp?: Date | string | number;
-  isRead?: boolean;
-  actionUrl?: string;
-};
+import { signOut } from 'next-auth/react';
 
 export default function HelpPage() {
     const router = useRouter();
@@ -175,7 +161,7 @@ export default function HelpPage() {
                                             <div style={{ padding: '2rem 1.25rem', textAlign: 'center', color: '#8b9cb3' }}>No notifications</div>
                                         ) : (
                                             notifications.map(notification => (
-                                                <NotificationItem key={notification.id} notification={notification as Notification} onMarkAsRead={markAsRead} />
+                                                <NotificationItem key={notification.id} notification={notification} onMarkAsRead={markAsRead} />
                                             ))
                                         )}
                                     </div>

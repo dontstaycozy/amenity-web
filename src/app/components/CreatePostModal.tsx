@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './CreatePostModal.module.css';
-import { Image, Edit, Close } from '@/app/components/svgs';
+import { Image as ImageIcon, Edit, Close } from '@/app/components/svgs';
 import supadata from '../lib/supabaseclient';
 import Cropper from 'react-easy-crop';
-import getCroppedImg from './cropImage';
+import getCroppedImg from '../homePage/cropImage';
 import { amenityAlert } from "../components/amenityAlert";
 import { Filter } from 'bad-words';
 import Image from 'next/image';
@@ -255,12 +255,10 @@ const success = await addPost(cleanContent, imageUrl, cleanTopic, username);
             >
               <Close width={20} height={20} />
             </button>
-            <Image
+            <img
               src={imagePreview}
               alt="Preview"
-              width={200}
-              height={100}
-              style={{ maxWidth: '100%', maxHeight: 100, borderRadius: 12 }}
+              style={{ maxWidth: '100%', maxHeight: 100, borderRadius: 12, width: 200, height: 100 }}
             />
           </div>
         )}
@@ -327,7 +325,7 @@ const success = await addPost(cleanContent, imageUrl, cleanTopic, username);
               if (input) input.click();
             }}
           >
-            <span><Image /></span>
+            <span><ImageIcon /></span>
           </button>
         </div>
       </div>

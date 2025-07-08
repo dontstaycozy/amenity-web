@@ -60,18 +60,14 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   };
 
   const handleClick = () => {
-    if (!notification.isRead) {
+    if (!notification.is_read) {
       onMarkAsRead(notification.id);
-    }
-    
-    if (notification.actionUrl) {
-      router.push(notification.actionUrl);
     }
   };
 
   return (
     <div 
-      className={`notification-item ${notification.isRead ? 'read' : 'unread'}`}
+      className={`notification-item ${notification.is_read ? 'read' : 'unread'}`}
       onClick={handleClick}
       style={{
         display: 'flex',
@@ -81,12 +77,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         transition: 'background-color 0.2s',
         borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
         fontSize: '0.9rem',
-        backgroundColor: notification.isRead ? 'transparent' : 'rgba(255, 232, 163, 0.05)',
+        backgroundColor: notification.is_read ? 'transparent' : 'rgba(255, 232, 163, 0.05)',
         position: 'relative'
       }}
     >
       {/* Unread indicator */}
-      {!notification.isRead && (
+      {!notification.is_read && (
         <div style={{
           position: 'absolute',
           left: '0.5rem',
@@ -109,14 +105,14 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         justifyContent: 'center',
         color: notification.type === 'bible_reminder' ? '#ffe8a3' : '#f5f0e9'
       }}>
-        {getIcon(notification.icon)}
+        {getIcon(notification.type)}
       </div>
 
       {/* Content */}
       <div style={{ flex: 1 }}>
         <div style={{
           color: '#f5f0e9',
-          fontWeight: notification.isRead ? 'normal' : '600',
+          fontWeight: notification.is_read ? 'normal' : '600',
           marginBottom: '0.25rem',
           lineHeight: '1.4'
         }}>
@@ -130,8 +126,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <span>{notification.title}</span>
-          <span>{formatTimeAgo(notification.timestamp)}</span>
+          <span>{notification.type}</span>
+          <span>{formatTimeAgo(new Date(notification.created_at))}</span>
         </div>
       </div>
     </div>
