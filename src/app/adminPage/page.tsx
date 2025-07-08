@@ -913,12 +913,7 @@ const userId = data.userId; // ✅ now this will work
                   <div className={styles.dropdownItem}
                   onClick = {() => signOut({callbackUrl: "/loginPage"})}>
                     <span><Logout /></span>
-
                     <span>Log Out</span>
-                  </div>
-                  <div className={styles.dropdownItem}>
-                    <span><Sun /></span>
-                    <span>Light Mode</span>
                   </div>
                 </div>
               )}

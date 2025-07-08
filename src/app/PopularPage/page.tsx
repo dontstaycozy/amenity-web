@@ -591,7 +591,6 @@ export default function PopularPage() {
                 <div className={styles.profileDropdown}>
                   <div className={styles.dropdownItem}><span><Profile /></span><span>View Profile</span></div>
                   <div className={styles.dropdownItem} onClick={logOut}><span><Logout /></span><span>Log Out</span></div>
-                  <div className={styles.dropdownItem}><span><Sun /></span><span>Light Mode</span></div>
                 </div>
               )}
             </div>
