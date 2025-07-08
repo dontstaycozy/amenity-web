@@ -18,8 +18,8 @@ const nextConfig: NextConfig = {
       rule?.test?.test?.('.svg')
     );
 
-    if (fileLoaderRule) {
-      fileLoaderRule.exclude = /\.svg$/;
+    if (fileLoaderRule && typeof fileLoaderRule === 'object' && 'exclude' in fileLoaderRule) {
+      (fileLoaderRule as any).exclude = /\.svg$/;
     }
 
     // Add SVGR loader for .svg files
