@@ -35,61 +35,61 @@ export async function getUserStreakAndHP(user_id: string) {
 // When user finishes reading, restore HP and increment streak
 export async function finishReading(user_id: string) {
   const today = dayjs().tz('Asia/Manila');
-const todayStr = today.format('YYYY-MM-DD');
+  const todayStr = today.format('YYYY-MM-DD');
 
-// ✅ Fetch the user's streak row (there should always be one)
-const { data: streak, error: fetchError } = await supadata
-  .from('streaks_input')
-  .select('*')
-  .eq('user_id', user_id)
-  .single();
+  // ✅ Fetch the user's streak row (there should always be one)
+  const { data: streak, error: fetchError } = await supadata
+    .from('streaks_input')
+    .select('*')
+    .eq('user_id', user_id)
+    .single();
 
-if (fetchError || !streak) {
-  console.error("❌ Error fetching user's streak row:", fetchError);
-  return { error: fetchError };
+  if (fetchError || !streak) {
+    console.error("❌ Error fetching user's streak row:", fetchError);
+    return { error: fetchError };
+  }
+
+  const lastDateStr = dayjs(streak.date).tz('Asia/Manila').format('YYYY-MM-DD');
+
+  // ✅ Already done today
+  if (lastDateStr === todayStr) {
+    console.log("⏭️ Already completed reading today.");
+    return { data: streak, error: null };
+  }
+
+  // 🧠 Calculate new streak and dynamic stage
+  const daysSinceLast = today.diff(dayjs(streak.date).tz('Asia/Manila'), 'day');
+
+  let newStreak = 1;
+  let newStage;
+
+  if (daysSinceLast === 1) {
+    newStreak = streak.streaknum + 1;
+    newStage = Math.max(streak.Stage - 1, 1); // 👈 decrease stage on successful read
+  } else if (daysSinceLast >= 3) {
+    newStage = 4; // max stage if 3 or more days skipped
+  } else {
+    newStage = Math.min(streak.Stage + daysSinceLast, 4);
+  }
+
+  // ✅ Update the existing row
+  const { data, error } = await supadata
+    .from('streaks_input')
+    .update({
+      date: todayStr,
+      streaknum: newStreak,
+      Stage: newStage
+    })
+    .eq('user_id', user_id);
+
+  if (error) {
+    console.error("❌ Failed to update streak:", error);
+  } else {
+    console.log("✅ Streak updated:", data);
+  }
+
+  return { data, error };
 }
 
-const lastDateStr = dayjs(streak.date).tz('Asia/Manila').format('YYYY-MM-DD');
-
-// ✅ Already done today
-if (lastDateStr === todayStr) {
-  console.log("⏭️ Already completed reading today.");
-  return { data: streak, error: null };
-}
-
-// 🧠 Calculate new streak and dynamic stage
-const daysSinceLast = today.diff(dayjs(streak.date).tz('Asia/Manila'), 'day');
-
-let newStreak = 1;
-let newStage;
-
-if (daysSinceLast === 1) {
-  newStreak = streak.streaknum + 1;
-  newStage = 1; // reset on continuation
-} else if (daysSinceLast >= 3) {
-  newStage = 4; // skip 3 or more days = max stage
-} else {
-  newStage = Math.min(streak.Stage + daysSinceLast, 4);
-}
-
-// ✅ Update the existing row
-const { data, error } = await supadata
-  .from('streaks_input')
-  .update({
-    date: todayStr,
-    streaknum: newStreak,
-    Stage: newStage
-  })
-  .eq('user_id', user_id);
-
-if (error) {
-  console.error("❌ Failed to update streak:", error);
-} else {
-  console.log("✅ Streak updated:", data);
-}
-
-return { data, error };
-
-}
 
 
