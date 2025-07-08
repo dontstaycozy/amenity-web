@@ -144,10 +144,6 @@ export default function AboutPage() {
                     <span><Logout /></span>
                     <span>Log Out</span>
                   </div>
-                  <div className={styles.dropdownItem}>
-                    <span><Sun /></span>
-                    <span>Light Mode</span>
-                  </div>
                 </div>
               )}
             </div>
