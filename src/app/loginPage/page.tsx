@@ -230,41 +230,73 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.username || !form.email || !form.password || !form.confirmPassword) {
-      setError("All fields are required.");
-      return;
-    }
+  if (!form.username || !form.email || !form.password || !form.confirmPassword) {
+    setError("All fields are required.");
+    return;
+  }
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+  if (form.password !== form.confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
 
-    const data_insertion = await addData(form.username, form.password, form.email);
+  // ✅ Check for existing email
+  const { data: existingEmail, error: emailError } = await supadata
+    .from('Users_Accounts')
+    .select('*')
+    .eq('email', form.email)
+    .maybeSingle();
 
+  if (existingEmail) {
+    setError("An account with this email already exists.");
+    return;
+  }
 
-    console.log('Insert result: ', data_insertion);
-    if (data_insertion) {
-      setForm({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-      });
+  if (emailError && emailError.code !== 'PGRST116') {
+    console.error("Error checking email:", emailError.message);
+    setError("Error checking email.");
+    return;
+  }
 
+  // ✅ Check for existing username
+  const { data: existingUsername, error: usernameError } = await supadata
+    .from('Users_Accounts')
+    .select('*')
+    .eq('username', form.username)
+    .maybeSingle();
 
-      setError("Sign up successful!");
+  if (existingUsername) {
+    setError("Username already taken.");
+    return;
+  }
 
-    } else {
-      setForm({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-      });
-      setError("failed to sign up");
-    }
+  if (usernameError && usernameError.code !== 'PGRST116') {
+    console.error("Error checking username:", usernameError.message);
+    setError("Error checking username.");
+    return;
+  }
 
+  // ✅ Proceed with registration
+  const data_insertion = await addData(form.username, form.password, form.email);
+
+  console.log('Insert result: ', data_insertion);
+  if (data_insertion) {
+    setForm({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+    setError("Sign up successful!");
+  } else {
+    setForm({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+    setError("Failed to sign up.");
+  }
   };
 
   return (
