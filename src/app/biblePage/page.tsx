@@ -177,11 +177,26 @@ function DailyChapter({ book, chapter }: DailyChapterProps) {
     </div>
   );
 }
-async function addbookmark(book: string, Chapter: number, userid: string): Promise<boolean> {
-
+// Update addbookmark to check for existing bookmark
+async function addbookmark(book: string, Chapter: number, userid: string): Promise<true | 'already_exists' | false> {
   const updatedAt = new Date().toISOString();
 
+  // Check if bookmark already exists
+  const { data: existing, error: checkError } = await supadata
+    .from('bookmarking')
+    .select('id')
+    .eq('Book_name', book)
+    .eq('chapter_number', Chapter)
+    .eq('user_id', userid)
+    .maybeSingle();
 
+  if (checkError) {
+    console.error('Error checking for existing bookmark:', checkError);
+    return false;
+  }
+  if (existing) {
+    return 'already_exists';
+  }
 
   const { data, error } = await supadata
     .from('bookmarking')
@@ -192,24 +207,21 @@ async function addbookmark(book: string, Chapter: number, userid: string): Promi
         user_id: userid,
         saved_at: updatedAt
       }
-
-    ])
-
+    ]);
 
   if (error) {
-    console.log("Sending insert:", {
+    console.log('Sending insert:', {
       Book_name: book,
       chapter_number: Chapter,
       user_id: userid,
       saved_at: updatedAt
     });
-    console.log("Insert failed (full error):");
+    console.log('Insert failed (full error):');
     console.dir(error, { depth: null });
     return false;
   }
   console.log('Insert success:', data);
   return true;
-
 }
 
 
@@ -360,14 +372,14 @@ const Popularpage = () => {
     };
   }, [profileDropdownRef, notificationDropdownRef]);
   const handleBookmark = async (book: string, chapter: number, username: string) => {
-    const success = await addbookmark(book, chapter, username)
-    if (success) {
+    const result = await addbookmark(book, chapter, username);
+    if (result === true) {
       console.log("Successful!");
-      alert("Bookmarked: " + book + chapter)
+      amenityAlert("Bookmarked!", `Bookmarked: ${book} ${chapter}`, "success");
+    } else if (result === 'already_exists') {
+      amenityAlert("Already Bookmarked", "This chapter is already in your bookmarks.", "info");
     } else {
-
-      alert("Failed!")
-
+      amenityAlert("Failed to bookmark", "Could not bookmark this chapter. Please try again.", "error");
     }
   };
 
@@ -393,8 +405,9 @@ const Popularpage = () => {
     const { error } = await supadata.from('bookmarking').delete().eq('id', id);
     if (!error) {
       setSavedChapters((prev) => prev.filter((item) => item.id !== id));
+      amenityAlert("Removed from bookmarks!", "This chapter was removed from your bookmarks.", "success");
     } else {
-      alert('Failed to delete bookmark. Please try again.');
+      amenityAlert('Failed to remove bookmark', 'Please try again.', 'error');
     }
   };
 

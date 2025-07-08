@@ -4,9 +4,9 @@ import Image from 'next/image';
 // Map plant stages to image filenames
 const stageToImage: Record<number, string> = {
   1: '/images/StreakPlantImages/Stage 1 Normal.gif', //placeholder for 3 hp left (full hp)
-  2: '/images/StreakPlantImages/Stage 2 to Stage 1.gif', //placeholder for 2 hp left
-  3: '/images/StreakPlantImages/Stage 3 to Stage 2.gif', //placeholder for 1 hp left
-  4: '/images/StreakPlantImages/Stage 4 to Stage 3.gif', //placeholder for 0 hp left
+  2: '/images/StreakPlantImages/Stage 2 Normal.gif', //placeholder for 2 hp left
+  3: '/images/StreakPlantImages/Stage 3 Normal.gif', //placeholder for 1 hp left
+  4: '/images/StreakPlantImages/Stage 4 Normal.gif', //placeholder for 0 hp left
 };
 
 interface StreakPlantProps {
