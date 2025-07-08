@@ -1,4 +1,5 @@
 'use client';
+import { usePathname } from 'next/navigation';
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './HomePage.module.css';
 import { useSession, signOut } from 'next-auth/react';
@@ -263,12 +264,13 @@ export default function HomePage() {
     };
     fetchPosts();
   }, []);
+const pathname = usePathname();
 
-  useEffect(() => {
-    if (timeLeft && session?.user?.id) {
+useEffect(() => {
+  if (session?.user?.id && pathname === '/homePage') {
     checkstreaks();
-    }
-  }, [session?.user?.id]);
+  }
+}, [session?.user?.id, pathname]);
 
 
   // Add handleDelete function
