@@ -187,4 +187,79 @@
   max-height: 500px;
   opacity: 1;
   padding-top: 8px;
-} 
+}
+
+/* Glass Bell styles (copied from BiblePage.module.css) */
+.glassBellContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-nd;
+  height: 25rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.glassBell {
+  width: 10rem;
+  height: 22rem;
+  background: rgba(200, 215, 225, 0.45);
+  border-radius: 5rem 5rem 2rem 2rem;
+  position: absolute;
+  left: 50%;
+  bottom: 2.5rem;
+  transform: translateX(-50%);
+  z-index: 4;
+  box-shadow:
+    inset 0 0 20px rgba(255, 255, 255, 0.2),
+    0 5px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.glassBell::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.2),
+      transparent);
+  border-radius: 5rem 5rem 0 0;
+}
+
+.bellShadow {
+  position: absolute;
+  bottom: 3.7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6rem;
+  height: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  z-index: 3;
+  filter: blur(5px);
+}
+
+.bellBase {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9.6rem;
+  height: 3.5rem;
+  background-color: #3a4d6b;
+  border-radius: 50%;
+  z-index: 3  ;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.streakPlantInBell {
+  position: absolute;
+  bottom: 3.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+}

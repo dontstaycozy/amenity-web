@@ -1003,9 +1003,14 @@ useEffect(() => {
                     </button>
                     <h3 className="headingMedium" style={{ color: '#fff', marginBottom: '1.5rem' }}>Streak Plant!</h3>
                     <div className={styles.glassBellContainer}>
-                      <div className={styles.glassBell}></div>
-                      <div className={styles.bellShadow}></div>
                       <div className={styles.bellBase}></div>
+                      <div className={styles.bellShadow}></div>
+                      <div className={styles.streakPlantInBell}>
+                        <StreakPlant stage={Stage} />
+                      </div>
+                      <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+                        <div className={styles.bellTop}></div>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -652,10 +652,20 @@ export default function PopularPage() {
           <div className={styles.mainRight}>
             <div className={styles.rightContainer}>
               <h3 className="headingMedium">Streak Plant!</h3>
+              {/* Glass Bell Component (copied structure from BiblePage) */}
               <div className={styles.glassBellContainer}>
-                <div className={styles.glassBell}></div>
-                <div className={styles.bellShadow}></div>
+                {/* Bell Base at the bottom */}
                 <div className={styles.bellBase}></div>
+                {/* Shadow above the base */}
+                <div className={styles.bellShadow}></div>
+                {/* Streak Plant above the base and shadow */}
+                <div className={styles.streakPlantInBell}>
+                  <StreakPlant stage={Stage} />
+                </div>
+                {/* Glass dome above everything, visually transparent */}
+                <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+                  <div className={styles.bellTop}></div>
+                </div>
               </div>
             </div>
           </div>
@@ -716,11 +726,13 @@ export default function PopularPage() {
                   </button>
                   <h2 style={{ color: '#fff', marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 600 }}>Streak Plant!</h2>
                   <div className={styles.glassBellContainer}>
-                    <div className={styles.glassBell}></div>
-                    <div className={styles.bellShadow}></div>
                     <div className={styles.bellBase}></div>
+                    <div className={styles.bellShadow}></div>
                     <div className={styles.streakPlantInBell}>
                       <StreakPlant stage={Stage} />
+                    </div>
+                    <div className={styles.glassBell} style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 2 }}>
+                      <div className={styles.bellTop}></div>
                     </div>
                   </div>
                 </div>

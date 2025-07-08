@@ -308,15 +308,7 @@ export default function HelpPage() {
                     {/* Right Section */}
                     {!isMobile && (
                       <div className={styles.mainRight}>
-                        <div className={styles.rightContainer}>
-                          <h3 className="headingMedium">Streak Plant!</h3>
-                          <div className={styles.glassBellContainer}>
-                            <div className={styles.glassBell}></div>
-                            <div className={styles.bellShadow}></div>
-                            <div className={styles.bellBase}></div>
-                          </div>
                         </div>
-                      </div>
                     )}
                 </div>
                 {/* Floating Streak Button for mobile */}
