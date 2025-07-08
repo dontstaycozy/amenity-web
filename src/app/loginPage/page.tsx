@@ -228,10 +228,16 @@ const SignUpForm = ({ onSwitch }: { onSwitch: () => void }) => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+   e.preventDefault();
 
   if (!form.username || !form.email || !form.password || !form.confirmPassword) {
     setError("All fields are required.");
+    return;
+  }
+
+  // ✅ Password minimum length
+  if (form.password.length < 6) {
+    setError("Password must be at least 6 characters long.");
     return;
   }
 
