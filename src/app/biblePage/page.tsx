@@ -536,7 +536,10 @@ useEffect(() => {
                   placeholder="Search in Saved Chapters..."
                   searchQuery={searchSavedChapters}
                   setSearchQuery={setSearchSavedChapters}
-                  onDelete={() => setSearchSavedChapters('')}
+                  onDelete={() => {
+                    setSearchSavedChapters('');
+                    homePage();
+                  }}
                   showFilterChip={true}
                 />
               )}
