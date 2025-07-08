@@ -179,6 +179,7 @@ export default function HomePage() {
 
   // Add state to track archived posts for the current user
   const [archivedPostIds, setArchivedPostIds] = useState<Set<number>>(new Set());
+  const [archivedCount, setArchivedCount] = useState<number>(0);
 
   // Fetch archived posts for the current user
   useEffect(() => {
@@ -190,6 +191,7 @@ export default function HomePage() {
         .eq('user_id', session.user.id);
       if (!error && data) {
         setArchivedPostIds(new Set(data.map((row: any) => row.post_id)));
+        setArchivedCount(data.length);
       }
     };
     fetchArchivedPosts();
@@ -314,6 +316,7 @@ export default function HomePage() {
           newSet.delete(postId);
           return newSet;
         });
+        setArchivedCount(prev => prev - 1);
       }
     } else {
       // Archive
@@ -329,6 +332,7 @@ export default function HomePage() {
 
       if (!error) {
         setArchivedPostIds(prev => new Set(prev).add(postId));
+        setArchivedCount(prev => prev + 1);
       }
     }
   };
@@ -619,7 +623,7 @@ export default function HomePage() {
                 </div>
                 <h3 className={styles.cardTitle}>Archives</h3>
                 <p className={styles.cardInfo}>Post Archive</p>
-                <p className={styles.cardInfo}>248 entries</p>
+                <p className={styles.cardInfo}>{archivedCount} entries</p>
               </div>
 
               <div className={styles.card} tabIndex={0} role="button"
