@@ -265,10 +265,23 @@ export default function HomePage() {
   const [finishedReadingToday, setFinishedReadingToday] = useState(false);
 
 useEffect(() => {
-  if (!session?.user?.id) return;
-  getUserStreakAndHP(session.user.id).then(data => {
-    setStage(data?.Stage ?? 1);
-  });
+ if (!session?.user?.id) return;
+
+  const init = async () => {
+    const data = await getUserStreakAndHP(session.user.id);
+    if (!data) return;
+
+    setStage(data.Stage ?? 1);
+
+    const today = dayjs().tz('Asia/Manila').format('YYYY-MM-DD');
+    const lastRead = dayjs(data.date).tz('Asia/Manila').format('YYYY-MM-DD');
+
+    if (lastRead === today) {
+      setFinishedReadingToday(true);
+    }
+  };
+
+  init();
 }, [session]);
 
   // Toggle profile dropdown
@@ -407,7 +420,7 @@ const Popularpage = () => {
     }
   };
 
- const handleStreaks = async (userId: string) => {
+ const handleStreaks = async (userId: string,  setFinishedReadingToday: (val: boolean) => void) => {
   const today = dayjs().format('YYYY-MM-DD'); // Local date string
 
   // 1. Fetch the user's streak
@@ -443,6 +456,7 @@ const Popularpage = () => {
 
   // 3. If already updated today, do nothing
   if (lastActiveDate === today) {
+    setFinishedReadingToday(true);
     console.log('Streak already updated today.');
     return;
   }
@@ -849,10 +863,15 @@ useEffect(() => {
   className={styles.finishReadingBtn}
   onClick={async () => {
     if (session?.user?.id) {
-      await finishReading(session.user.id);
+      const { alreadyFinishedToday } = await finishReading(session.user.id);
+      if (alreadyFinishedToday) {
+        setFinishedReadingToday(true);
+        return;
+      }
+
+      setFinishedReadingToday(true); // Mark as done for UI
       const data = await getUserStreakAndHP(session.user.id);
-      setStage(data?.Stage ?? 1);
-      setFinishedReadingToday(true);
+      setStage(data?.Stage ?? 1); // Update plant stage
     }
   }}
   disabled={finishedReadingToday}

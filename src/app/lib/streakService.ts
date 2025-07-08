@@ -34,7 +34,7 @@ export async function getUserStreakAndHP(user_id: string) {
 
 // When user finishes reading, restore HP and increment streak
 export async function finishReading(user_id: string) {
-  const today = dayjs().tz('Asia/Manila');
+    const today = dayjs().tz('Asia/Manila');
   const todayStr = today.format('YYYY-MM-DD');
 
   // ✅ Fetch the user's streak row (there should always be one)
@@ -46,7 +46,7 @@ export async function finishReading(user_id: string) {
 
   if (fetchError || !streak) {
     console.error("❌ Error fetching user's streak row:", fetchError);
-    return { error: fetchError };
+    return { error: fetchError, alreadyFinishedToday: false };
   }
 
   const lastDateStr = dayjs(streak.date).tz('Asia/Manila').format('YYYY-MM-DD');
@@ -54,7 +54,7 @@ export async function finishReading(user_id: string) {
   // ✅ Already done today
   if (lastDateStr === todayStr) {
     console.log("⏭️ Already completed reading today.");
-    return { data: streak, error: null };
+    return { data: streak, error: null, alreadyFinishedToday: true };
   }
 
   // 🧠 Calculate new streak and dynamic stage
@@ -88,7 +88,7 @@ export async function finishReading(user_id: string) {
     console.log("✅ Streak updated:", data);
   }
 
-  return { data, error };
+  return { data, error, alreadyFinishedToday: false };
 }
 
 
