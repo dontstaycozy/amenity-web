@@ -183,34 +183,33 @@ export default function AboutPage() {
                 </button>
               )}
               {/* Top nav items */}
-              <div style={{ marginTop: isMobile ? '3.5rem' : 0 }}>
-                <div className={styles.navItem} style={{ color: '#FFE8A3' }} onClick={goToHome}>
-                  <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Home /></div>
+              <div className={styles.mainLeftUp} style={{ marginTop: isMobile ? '3.5rem' : 0 }}>
+                <button className={styles.navItem} onClick={goToHome} style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left' }}>
+                  <div className={styles.navIcon}><Home /></div>
                   <span className={styles.navText}>Home</span>
-                </div>
-                <div className={styles.navItem} onClick={() => router.push('/PopularPage')}>
+                </button>
+                <button className={styles.navItem} onClick={() => router.push('/PopularPage')} style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left' }}>
                   <div className={styles.navIcon}><Fire /></div>
                   <span className={styles.navText}>Popular</span>
-                </div>
-                <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }} onClick={biblePage}>
-                  <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Bible /></div>
+                </button>
+                <button className={styles.navItem} onClick={biblePage} style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left' }}>
+                  <div className={styles.navIcon}><Bible /></div>
                   <span className={styles.navText}>Bible</span>
                 </button>
               </div>
               {/* Bottom nav items */}
-              <div style={{ marginBottom: isMobile ? '2.5rem' : 0 }}>
-                <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }}>
-                  <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><About /></div>
+              <div className={styles.mainLeftBottom} style={{ marginBottom: isMobile ? '2.5rem' : 0 }}>
+                <button className={styles.navItem} style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left' }}>
+                  <div className={styles.navIcon}><About /></div>
                   <span className={styles.navText}>About</span>
                 </button>
-                <button className={styles.navItem} style={{ color: '#FFE8A3', background: 'none', border: 'none', textAlign: 'left', width: '100%' }} onClick={goToHelp}>
-                  <div className={styles.navIcon} style={{ color: '#FFE8A3' }}><Help /></div>
+                <button className={styles.navItem} onClick={goToHelp} style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left' }}>
+                  <div className={styles.navIcon}><Help /></div>
                   <span className={styles.navText}>Help</span>
                 </button>
               </div>
             </div>
           )}
-
           {/* Overlay for mobile popout */}
           {isMobile && openSide && (
             <div onClick={handleCloseOverlay} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 999 }} />
