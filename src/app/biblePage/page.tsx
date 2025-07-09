@@ -377,7 +377,7 @@ const Popularpage = () => {
       console.log("Successful!");
       amenityAlert("Bookmarked!", `Bookmarked: ${book} ${chapter}`, "success");
     } else if (result === 'already_exists') {
-      amenityAlert("Already Bookmarked", "This chapter is already in your bookmarks.", "info");
+      amenityAlert("Already Bookmarked", "This chapter is already in your saved chapters.", "info");
     } else {
       amenityAlert("Failed to bookmark", "Could not bookmark this chapter. Please try again.", "error");
     }
