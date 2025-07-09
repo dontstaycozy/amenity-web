@@ -86,7 +86,7 @@ const badWords = [
   'lintik', 'bwisit', 'hayop', 'pakyu', 'punyeta', 'tarantado', 'peste',
   'hindot', 'kantot', 'kantutan', 'salsal', 'jakol', 'bayag', 'puke',
   'etits', 'pekpek', 'utong', 'susuka', 'iputok', 'burat', 'puchu', 'ampota',
-  'animal', 'buwisit', 'syet', 'syota', 'pakyut'
+  'animal', 'buwisit', 'syet', 'syota', 'pakyut', 'yawa'
 ];
 
 const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, username }) => {
